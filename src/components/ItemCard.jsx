@@ -1,7 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const ItemCard = ({ item }) => {
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+
+  const handleRent = () => {
+    if (!isLoggedIn) {
+      alert('Please log in to rent items!');
+      navigate('/login');
+    } else {
+      // Later we'll show item detail / booking flow
+      alert(`Ready to book: ${item.title}`);
+    }
+  };
+
   return (
     <motion.div
       className="group bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 relative"
@@ -13,7 +28,10 @@ const ItemCard = ({ item }) => {
       <div className="relative">
         <img src={item.imageUrl} alt={item.title} className="h-48 w-full object-cover group-hover:scale-105 transition duration-300" />
         <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
-          <button className="bg-white text-purple-700 font-semibold px-4 py-2 rounded-full shadow hover:bg-purple-100 transition">
+          <button
+            onClick={handleRent}
+            className="bg-white text-purple-700 font-semibold px-4 py-2 rounded-full shadow hover:bg-purple-100 transition"
+          >
             Rent Now
           </button>
         </div>
