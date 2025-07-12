@@ -4,8 +4,12 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Items from './pages/Items';
+import About from './pages/About';
 import Dashboard from './pages/Dashboard';
 import Navbar from './components/Navbar';
+import PrivateRoute from './components/PrivateRoute';
+import PostItem from './pages/PostItem';
+import BookItem from './pages/BookItem';
 
 const App = () => {
   return (
@@ -16,7 +20,10 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/items" element={<Items />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/items/add" element={<PrivateRoute><PostItem /></PrivateRoute>} />
+        <Route path="/book-item/:itemId" element={<PrivateRoute><BookItem /></PrivateRoute>} />
       </Routes>
     </Router>
   );
