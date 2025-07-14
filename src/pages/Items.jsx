@@ -3,8 +3,11 @@ import itemsData from '../data/items';
 import ItemCard from '../components/ItemCard';
 import FilterBar from '../components/FilterBar';
 import { motion } from 'framer-motion';
+import bgImage from '../assets/mitaoe.jpg';
+import { useTheme } from '../context/ThemeContext';
 
 const Items = () => {
+  const { theme } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState('default');
@@ -24,28 +27,22 @@ const Items = () => {
     });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-20">
-      {/* Header Section */}
-      <section className="bg-white shadow-soft">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <h1 className="text-3xl sm:text-4xl font-display font-bold text-gray-900 mb-4">
-              Explore Rentals
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed">
-              Discover everything you need for your academic journey, from textbooks to equipment
-            </p>
-          </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 pt-20 transition-colors duration-300">
+      {/* Header Section - Explore Rentals with mitaoe.jpg */}
+      <div
+        className="relative bg-cover bg-center bg-no-repeat text-white min-h-[60vh] md:min-h-[500px] lg:min-h-[600px] flex items-center justify-center px-6 md:px-16"
+        style={{ backgroundImage: `url(${bgImage})` }}
+      >
+        <div className="absolute inset-0 bg-black/60 z-0"></div>
+        <div className="relative z-10 text-center w-full max-w-3xl mx-auto">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4 text-white dark:text-gray-100">Explore Rentals</h1>
+          <p className="text-lg md:text-xl text-white dark:text-gray-200">
+            Discover everything you need for your academic journey, from textbooks to equipment
+          </p>
         </div>
-      </section>
-
+      </div>
       {/* Search and Filter Section */}
-      <section className="bg-white border-b border-gray-100">
+      <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
             {/* Search Bar */}
@@ -61,18 +58,17 @@ const Items = () => {
                   placeholder="Search for books, electronics, sports gear..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="input-field pl-12 pr-4 py-4 text-lg"
+                  className="input-field pl-12 pr-4 py-4 text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 transition-colors duration-300"
                 />
               </div>
             </div>
-
             {/* Sort Dropdown */}
             <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-gray-700">Sort by:</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Sort by:</label>
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
-                className="input-field py-3 px-4 text-sm min-w-[180px]"
+                className="input-field py-3 px-4 text-sm min-w-[180px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 transition-colors duration-300"
               >
                 <option value="default">Recommended</option>
                 <option value="priceLowHigh">Price: Low to High</option>
@@ -84,26 +80,23 @@ const Items = () => {
           </div>
         </div>
       </section>
-
       {/* Category Filter */}
-      <section className="bg-white border-b border-gray-100">
+      <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <FilterBar selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
         </div>
       </section>
-
       {/* Results Section */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Results Count */}
           <div className="mb-8">
-            <p className="text-gray-600">
-              Showing <span className="font-semibold text-purple-600">{filteredItems.length}</span> items
+            <p className="text-gray-600 dark:text-gray-300">
+              Showing <span className="font-semibold text-purple-600 dark:text-purple-400">{filteredItems.length}</span> items
               {searchTerm && ` for "${searchTerm}"`}
               {selectedCategory !== 'All' && ` in ${selectedCategory}`}
             </p>
           </div>
-
           {/* Items Grid */}
           {filteredItems.length > 0 ? (
             <motion.div 
@@ -130,11 +123,11 @@ const Items = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-xl sm:text-2xl font-display font-semibold text-gray-900 mb-2">
+              <div className="text-6xl mb-4"> 50d</div>
+              <h3 className="text-xl sm:text-2xl font-display font-semibold text-gray-900 dark:text-white mb-2">
                 No items found
               </h3>
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
                 Try adjusting your search terms or filters
               </p>
               <button 
