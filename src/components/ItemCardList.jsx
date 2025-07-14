@@ -5,36 +5,36 @@ const ItemCardList = ({ items, onDeleteItem }) => {
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
       case 'available':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
       case 'rented':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
       case 'maintenance':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
       case 'unavailable':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
     }
   };
 
   const getCategoryColor = (category) => {
     const colors = {
-      'Electronics': 'bg-accent-100 text-accent-700',
-      'Stationery': 'bg-mint-100 text-mint-700',
-      'Music': 'bg-purple-100 text-purple-700',
-      'Sports': 'bg-orange-100 text-orange-700',
-      'Books': 'bg-purple-100 text-purple-700',
-      'default': 'bg-gray-100 text-gray-700'
+      'Electronics': 'bg-accent-100 text-accent-700 dark:bg-accent-900 dark:text-accent-200',
+      'Stationery': 'bg-mint-100 text-mint-700 dark:bg-mint-900 dark:text-mint-200',
+      'Music': 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200',
+      'Sports': 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200',
+      'Books': 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200',
+      'default': 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200',
     };
     return colors[category] || colors.default;
   };
 
   if (items.length === 0) {
     return (
-      <div className="card p-12 text-center">
+      <div className="card p-12 text-center bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 transition-colors duration-300">
         <div className="text-6xl mb-4">🏠</div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">No listings yet</h3>
-        <p className="text-gray-600 mb-6">Start listing your items to earn money and help other students</p>
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No listings yet</h3>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">Start listing your items to earn money and help other students</p>
         <a href="/items/add" className="btn-primary">
           Add Your First Item
         </a>

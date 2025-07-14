@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -10,6 +10,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isBackendReachable, setIsBackendReachable] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,8 +39,30 @@ const Login = () => {
     }
   };
 
+  // Check if backend is reachable
+  useEffect(() => {
+    const checkBackendHealth = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/actuator/health', {
+          method: 'GET',
+          timeout: 5000, // 5 second timeout
+        });
+        setIsBackendReachable(response.ok);
+      } catch (error) {
+        console.warn('Backend not reachable:', error);
+        setIsBackendReachable(false);
+      }
+    };
+
+    checkBackendHealth();
+  }, []);
+
+  const handleGoogleSignIn = () => {
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-accent-50 to-mint-50 pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-accent-50 to-mint-50 pt-20 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 transition-colors duration-300">
       <div className="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -48,16 +71,16 @@ const Login = () => {
           className="w-full max-w-md"
         >
           {/* Card */}
-          <div className="card p-8">
+          <div className="card p-8 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md dark:shadow-none border border-gray-100 dark:border-gray-700 rounded-lg transition-colors duration-300">
             {/* Header */}
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glow">
                 <span className="text-white font-bold text-2xl">CR</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white mb-2">
                 Welcome Back
               </h2>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 Sign in to your CampusRent account
               </p>
             </div>
@@ -134,7 +157,11 @@ const Login = () => {
 
             {/* Social Login */}
             <div className="space-y-3">
-              <button className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+              <button 
+                onClick={handleGoogleSignIn}
+                disabled={!isBackendReachable}
+                className="w-full flex items-center justify-center px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 hover:bg-gray-50 transition-colors duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -143,6 +170,11 @@ const Login = () => {
                 </svg>
                 Continue with Google
               </button>
+              {!isBackendReachable && (
+                <p className="text-xs text-red-500 text-center">
+                  Backend service is currently unavailable
+                </p>
+              )}
             </div>
 
             {/* Sign Up Link */}
