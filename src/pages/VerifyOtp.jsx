@@ -1,91 +1,73 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import API from "../services/api"; // Import your API service
 
 const VerifyOtp = () => {
   const navigate = useNavigate();
-  const [otp, setOtp] = useState('');
-  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState("");
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     // Get email from sessionStorage
-    const storedEmail = sessionStorage.getItem('resetEmail');
+    const storedEmail = sessionStorage.getItem("resetEmail");
     if (!storedEmail) {
       // If no email is stored, redirect back to forgot password
-      navigate('/forgot-password');
+      navigate("/forgot-password");
       return;
     }
     setEmail(storedEmail);
   }, [navigate]);
 
+  // In VerifyOtp.jsx
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/auth/verify-otp', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ email, otp }),
-      // });
+      await API.post("/users/verify", { email, otp });
 
+      setMessage("OTP verified successfully!");
 
-      // Replace inside handleSubmit in VerifyOtp.jsx
-setTimeout(() => {
-  setMessage('OTP verified successfully!');
-  navigate('/reset-password');
-}, 1000);
-
-      if (response.ok) {
-        setMessage('OTP verified successfully!');
-        setTimeout(() => {
-          navigate('/reset-password');
-        }, 1500);
-      } else {
-        const errorData = await response.json();
-        setMessage(errorData.message || 'Invalid OTP. Please try again.');
-      }
+      // It now passes the verified 'otp' to the ResetPassword page.
+      setTimeout(() => {
+        navigate("/reset-password", { state: { otp: otp } });
+      }, 1500);
     } catch (error) {
-      console.error('Error verifying OTP:', error);
-      setMessage('An error occurred. Please try again.');
+      console.error("Error verifying OTP:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "Invalid OTP. Please try again.";
+      setMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
-
   const handleOtpChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 6); // Only allow digits, max 6
+    const value = e.target.value.replace(/\D/g, "").slice(0, 6); // Only allow digits, max 6
     setOtp(value);
   };
 
   const resendOtp = async () => {
     setIsLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      const response = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
-        setMessage('OTP resent successfully! Please check your email.');
-      } else {
-        const errorData = await response.json();
-        setMessage(errorData.message || 'Failed to resend OTP. Please try again.');
-      }
+      // Use the forgot-password endpoint to resend the OTP
+      await API.post("/users/forgot-password", { email });
+      setMessage("A new OTP has been sent successfully!");
     } catch (error) {
-      console.error('Error resending OTP:', error);
-      setMessage('An error occurred. Please try again.');
+      console.error("Error resending OTP:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "Failed to resend OTP. Please try again.";
+      setMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -111,10 +93,10 @@ setTimeout(() => {
                 Verify OTP
               </h2>
               <p className="text-gray-700 leading-relaxed">
-                Enter the 6-digit code sent to your email
+                Enter the 6-digit code sent to
               </p>
               {email && (
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-gray-600 font-semibold mt-1">
                   {email}
                 </p>
               )}
@@ -122,11 +104,13 @@ setTimeout(() => {
 
             {/* Message */}
             {message && (
-              <div className={`mb-6 p-4 rounded-lg text-sm ${
-                message.includes('successfully') 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
-                  : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
+              <div
+                className={`mb-6 p-4 rounded-lg text-sm ${
+                  message.includes("successfully")
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+              >
                 {message}
               </div>
             )}
@@ -134,7 +118,10 @@ setTimeout(() => {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="otp"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Verification Code
                 </label>
                 <input
@@ -160,7 +147,7 @@ setTimeout(() => {
                     Verifying...
                   </div>
                 ) : (
-                  'Verify OTP'
+                  "Verify & Proceed"
                 )}
               </button>
             </form>
@@ -168,7 +155,7 @@ setTimeout(() => {
             {/* Resend OTP */}
             <div className="text-center mt-6">
               <p className="text-gray-700 text-sm">
-                Didn't receive the code?{' '}
+                Didn't receive the code?{" "}
                 <button
                   onClick={resendOtp}
                   disabled={isLoading}
@@ -179,11 +166,14 @@ setTimeout(() => {
               </p>
             </div>
 
-            {/* Back to Forgot Password */}
+            {/* Back to Login */}
             <div className="text-center mt-8">
               <p className="text-gray-700 leading-relaxed">
-                <Link to="/forgot-password" className="text-purple-600 hover:text-purple-700 font-semibold">
-                  ← Back to Forgot Password
+                <Link
+                  to="/login"
+                  className="text-purple-600 hover:text-purple-700 font-semibold"
+                >
+                  ← Back to Login
                 </Link>
               </p>
             </div>
@@ -194,4 +184,4 @@ setTimeout(() => {
   );
 };
 
-export default VerifyOtp; 
+export default VerifyOtp;

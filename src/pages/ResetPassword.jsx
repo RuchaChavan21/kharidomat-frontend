@@ -1,23 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import API from "../services/api"; // Make sure to import your API service
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [email, setEmail] = useState('');
+  // This component now needs its own state for the OTP, as it's where the user will enter it.
+  const [otp, setOtp] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    // Get email from sessionStorage
-    const storedEmail = sessionStorage.getItem('resetEmail');
+    // This component still needs the email from the "Forgot Password" page.
+    const storedEmail = sessionStorage.getItem("resetEmail");
     if (!storedEmail) {
-      // If no email is stored, redirect back to forgot password
-      navigate('/forgot-password');
+      // If the user lands here without an email, send them back to the start.
+      navigate("/forgot-password");
       return;
     }
     setEmail(storedEmail);
@@ -31,59 +34,61 @@ const ResetPassword = () => {
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
     return {
-      isValid: password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar,
+      isValid:
+        password.length >= minLength &&
+        hasUpperCase &&
+        hasLowerCase &&
+        hasNumbers &&
+        hasSpecialChar,
       minLength: password.length >= minLength,
       hasUpperCase,
       hasLowerCase,
       hasNumbers,
-      hasSpecialChar
+      hasSpecialChar,
     };
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage('');
+    setMessage("");
 
-    // Validate passwords match
     if (password !== confirmPassword) {
-      setMessage('Passwords do not match. Please try again.');
+      setMessage("Passwords do not match. Please try again.");
       setIsLoading(false);
       return;
     }
 
-    // Validate password strength
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.isValid) {
-      setMessage('Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character.');
+      setMessage(
+        "Password must be at least 8 characters long and contain uppercase, lowercase, number, and a special character."
+      );
       setIsLoading(false);
       return;
     }
 
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      // This is the single, secure API call that sends the email, the user-entered OTP,
+      // and the new password all at once.
+      const response = await API.post("/users/reset-password", {
+        email: email,
+        otp: otp,
+        newPassword: password,
       });
 
-      if (response.ok) {
-        setMessage('Password reset successfully! Redirecting to login...');
-        // Clear sessionStorage
-        sessionStorage.removeItem('resetEmail');
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-      } else {
-        const errorData = await response.json();
-        setMessage(errorData.message || 'Failed to reset password. Please try again.');
-      }
+      setMessage(response.data); // This will be the success message from your backend
+      sessionStorage.removeItem("resetEmail");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (error) {
-      console.error('Error resetting password:', error);
-      setMessage('An error occurred. Please try again.');
+      console.error("Error resetting password:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "Failed to reset password. The OTP may be incorrect or expired.";
+      setMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -100,9 +105,7 @@ const ResetPassword = () => {
           transition={{ duration: 0.6 }}
           className="w-full max-w-md"
         >
-          {/* Card */}
           <div className="card p-8">
-            {/* Header */}
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glow">
                 <span className="text-white font-bold text-2xl">🔒</span>
@@ -111,25 +114,51 @@ const ResetPassword = () => {
                 Reset Password
               </h2>
               <p className="text-gray-700 leading-relaxed">
-                Enter your new password
+                Enter the OTP from your email and your new password
               </p>
             </div>
 
-            {/* Message */}
             {message && (
-              <div className={`mb-6 p-4 rounded-lg text-sm ${
-                message.includes('successfully') 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
-                  : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
+              <div
+                className={`mb-6 p-4 rounded-lg text-sm ${
+                  message.includes("successfully")
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+              >
                 {message}
               </div>
             )}
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* This OTP input field is now correctly part of this page's form */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="otp"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Verification Code (from email)
+                </label>
+                <input
+                  id="otp"
+                  type="text"
+                  placeholder="Enter 6-digit code"
+                  value={otp}
+                  onChange={(e) =>
+                    setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                  }
+                  className="input-field text-center tracking-widest"
+                  maxLength={6}
+                  required
+                />
+              </div>
+
+              {/* New Password Field */}
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   New Password
                 </label>
                 <div className="relative">
@@ -148,48 +177,132 @@ const ResetPassword = () => {
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   >
                     {showPassword ? (
-                      <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      <svg
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                        />
                       </svg>
                     ) : (
-                      <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <svg
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
                       </svg>
                     )}
                   </button>
                 </div>
-                
-                {/* Password strength indicator */}
+
                 {password && (
                   <div className="mt-2 space-y-1">
                     <div className="flex items-center text-xs">
-                      <div className={`w-2 h-2 rounded-full mr-2 ${passwordValidation.minLength ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <span className={passwordValidation.minLength ? 'text-green-600' : 'text-gray-500'}>
+                      <div
+                        className={`w-2 h-2 rounded-full mr-2 ${
+                          passwordValidation.minLength
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}
+                      ></div>
+                      <span
+                        className={
+                          passwordValidation.minLength
+                            ? "text-green-600"
+                            : "text-gray-500"
+                        }
+                      >
                         At least 8 characters
                       </span>
                     </div>
                     <div className="flex items-center text-xs">
-                      <div className={`w-2 h-2 rounded-full mr-2 ${passwordValidation.hasUpperCase ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <span className={passwordValidation.hasUpperCase ? 'text-green-600' : 'text-gray-500'}>
+                      <div
+                        className={`w-2 h-2 rounded-full mr-2 ${
+                          passwordValidation.hasUpperCase
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}
+                      ></div>
+                      <span
+                        className={
+                          passwordValidation.hasUpperCase
+                            ? "text-green-600"
+                            : "text-gray-500"
+                        }
+                      >
                         One uppercase letter
                       </span>
                     </div>
                     <div className="flex items-center text-xs">
-                      <div className={`w-2 h-2 rounded-full mr-2 ${passwordValidation.hasLowerCase ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <span className={passwordValidation.hasLowerCase ? 'text-green-600' : 'text-gray-500'}>
+                      <div
+                        className={`w-2 h-2 rounded-full mr-2 ${
+                          passwordValidation.hasLowerCase
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}
+                      ></div>
+                      <span
+                        className={
+                          passwordValidation.hasLowerCase
+                            ? "text-green-600"
+                            : "text-gray-500"
+                        }
+                      >
                         One lowercase letter
                       </span>
                     </div>
                     <div className="flex items-center text-xs">
-                      <div className={`w-2 h-2 rounded-full mr-2 ${passwordValidation.hasNumbers ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <span className={passwordValidation.hasNumbers ? 'text-green-600' : 'text-gray-500'}>
+                      <div
+                        className={`w-2 h-2 rounded-full mr-2 ${
+                          passwordValidation.hasNumbers
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}
+                      ></div>
+                      <span
+                        className={
+                          passwordValidation.hasNumbers
+                            ? "text-green-600"
+                            : "text-gray-500"
+                        }
+                      >
                         One number
                       </span>
                     </div>
                     <div className="flex items-center text-xs">
-                      <div className={`w-2 h-2 rounded-full mr-2 ${passwordValidation.hasSpecialChar ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <span className={passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-gray-500'}>
+                      <div
+                        className={`w-2 h-2 rounded-full mr-2 ${
+                          passwordValidation.hasSpecialChar
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}
+                      ></div>
+                      <span
+                        className={
+                          passwordValidation.hasSpecialChar
+                            ? "text-green-600"
+                            : "text-gray-500"
+                        }
+                      >
                         One special character
                       </span>
                     </div>
@@ -197,8 +310,12 @@ const ResetPassword = () => {
                 )}
               </div>
 
+              {/* Confirm New Password Field */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Confirm New Password
                 </label>
                 <div className="relative">
@@ -217,25 +334,57 @@ const ResetPassword = () => {
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   >
                     {showConfirmPassword ? (
-                      <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      <svg
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                        />
                       </svg>
                     ) : (
-                      <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <svg
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
                       </svg>
                     )}
                   </button>
                 </div>
                 {confirmPassword && password !== confirmPassword && (
-                  <p className="text-red-500 text-xs mt-1">Passwords do not match</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    Passwords do not match
+                  </p>
                 )}
               </div>
 
               <button
                 type="submit"
-                disabled={isLoading || !passwordValidation.isValid || password !== confirmPassword}
+                disabled={
+                  isLoading ||
+                  !passwordValidation.isValid ||
+                  password !== confirmPassword ||
+                  otp.length !== 6
+                }
                 className="btn-primary w-full py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
@@ -244,16 +393,18 @@ const ResetPassword = () => {
                     Resetting Password...
                   </div>
                 ) : (
-                  'Reset Password'
+                  "Reset Password"
                 )}
               </button>
             </form>
 
-            {/* Back to Login */}
             <div className="text-center mt-8">
               <p className="text-gray-700 leading-relaxed">
-                Remember your password?{' '}
-                <Link to="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
+                Remember your password?{" "}
+                <Link
+                  to="/login"
+                  className="text-purple-600 hover:text-purple-700 font-semibold"
+                >
                   Back to Login
                 </Link>
               </p>
@@ -265,4 +416,4 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword; 
+export default ResetPassword;
