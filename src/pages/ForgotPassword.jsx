@@ -1,51 +1,41 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import API from "../services/api"; // Import your API service
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/auth/send-otp', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ email }),
-      // }
-      // );
+      // 1. Make the real API call to your forgot-password endpoint
+      const response = await API.post("/users/forgot-password", { email });
 
-      // Replace inside handleSubmit in ForgotPassword.jsx
-setTimeout(() => {
-  setMessage('OTP sent successfully! Please check your email.');
-  sessionStorage.setItem('resetEmail', email);
-  navigate('/verify-otp');
-}, 1000);
+      // 2. Handle the successful response
+      setMessage("OTP sent successfully! Please check your email.");
 
+      // Store email in sessionStorage for the next step (verify OTP)
+      sessionStorage.setItem("resetEmail", email);
 
-      if (response.ok) {
-        setMessage('OTP sent successfully! Please check your email.');
-        // Store email in sessionStorage for the next step
-        sessionStorage.setItem('resetEmail', email);
-        setTimeout(() => {
-          navigate('/verify-otp');
-        }, 1500);
-      } else {
-        const errorData = await response.json();
-        setMessage(errorData.message || 'Failed to send OTP. Please try again.');
-      }
+      // Navigate to the OTP verification page after a short delay
+      setTimeout(() => {
+        navigate("/reset-password"); // Or your specific route for OTP verification
+      }, 1500);
     } catch (error) {
-      console.error('Error sending OTP:', error);
-      setMessage('An error occurred. Please try again.');
+      // 3. Handle errors from the backend
+      console.error("Error sending OTP:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "Failed to send OTP. Please try again.";
+      setMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -77,11 +67,13 @@ setTimeout(() => {
 
             {/* Message */}
             {message && (
-              <div className={`mb-6 p-4 rounded-lg text-sm ${
-                message.includes('successfully') 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
-                  : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
+              <div
+                className={`mb-6 p-4 rounded-lg text-sm ${
+                  message.includes("successfully")
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+              >
                 {message}
               </div>
             )}
@@ -89,7 +81,10 @@ setTimeout(() => {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Email Address
                 </label>
                 <input
@@ -114,7 +109,7 @@ setTimeout(() => {
                     Sending OTP...
                   </div>
                 ) : (
-                  'Send OTP'
+                  "Send OTP"
                 )}
               </button>
             </form>
@@ -122,8 +117,11 @@ setTimeout(() => {
             {/* Back to Login */}
             <div className="text-center mt-8">
               <p className="text-gray-700 leading-relaxed">
-                Remember your password?{' '}
-                <Link to="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
+                Remember your password?{" "}
+                <Link
+                  to="/login"
+                  className="text-purple-600 hover:text-purple-700 font-semibold"
+                >
                   Back to Login
                 </Link>
               </p>
@@ -135,4 +133,4 @@ setTimeout(() => {
   );
 };
 
-export default ForgotPassword; 
+export default ForgotPassword;
