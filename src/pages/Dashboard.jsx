@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 
 const Dashboard = () => {
   const { user, isLoggedIn } = useAuth();
   const { theme } = useTheme();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState(location.state?.successMessage || '');
 
   // Mock data for demonstration
   const [stats, setStats] = useState({
@@ -75,9 +77,13 @@ const Dashboard = () => {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1000);
-
+    // Clear success message after 3 seconds
+    if (successMessage) {
+      const msgTimer = setTimeout(() => setSuccessMessage(''), 3000);
+      return () => { clearTimeout(timer); clearTimeout(msgTimer); };
+    }
     return () => clearTimeout(timer);
-  }, []);
+  }, [successMessage]);
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -135,7 +141,12 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 pt-20 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
+        {/* Success Message */}
+        {successMessage && (
+          <div className="bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 px-4 py-3 rounded mb-6 text-center font-semibold shadow transition-colors duration-300">
+            {successMessage}
+          </div>
+        )}
 
         {/* Stats Cards */}
         <motion.div
