@@ -152,7 +152,9 @@ const PostItem = () => {
     setImageFile(null);
     setImagePreview(null);
     setLoading(false);
-    navigate('/dashboard');
+    // Pass success message to dashboard
+    let successMsg = imageFile ? 'Item posted and image uploaded successfully!' : 'Item posted successfully!';
+    navigate('/dashboard', { state: { successMessage: successMsg } });
   };
 
   return (
