@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import API from '../services/api'; // <--- CORRECTED PATH HERE
 
 const categories = [
   'Books',
@@ -14,14 +14,19 @@ const categories = [
 ];
 
 const PostItem = () => {
-  const { isLoggedIn, token } = useAuth();
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
+
+  if (!isLoggedIn) {
+    navigate('/login');
+    return null;
+  }
+
   const [form, setForm] = useState({
     name: '',
     description: '',
     category: '',
     pricePerDay: '',
-    imageUrl: '',
     startDate: '',
     endDate: '',
   });
@@ -33,11 +38,6 @@ const PostItem = () => {
   const [imageError, setImageError] = useState(null);
   const [imageUploading, setImageUploading] = useState(false);
 
-  if (!isLoggedIn) {
-    navigate('/login');
-    return null;
-  }
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -46,9 +46,13 @@ const PostItem = () => {
   const handleImageChange = (e) => {
     setImageError(null);
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      setImageFile(null);
+      setImagePreview(null);
+      return;
+    }
     if (!file.type.startsWith('image/')) {
-      setImageError('Please select a valid image file (.jpg, .jpeg, .png)');
+      setImageError('Please select a valid image file (.jpg, .jpeg, .png).');
       setImageFile(null);
       setImagePreview(null);
       return;
@@ -57,14 +61,13 @@ const PostItem = () => {
     setImagePreview(URL.createObjectURL(file));
   };
 
-  // Optional: Drag and drop support
   const handleDrop = (e) => {
     e.preventDefault();
     setImageError(null);
     const file = e.dataTransfer.files[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setImageError('Please select a valid image file (.jpg, .jpeg, .png)');
+      setImageError('Please select a valid image file (.jpg, .jpeg, .png).');
       setImageFile(null);
       setImagePreview(null);
       return;
@@ -72,6 +75,7 @@ const PostItem = () => {
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
   };
+
   const handleDragOver = (e) => {
     e.preventDefault();
   };
@@ -82,65 +86,73 @@ const PostItem = () => {
     setMessage(null);
     setError(null);
     setImageError(null);
-    if (!imageFile) {
-      setImageError('Please select an image to upload.');
+
+    let newItemId = null;
+    try {
+      const itemToPost = {
+        title: form.name, // Assuming 'name' maps to 'title' in your Item model
+        description: form.description,
+        category: form.category,
+        pricePerDay: Number(form.pricePerDay),
+        startDate: form.startDate,
+        endDate: form.endDate,
+      };
+
+      const itemResponse = await API.post('/items/post', itemToPost);
+      newItemId = itemResponse.data.id;
+      
+      if (!newItemId) {
+          throw new Error('Item created but no ID returned. Cannot upload image.');
+      }
+
+    } catch (err) {
+      console.error('Error posting item:', err.response?.data || err.message);
+      const postErrorMessage = err.response?.data?.message || 'Failed to post item. Please check your inputs.';
+      setError(postErrorMessage);
       setLoading(false);
       return;
     }
-    let uploadedImageUrl = '';
-    try {
-      setImageUploading(true);
-      const formData = new FormData();
-      formData.append('image', imageFile);
-      const uploadRes = await axios.post('http://localhost:8080/api/items/upload-image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      uploadedImageUrl = uploadRes.data.imageUrl || uploadRes.data.url || uploadRes.data.path;
-      setImageUploading(false);
-    } catch (err) {
-      setImageUploading(false);
-      setImageError('Failed to upload image. Please try again.');
-      setLoading(false);
-      return;
+
+    if (imageFile && newItemId) {
+      try {
+        setImageUploading(true);
+        const formData = new FormData();
+        formData.append('file', imageFile); // Backend expects @RequestParam("file")
+
+        const uploadRes = await API.post(`/items/upload-image/${newItemId}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        
+        console.log('Image upload response:', uploadRes.data);
+
+        setImageUploading(false);
+        setMessage('Item posted and image uploaded successfully!');
+
+      } catch (err) {
+        setImageUploading(false);
+        console.error('Error uploading image:', err.response?.data || err.message);
+        const uploadErrorMessage = err.response?.data?.message || 'Failed to upload image. Item was created, but image upload failed.';
+        setImageError(uploadErrorMessage);
+        setError(prev => prev ? prev + '\n' + uploadErrorMessage : uploadErrorMessage);
+      }
+    } else if (!imageFile) {
+        setMessage('Item posted successfully! No image was uploaded.');
     }
-    try {
-      const res = await fetch('http://localhost:8080/api/items', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: form.name,
-          description: form.description,
-          category: form.category,
-          pricePerDay: Number(form.pricePerDay),
-          imageUrl: uploadedImageUrl,
-          startDate: form.startDate,
-          endDate: form.endDate,
-        }),
-      });
-      if (!res.ok) throw new Error('Failed to post item');
-      setMessage('Item posted successfully!');
-      setForm({
-        name: '',
-        description: '',
-        category: '',
-        pricePerDay: '',
-        imageUrl: '',
-        startDate: '',
-        endDate: '',
-      });
-      setImageFile(null);
-      setImagePreview(null);
-    } catch (err) {
-      setError('Failed to post item. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+
+    setForm({
+      name: '',
+      description: '',
+      category: '',
+      pricePerDay: '',
+      startDate: '',
+      endDate: '',
+    });
+    setImageFile(null);
+    setImagePreview(null);
+    setLoading(false);
+    navigate('/dashboard');
   };
 
   return (
@@ -149,11 +161,13 @@ const PostItem = () => {
         <h2 className="text-2xl font-semibold text-purple-700 dark:text-purple-400 mb-4 text-center">Post an Item for Rent</h2>
         {message && <div className="bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 px-4 py-2 rounded mb-2 text-center transition-colors duration-300">{message}</div>}
         {error && <div className="bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-300 px-4 py-2 rounded mb-2 text-center transition-colors duration-300">{error}</div>}
+        
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Item Name</label>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Item Name</label>
             <input
               type="text"
+              id="name"
               name="name"
               value={form.name}
               onChange={handleChange}
@@ -162,8 +176,9 @@ const PostItem = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Description</label>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Description</label>
             <textarea
+              id="description"
               name="description"
               value={form.description}
               onChange={handleChange}
@@ -172,8 +187,9 @@ const PostItem = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Category</label>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Category</label>
             <select
+              id="category"
               name="category"
               value={form.category}
               onChange={handleChange}
@@ -187,9 +203,10 @@ const PostItem = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Price per day ( 4b9)</label>
+            <label htmlFor="pricePerDay" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Price per day</label>
             <input
               type="number"
+              id="pricePerDay"
               name="pricePerDay"
               value={form.pricePerDay}
               onChange={handleChange}
@@ -200,7 +217,7 @@ const PostItem = () => {
           </div>
           {/* Image Upload Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Upload Image</label>
+            <label htmlFor="imageUpload" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Upload Image</label>
             <div
               className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-md p-4 bg-white dark:bg-gray-900 transition-colors duration-300 cursor-pointer hover:border-purple-400"
               onDrop={handleDrop}
@@ -208,9 +225,10 @@ const PostItem = () => {
             >
               <input
                 type="file"
+                id="imageUpload"
                 accept=".jpg,.jpeg,.png,image/*"
                 onChange={handleImageChange}
-                className="w-full text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 focus:outline-purple-500"
+                className="w-full text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:file:text-purple-700 hover:file:bg-purple-100 focus:outline-purple-500"
                 style={{ display: 'block' }}
               />
               <span className="text-xs text-gray-500 dark:text-gray-400 mt-2">Drag & drop or click to select an image (JPG, JPEG, PNG)</span>
@@ -227,9 +245,10 @@ const PostItem = () => {
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Availability Start Date</label>
+              <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Availability Start Date</label>
               <input
                 type="date"
+                id="startDate"
                 name="startDate"
                 value={form.startDate}
                 onChange={handleChange}
@@ -238,9 +257,10 @@ const PostItem = () => {
               />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Availability End Date</label>
+              <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Availability End Date</label>
               <input
                 type="date"
+                id="endDate"
                 name="endDate"
                 value={form.endDate}
                 onChange={handleChange}
@@ -252,9 +272,9 @@ const PostItem = () => {
           <button
             type="submit"
             className="bg-purple-600 text-white font-semibold px-6 py-2 rounded hover:bg-purple-700 transition w-full mt-6 disabled:opacity-60 disabled:cursor-not-allowed"
-            disabled={loading}
+            disabled={loading || imageUploading}
           >
-            {loading ? 'Posting...' : 'Post Item'}
+            {loading ? 'Processing...' : 'Post Item'}
           </button>
         </form>
       </div>

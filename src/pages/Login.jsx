@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import API from "../services/api";
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -30,9 +30,9 @@ const Login = () => {
         //    we create a placeholder. The token is the important part.
         const user = { email };
         login(user, token); // This saves the token via your AuthContext
-
-        // 4. Navigate to the dashboard on success
-        navigate("/dashboard");
+        console.log('Login successful:', { user, token }); // Debug log
+        // Remove navigate here, will move to useEffect
+        // navigate("/dashboard");
       } else {
         // This case is unlikely if the request is successful, but good for safety
         setError("Login failed: An empty token was received.");
@@ -53,6 +53,13 @@ const Login = () => {
   const handleGoogleSignIn = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
   };
+
+  // Add this useEffect to navigate after isLoggedIn is true
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/dashboard");
+    }
+  }, [isLoggedIn, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-accent-50 to-mint-50 pt-20 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 transition-colors duration-300">

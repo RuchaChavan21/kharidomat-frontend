@@ -112,7 +112,7 @@ const Footer = () => {
           className="border-t border-gray-800 mt-8 pt-8 text-center"
         >
           <p className="text-gray-400">
-            © 2024 CampusRent. All rights reserved. Made with ❤️ for students.
+            © 2025 CampusRent. All rights reserved. Made with ❤️ for students.
           </p>
         </motion.div>
       </div>
