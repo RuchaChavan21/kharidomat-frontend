@@ -7,7 +7,6 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifyOtp from './pages/VerifyOtp';
 import ResetPassword from './pages/ResetPassword';
 import Items from './pages/Items';
-import RentNow from './pages/RentNow';
 import ItemDetails from './pages/ItemDetails';
 import BookingDetails from './pages/BookingDetails';
 import About from './pages/About';
@@ -18,7 +17,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import PrivateRoute from './components/PrivateRoute';
 import PostItem from './pages/PostItem';
-import BookItem from './pages/BookItem';
+import BookOrRentItem from './pages/BookItem';
 import Settings from './pages/Settings';
 import Notifications from './pages/Notifications';
 import { useAuth } from './context/AuthContext';
@@ -50,7 +49,7 @@ const App = () => {
         <Route path="/items" element={<Items />} />
         <Route path="/item/:itemId" element={<ItemDetails />} />
         <Route path="/items/:id" element={<ItemDetails />} />
-        <Route path="/rent-now/:itemId" element={<PrivateRoute><RentNow /></PrivateRoute>} />
+        <Route path="/rent-now/:itemId" element={<PrivateRoute><BookOrRentItem /></PrivateRoute>} />
         <Route path="/booking/:bookingId" element={<PrivateRoute><BookingDetails /></PrivateRoute>} />
         <Route path="/about" element={<About />} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
@@ -58,7 +57,7 @@ const App = () => {
         <Route path="/wishlist" element={<PrivateRoute><Wishlist /></PrivateRoute>} />
         <Route path="/post-item" element={<PrivateRoute><PostItem /></PrivateRoute>} />
         <Route path="/items/add" element={<PrivateRoute><PostItem /></PrivateRoute>} />
-        <Route path="/book-item/:itemId" element={<PrivateRoute><BookItem /></PrivateRoute>} />
+        <Route path="/book-item/:itemId" element={<PrivateRoute><BookOrRentItem /></PrivateRoute>} />
         <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
         <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
         <Route path="/recent-listings" element={<RecentListings />} />

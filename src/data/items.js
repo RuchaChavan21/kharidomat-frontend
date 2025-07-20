@@ -8,7 +8,7 @@ const items = [
   },
   {
     id: 2,
-    title: 'Engineering Drawing Kit',
+    title: 'Eng Drawing kit',
     category: 'Stationery',
     pricePerDay: 50,
     imageUrl: 'https://source.unsplash.com/featured/?drawing,kit',
