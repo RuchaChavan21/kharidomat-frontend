@@ -158,44 +158,49 @@ const PostItem = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-white py-12 px-4 dark:from-gray-900 dark:to-gray-950 transition-colors duration-300">
-      <div className="w-full max-w-xl mx-auto card p-8 space-y-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md dark:shadow-none border border-gray-100 dark:border-gray-700 rounded-lg transition-colors duration-300">
-        <h2 className="text-2xl font-semibold text-purple-700 dark:text-purple-400 mb-4 text-center">Post an Item for Rent</h2>
-        {message && <div className="bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 px-4 py-2 rounded mb-2 text-center transition-colors duration-300">{message}</div>}
-        {error && <div className="bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-300 px-4 py-2 rounded mb-2 text-center transition-colors duration-300">{error}</div>}
-        
-        <form className="space-y-4" onSubmit={handleSubmit}>
+    <div className="min-h-screen bg-[#fafbfc] flex flex-col items-center justify-center px-2 md:px-4">
+      {/* Page Title */}
+      <div className="max-w-xl w-full text-center mt-10 mb-6 md:mb-10">
+        <h1 className="font-bold text-3xl md:text-4xl text-[#B9162C] mb-2">Post an Item for Rent</h1>
+        <p className="text-gray-600 text-lg">List your item and start earning by sharing with the community.</p>
+      </div>
+      {/* Basic Item Details Card + Form */}
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8 mt-0 mb-16">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Item Name</label>
+            <label htmlFor="name" className="block text-sm font-bold text-gray-900 mb-1">Item Name</label>
             <input
               type="text"
               id="name"
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 focus:outline-purple-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#B9162C] focus:ring-2 focus:ring-[#B9162C] bg-white text-gray-900 text-base transition-all duration-300"
+              placeholder="e.g., Study Table with Chair"
               required
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Description</label>
+            <label htmlFor="description" className="block text-sm font-bold text-gray-900 mb-1">Description <span className="font-normal text-xs text-gray-400">(optional)</span></label>
             <textarea
               id="description"
               name="description"
               value={form.description}
               onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 focus:outline-purple-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-[80px] transition-colors duration-300"
-              required
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#B9162C] focus:ring-2 focus:ring-[#B9162C] bg-white text-gray-900 text-base min-h-[80px] transition-all duration-300"
+              placeholder="Include size, condition, and special notes."
+              rows={4}
             />
+            <div className="text-xs text-gray-400 mt-1">Include size, condition, and special notes.</div>
           </div>
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Category</label>
+            <label htmlFor="category" className="block text-sm font-bold text-gray-900 mb-1">Category</label>
             <select
               id="category"
               name="category"
               value={form.category}
               onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 focus:outline-purple-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#B9162C] focus:ring-2 focus:ring-[#B9162C] bg-white text-gray-900 text-base transition-all duration-300"
               required
             >
               <option value="">Select category</option>
@@ -205,23 +210,59 @@ const PostItem = () => {
             </select>
           </div>
           <div>
-            <label htmlFor="pricePerDay" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Price per day</label>
+            <label htmlFor="pricePerDay" className="block text-sm font-bold text-gray-900 mb-1">Price per day (₹)</label>
             <input
               type="number"
               id="pricePerDay"
               name="pricePerDay"
               value={form.pricePerDay}
               onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 focus:outline-purple-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#B9162C] focus:ring-2 focus:ring-[#B9162C] bg-white text-gray-900 text-base transition-all duration-300"
               min="1"
               required
             />
           </div>
+          {/* Availability Section */}
+          <div className="bg-white rounded-xl shadow border border-gray-200 p-6 mb-6">
+            <h3 className="font-bold text-lg text-gray-900 mb-4">Availability</h3>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 relative">
+                <label htmlFor="startDate" className="block text-sm font-bold text-gray-900 mb-1">Start Date</label>
+                <span className="absolute left-3 top-9 text-gray-400 pointer-events-none">
+                  <svg width="18" height="18" fill="none" stroke="#B9162C" strokeWidth="2"><circle cx="9" cy="9" r="7"/><path d="M12 2v2M6 2v2M3 6h12"/></svg>
+                </span>
+                <input
+                  type="date"
+                  id="startDate"
+                  name="startDate"
+                  value={form.startDate}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg px-10 py-3 focus:border-[#B9162C] focus:ring-2 focus:ring-[#B9162C] bg-white text-gray-900 text-base transition-all duration-300"
+                  required
+                />
+              </div>
+              <div className="flex-1 relative">
+                <label htmlFor="endDate" className="block text-sm font-bold text-gray-900 mb-1">End Date</label>
+                <span className="absolute left-3 top-9 text-gray-400 pointer-events-none">
+                  <svg width="18" height="18" fill="none" stroke="#B9162C" strokeWidth="2"><circle cx="9" cy="9" r="7"/><path d="M12 2v2M6 2v2M3 6h12"/></svg>
+                </span>
+                <input
+                  type="date"
+                  id="endDate"
+                  name="endDate"
+                  value={form.endDate}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg px-10 py-3 focus:border-[#B9162C] focus:ring-2 focus:ring-[#B9162C] bg-white text-gray-900 text-base transition-all duration-300"
+                  required
+                />
+              </div>
+            </div>
+          </div>
           {/* Image Upload Section */}
-          <div>
-            <label htmlFor="imageUpload" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Upload Image</label>
+          <div className="bg-white rounded-xl shadow border border-gray-200 p-6 mb-6">
+            <h3 className="font-bold text-lg text-gray-900 mb-4">Upload Image</h3>
             <div
-              className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-md p-4 bg-white dark:bg-gray-900 transition-colors duration-300 cursor-pointer hover:border-purple-400"
+              className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 bg-white transition-colors duration-300 cursor-pointer hover:border-[#B9162C]"
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
@@ -230,54 +271,40 @@ const PostItem = () => {
                 id="imageUpload"
                 accept=".jpg,.jpeg,.png,image/*"
                 onChange={handleImageChange}
-                className="w-full text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:file:text-purple-700 hover:file:bg-purple-100 focus:outline-purple-500"
+                className="w-full text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#F9F9F9] file:text-[#B9162C] hover:file:bg-[#F3EAEA] focus:outline-[#B9162C]"
                 style={{ display: 'block' }}
               />
-              <span className="text-xs text-gray-500 dark:text-gray-400 mt-2">Drag & drop or click to select an image (JPG, JPEG, PNG)</span>
+              <span className="text-xs text-gray-500 mt-2">Drag & drop or click to select an image (JPG, JPEG, PNG)</span>
               {imagePreview && (
                 <img src={imagePreview} alt="Preview" className="mt-4 h-32 w-auto object-cover border rounded-md" />
               )}
               {imageUploading && (
-                <div className="mt-2 text-purple-600 dark:text-purple-400 text-sm">Uploading image...</div>
+                <div className="mt-2 text-[#B9162C] text-sm">Uploading image...</div>
               )}
               {imageError && (
-                <div className="mt-2 text-red-600 dark:text-red-400 text-sm">{imageError}</div>
+                <div className="mt-2 text-red-600 text-sm">{imageError}</div>
               )}
+              <div className="text-xs text-gray-400 mt-2">Show the actual condition of your item. One image is required.</div>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Availability Start Date</label>
-              <input
-                type="date"
-                id="startDate"
-                name="startDate"
-                value={form.startDate}
-                onChange={handleChange}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 focus:outline-purple-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300"
-                required
-              />
-            </div>
-            <div className="flex-1">
-              <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Availability End Date</label>
-              <input
-                type="date"
-                id="endDate"
-                name="endDate"
-                value={form.endDate}
-                onChange={handleChange}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 focus:outline-purple-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300"
-                required
-              />
-            </div>
+          {/* Submission Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 mt-8">
+            <button
+              type="submit"
+              className="bg-[#B9162C] text-white font-bold rounded-lg px-6 py-3 shadow hover:bg-[#a01325] transition-all duration-300 w-full sm:w-auto"
+              disabled={loading || imageUploading}
+            >
+              {loading ? 'Processing...' : 'Post Item'}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="border border-[#B9162C] text-[#B9162C] font-bold rounded-lg px-6 py-3 bg-white hover:bg-[#F9F9F9] transition-all duration-300 w-full sm:w-auto"
+              disabled={loading || imageUploading}
+            >
+              Cancel
+            </button>
           </div>
-          <button
-            type="submit"
-            className="bg-purple-600 text-white font-semibold px-6 py-2 rounded hover:bg-purple-700 transition w-full mt-6 disabled:opacity-60 disabled:cursor-not-allowed"
-            disabled={loading || imageUploading}
-          >
-            {loading ? 'Processing...' : 'Post Item'}
-          </button>
         </form>
       </div>
     </div>

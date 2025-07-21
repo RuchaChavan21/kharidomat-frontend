@@ -68,99 +68,93 @@ const Items = () => {
     }, [fetchItems]); // Depend on memoized fetchItems
 
     return (
-        <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-gradient-to-br from-gray-50 to-gray-100'} pt-20 transition-colors duration-300`}>
-            {/* Header Section - Explore Rentals with mitaoe.jpg */}
-            <div
-                className="relative bg-cover bg-center bg-no-repeat text-white min-h-[60vh] md:min-h-[500px] lg:min-h-[600px] flex items-center justify-center px-6 md:px-16"
-                style={{ backgroundImage: `url(${bgImage})` }}
-            >
-                <div className="absolute inset-0 bg-black/60 z-0"></div>
-                <div className="relative z-10 text-center w-full max-w-3xl mx-auto">
-                    <h1 className="text-3xl md:text-5xl font-bold mb-4 text-white dark:text-gray-100">Explore Rentals</h1>
-                    <p className="text-lg md:text-xl text-white dark:text-gray-200">
-                        Discover everything you need for your academic journey, from textbooks to equipment
-                    </p>
-                </div>
-            </div>
-            {/* Search and Filter Section */}
-            <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
-                        {/* Search Bar */}
-                        <div className="flex-1 max-w-xl w-full">
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
-                                <input
-                                    type="text"
-                                    placeholder="Search for books, electronics, sports gear..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="input-field pl-12 pr-4 py-4 text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 transition-colors duration-300"
-                                />
-                            </div>
-                        </div>
-                        {/* Sort Dropdown */}
-                        <div className="flex items-center space-x-4">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Sort by:</label>
-                            <select
-                                value={sortOption}
-                                onChange={(e) => setSortOption(e.target.value)}
-                                className="input-field py-3 px-4 text-sm min-w-[180px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 transition-colors duration-300"
-                            >
-                                <option value="default">Recommended</option>
-                                <option value="priceLowHigh">Price: Low to High</option>
-                                <option value="priceHighLow">Price: High to Low</option>
-                                <option value="titleAsc">Name: A-Z</option>
-                                <option value="titleDesc">Name: Z-A</option>
-                            </select>
-                        </div>
+        <div className={`min-h-screen bg-[#F9F9F9] pt-20 transition-colors duration-300 font-sans`}> {/* Use same bg and font as home */}
+            {/* Hero Section */}
+            <section className="w-full bg-white rounded-xl shadow-lg max-w-4xl mx-auto mt-8 mb-8 px-8 py-10 flex flex-col items-center text-center">
+                <h1 className="font-bold text-3xl md:text-4xl text-[#B9162C] mb-2">Discover What’s Available in Your Campus</h1>
+                <p className="text-gray-600 text-lg mb-2">Explore rental items posted by fellow students</p>
+            </section>
+            {/* Filter & Sort Bar */}
+            <section className="w-full max-w-7xl mx-auto px-4 md:px-8 mb-6">
+                <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 bg-white rounded-xl shadow-lg p-4">
+                    {/* Search Bar */}
+                    <div className="flex-1 w-full relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <svg width="20" height="20" fill="none" stroke="#B9162C" strokeWidth="2"><circle cx="9" cy="9" r="7"/><path d="M16 16l-3-3"/></svg>
+                        </span>
+                        <input
+                            type="text"
+                            placeholder="Search for items..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-[#B9162C] shadow-sm text-gray-900 bg-white transition-all duration-300"
+                        />
                     </div>
+                    {/* Category Dropdown */}
+                    <select
+                        value={selectedCategory}
+                        onChange={e => setSelectedCategory(e.target.value)}
+                        className="rounded-lg border border-gray-200 px-4 py-3 bg-white shadow-sm text-gray-900 focus:border-[#B9162C] transition-all duration-300"
+                    >
+                        <option value="All">All Categories</option>
+                        <option value="Furniture">Furniture</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Stationery">Stationery</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    {/* Sort Dropdown */}
+                    <select
+                        value={sortOption}
+                        onChange={e => setSortOption(e.target.value)}
+                        className="rounded-lg border border-gray-200 px-4 py-3 bg-white shadow-sm text-gray-900 focus:border-[#B9162C] transition-all duration-300"
+                    >
+                        <option value="default">Recommended</option>
+                        <option value="priceLowHigh">Price: Low to High</option>
+                        <option value="priceHighLow">Price: High to Low</option>
+                        <option value="titleAsc">Name: A-Z</option>
+                        <option value="titleDesc">Name: Z-A</option>
+                    </select>
                 </div>
             </section>
-            {/* Category Filter */}
-            <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {/* Category Filter Bar (reuse FilterBar, but wrap in card) */}
+            <section className="w-full max-w-7xl mx-auto px-4 md:px-8 mb-8">
+                <div className="bg-white rounded-xl shadow-lg p-4">
                     <FilterBar selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
                 </div>
             </section>
             {/* Results Section */}
-            <section className="py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section className="py-8">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
                     {/* Error State */}
                     {error && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-xl p-6 text-center mb-8 transition-colors duration-300"
+                            className="bg-red-50 border border-red-200 rounded-xl p-6 text-center mb-8"
                         >
-                            <p className="text-red-600 dark:text-red-300 font-medium">{error}</p>
+                            <p className="text-[#B9162C] font-medium">{error}</p>
                             <button
-                                onClick={fetchItems} // Retry fetch
-                                className="mt-4 px-6 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-800 transition duration-300"
+                                onClick={fetchItems}
+                                className="mt-4 px-6 py-2 bg-[#B9162C] text-white rounded-lg hover:bg-[#a01325] transition duration-300 font-bold"
                             >
                                 Try Again
                             </button>
                         </motion.div>
                     )}
-
-                    {/* Loading State - Conditionally rendered only if loading and no error */}
+                    {/* Loading State */}
                     {loading && !error ? (
                         <div className="flex items-center justify-center min-h-[300px]">
                             <div className="text-center">
-                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                                <p className="text-gray-600 dark:text-gray-300">Loading items...</p>
+                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#B9162C] mx-auto mb-4"></div>
+                                <p className="text-gray-600">Loading items...</p>
                             </div>
                         </div>
                     ) : (
                         <>
-                            {/* Results Count - Rendered if not loading and no error */}
+                            {/* Results Count */}
                             <div className="mb-8">
-                                <p className="text-gray-600 dark:text-gray-300">
-                                    Showing <span className="font-semibold text-purple-600 dark:text-purple-400">{items.length}</span> items
+                                <p className="text-gray-600">
+                                    Showing <span className="font-semibold text-[#B9162C]">{items.length}</span> items
                                     {searchTerm && ` for "${searchTerm}"`}
                                     {selectedCategory !== 'All' && ` in ${selectedCategory}`}
                                 </p>
@@ -168,7 +162,7 @@ const Items = () => {
                             {/* Items Grid */}
                             {items.length > 0 ? (
                                 <motion.div
-                                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+                                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ duration: 0.5 }}
@@ -180,17 +174,7 @@ const Items = () => {
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.5, delay: index * 0.1 }}
                                         >
-                                            <ItemCard
-                                                item={{
-                                                    ...item,
-                                                    // ItemCard now expects imageUrl and owner directly,
-                                                    // but ensures internal fallback for imageName and owner structure.
-                                                    // No need for conversion here unless backend returns different names.
-                                                    // For now, pass item as is.
-                                                    // ItemCard is responsible for constructing the image URL
-                                                    // and adapting owner structure itself.
-                                                }}
-                                            />
+                                            <ItemCard item={item} />
                                         </motion.div>
                                     ))}
                                 </motion.div>
@@ -201,11 +185,11 @@ const Items = () => {
                                     animate={{ opacity: 1 }}
                                     transition={{ duration: 0.5 }}
                                 >
-                                    <div className="text-6xl mb-4">🔍</div> {/* Corrected icon */}
-                                    <h3 className="text-xl sm:text-2xl font-display font-semibold text-gray-900 dark:text-white mb-2">
+                                    <div className="text-6xl mb-4">🔍</div>
+                                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                                         No items found
                                     </h3>
-                                    <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                                    <p className="text-gray-700 mb-6 leading-relaxed">
                                         Try adjusting your search terms or filters
                                     </p>
                                     <button
@@ -214,7 +198,7 @@ const Items = () => {
                                             setSelectedCategory('All');
                                             setSortOption('default');
                                         }}
-                                        className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-300 font-medium"
+                                        className="inline-flex items-center px-6 py-3 bg-[#B9162C] text-white rounded-lg hover:bg-[#a01325] transition duration-300 font-bold"
                                     >
                                         Clear Filters
                                     </button>

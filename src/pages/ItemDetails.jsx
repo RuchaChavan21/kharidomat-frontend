@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import ReviewSection from "../components/ReviewSection";
 import API from "../services/api";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import ItemCard from "../components/ItemCard"; // Added import for ItemCard
 
 const ItemDetails = () => {
   const { itemId } = useParams();
@@ -264,206 +265,167 @@ const ItemDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 pt-20">
+    <div className="min-h-screen bg-[#fff] text-gray-900 pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-12"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start"
         >
-          {/* Item Image */}
+          {/* Left: Image/Slider */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-6"
+            className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-center"
           >
-            <div className="card p-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl flex items-center justify-center">
-              {item.imageName ? (
+            {item.images && item.images.length > 1 ? (
+              <>
+                {/* Simple slider: show selected image large, thumbnails below */}
                 <img
-                  src={`http://localhost:8080/api/items/image/${item.imageName}`}
+                  src={item.images[0]}
                   alt={item.title}
-                  className="w-full max-w-md h-64 sm:h-80 object-cover rounded-lg shadow-md"
+                  className="w-full max-w-md h-80 object-cover rounded-lg mb-4 shadow"
                 />
-              ) : (
-                <div className="w-full max-w-md h-64 sm:h-80 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-lg text-5xl text-gray-400 dark:text-gray-600">
-                  <span role="img" aria-label="No Image">
-                    🖼️
-                  </span>
+                <div className="flex gap-2 mt-2">
+                  {item.images.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt={`Thumbnail ${idx + 1}`}
+                      className="w-16 h-16 object-cover rounded-lg border border-gray-200 cursor-pointer hover:scale-105 transition-all duration-200"
+                    />
+                  ))}
                 </div>
-              )}
-            </div>
-            {/* Removed image1, image2, ... gallery */}
+              </>
+            ) : (
+              <>
+                {item.imageName ? (
+                  <img
+                    src={`http://localhost:8080/api/items/image/${item.imageName}`}
+                    alt={item.title}
+                    className="w-full max-w-md h-80 object-cover rounded-lg shadow"
+                  />
+                ) : (
+                  <div className="w-full max-w-md h-80 flex items-center justify-center bg-gray-200 rounded-lg text-5xl text-gray-400">
+                    <span role="img" aria-label="No Image">🖼️</span>
+                  </div>
+                )}
+              </>
+            )}
           </motion.div>
 
-          {/* Item Details */}
+          {/* Right: Details Card */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="space-y-8"
+            className="bg-white rounded-xl shadow-lg p-8 flex flex-col gap-6"
           >
-            {/* Header */}
-            <div className="card p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
-                      {item.title}
-                    </h1>
-                    <button
-                      onClick={handleWishlistToggle}
-                      disabled={wishlistLoading}
-                      className="ml-2 w-9 h-9 flex items-center justify-center rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 disabled:opacity-60"
-                      title={
-                        isInWishlist
-                          ? "Remove from wishlist"
-                          : "Add to wishlist"
-                      }
-                    >
-                      {wishlistLoading ? (
-                        <div className="w-4 h-4 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-                      ) : isInWishlist ? (
-                        <FaHeart className="w-5 h-5 text-pink-500" />
-                      ) : (
-                        <FaRegHeart className="w-5 h-5 text-gray-400 dark:text-gray-300 hover:text-pink-500 transition-colors duration-200" />
-                      )}
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
-                        item.category
-                      )}`}
-                    >
-                      {item.category}
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                        item.status
-                      )}`}
-                    >
-                      {item.status}
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xl font-bold text-purple-600 dark:text-purple-400">
-                    ₹{item.pricePerDay}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-300">
-                    per day
-                  </div>
+            {/* Title and Wishlist/Share */}
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1 truncate">{item.title}</h1>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="inline-block bg-gray-100 text-gray-600 text-xs rounded-full px-3 py-1">{item.category}</span>
+                  {item.isBestSeller && <span className="inline-block bg-[#B9162C] text-white text-xs font-bold rounded-full px-3 py-1 ml-2">Best Seller</span>}
+                  {item.isNew && <span className="inline-block bg-green-100 text-green-700 text-xs font-bold rounded-full px-3 py-1 ml-2">New Arrival</span>}
                 </div>
               </div>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {item.tags &&
-                  item.tags.map((tag, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-              </div>
-
-              {/* Description */}
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Description
-                </h2>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
-
-              {/* Features */}
-              {item.features && item.features.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    Features
-                  </h3>
-                  <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
-                    {item.features.map((feature, idx) => (
-                      <li key={idx}>{feature}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Condition */}
-              {item.condition && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    Condition
-                  </h3>
-                  <p className="text-gray-700 dark:text-gray-300">
-                    {item.condition}
-                  </p>
-                </div>
-              )}
-
-              {/* Owner Info */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-6 mt-8">
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-300 mb-1">
-                    Posted by
-                  </p>
-                  <p className="font-semibold text-gray-900 dark:text-white text-sm">
-                    {item.owner || "Unknown"}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {item.ownerEmail || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-300 mb-1">
-                    Posted on
-                  </p>
-                  <p className="font-semibold text-gray-900 dark:text-white text-sm">
-                    {item.postedDate ? item.postedDate : "N/A"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-end items-center">
-                <button
-                  onClick={handleRentNow}
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 w-full sm:w-auto"
-                >
-                  Rent Now
-                </button>
-                <button
-                  onClick={handleStartChat}
-                  className="inline-flex items-center justify-center px-7 py-3 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 w-full sm:w-auto gap-2 text-base font-semibold"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4.28 1.07a1 1 0 01-1.22-1.22l1.07-4.28A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                    />
-                  </svg>
-                  Chat with Owner
-                </button>
-              </div>
+              {/* Wishlist Heart */}
+              <button
+                onClick={handleWishlistToggle}
+                disabled={wishlistLoading}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow hover:bg-gray-100 transition-all duration-200 disabled:opacity-60 mt-1"
+                title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                {wishlistLoading ? (
+                  <div className="w-4 h-4 border-2 border-[#B9162C] border-t-transparent rounded-full animate-spin"></div>
+                ) : isInWishlist ? (
+                  <FaHeart className="w-5 h-5 text-[#B9162C]" />
+                ) : (
+                  <FaRegHeart className="w-5 h-5 text-gray-400 hover:text-[#B9162C] transition-colors duration-200" />
+                )}
+              </button>
+              {/* Share icons (optional) */}
+              {/* <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow hover:bg-gray-100 transition-all duration-200 ml-2">
+                <svg ... />
+              </button> */}
+            </div>
+            {/* Price and Rent Now + Chat */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-2">
+              <div className="text-2xl font-bold text-[#B9162C]">₹{item.pricePerDay} <span className="text-base font-normal text-gray-500">/ day</span></div>
+              <button
+                onClick={handleRentNow}
+                className="bg-[#B9162C] text-white font-bold rounded-lg px-8 py-3 shadow hover:bg-[#a01325] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#B9162C] focus:ring-offset-2 w-full sm:w-auto"
+              >
+                Rent Now
+              </button>
+              <button
+                onClick={handleStartChat}
+                className="bg-blue-600 text-white font-bold rounded-lg px-8 py-3 shadow hover:bg-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 w-full sm:w-auto"
+              >
+                Chat
+              </button>
+            </div>
+            {/* Short Description */}
+            <div className="text-gray-700 text-base mb-2 line-clamp-2">{item.shortDescription || item.description?.slice(0, 120) + '...'}</div>
+            {/* Badges */}
+            <div className="flex gap-3 mb-2">
+              <span className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 text-xs rounded-full px-3 py-1 font-semibold"><svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg> Quality Assured</span>
+              <span className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 text-xs rounded-full px-3 py-1 font-semibold"><svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4v16h16V4z" /><path d="M8 8h8v8H8z" /></svg> Easy Returns</span>
             </div>
           </motion.div>
         </motion.div>
-        {/* Review Section at the bottom */}
-        {item && <ReviewSection itemId={item.id} />}
+        {/* Description & Owner Details Side by Side */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 max-w-7xl mx-auto"
+        >
+          {/* Description/Specs Card */}
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Description</h2>
+            <p className="text-gray-700 text-base mb-6 leading-relaxed">{item.description}</p>
+            {(item.material || item.dimensions || item.color || item.weight || item.usageType) && (
+              <>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Specifications</h3>
+                <ul className="text-gray-700 text-base grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mb-2">
+                  {item.material && <li><span className="font-semibold">Material:</span> {item.material}</li>}
+                  {item.dimensions && <li><span className="font-semibold">Dimensions:</span> {item.dimensions}</li>}
+                  {item.color && <li><span className="font-semibold">Color:</span> {item.color}</li>}
+                  {item.weight && <li><span className="font-semibold">Weight:</span> {item.weight}</li>}
+                  {item.usageType && <li><span className="font-semibold">Usage Type:</span> {item.usageType}</li>}
+                </ul>
+              </>
+            )}
+          </div>
+          {/* Owner Details/Reviews Card */}
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Owner Details</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-4">
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Posted by</p>
+                <p className="font-semibold text-gray-900 text-sm">{item.owner || 'Unknown'}</p>
+                {item.ownerEmail && <p className="text-xs text-gray-500">{item.ownerEmail}</p>}
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Posted on</p>
+                <p className="font-semibold text-gray-900 text-sm">{item.postedDate ? item.postedDate : 'N/A'}</p>
+              </div>
+            </div>
+            {/* Ratings & Reviews */}
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-yellow-400 text-lg">★</span>
+              <span className="text-gray-700 text-base font-semibold">{item.rating || 'N/A'}</span>
+              {item.totalReviews > 0 && <span className="text-gray-500 text-sm">({item.totalReviews} reviews)</span>}
+            </div>
+            {/* Review Section at the bottom */}
+            {item && <ReviewSection itemId={item.id} />}
+          </div>
+        </motion.div>
       </div>
       {/* Toast Notification for wishlist */}
       <motion.div
@@ -480,8 +442,50 @@ const ItemDetails = () => {
           <p className="text-sm">{toastMessage}</p>
         </div>
       </motion.div>
+      {/* You May Also Like Section */}
+      {item && (
+        <SimilarItemsSection category={item.category} excludeId={item.id} />
+      )}
     </div>
   );
 };
 
 export default ItemDetails;
+
+function SimilarItemsSection({ category, excludeId }) {
+  const [similarItems, setSimilarItems] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => {
+    let url = category && category !== 'Other'
+      ? `/items/search?category=${encodeURIComponent(category)}`
+      : '/items/search';
+    API.get(url)
+      .then(res => {
+        let filtered = res.data.filter(i => i.id !== excludeId);
+        // Pick 3-4 random or first few
+        if (filtered.length > 4) {
+          filtered = filtered.sort(() => 0.5 - Math.random()).slice(0, 4);
+        }
+        setSimilarItems(filtered);
+      })
+      .catch(() => setSimilarItems([]))
+      .finally(() => setLoading(false));
+  }, [category, excludeId]);
+  if (loading) return null;
+  if (!similarItems.length) return null;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 1 }}
+      className="bg-white rounded-xl shadow-lg p-8 mt-12 max-w-7xl mx-auto"
+    >
+      <h3 className="text-xl font-bold text-gray-900 mb-6">You May Also Like</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {similarItems.map(item => (
+          <ItemCard key={item.id} item={item} />
+        ))}
+      </div>
+    </motion.div>
+  );
+}

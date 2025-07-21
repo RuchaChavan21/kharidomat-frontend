@@ -133,29 +133,17 @@ const Register = () => {
 
   // --- RENDER LOGIC ---
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white dark:bg-gray-900 p-8 rounded-xl shadow-md w-full max-w-md border border-gray-200 dark:border-gray-800 transition-colors duration-300"
+    <div className="min-h-screen flex items-center justify-center bg-[#fafbfc] px-4">
+      <div
+        className="w-full max-w-md mx-auto mt-10 mb-10 bg-white rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.10)] flex flex-col items-center p-8 md:p-10"
+        style={{ fontFamily: 'Inter, Arial, sans-serif' }}
       >
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white text-center">
-          {step === 1 && "Create Your Account"}
-          {step === 2 && "Verify Your Email"}
-          {step === 3 && "Complete Registration"}
-        </h2>
-
+        <h2 className="text-[#222] font-semibold uppercase text-[24px] text-center mb-8 tracking-wide">{step === 1 ? 'Register' : step === 2 ? 'Verify Email' : 'Complete Registration'}</h2>
         {/* Step 1: Email Form */}
         {step === 1 && (
-          <form onSubmit={handleSendOtp} className="space-y-6">
+          <form onSubmit={handleSendOtp} className="w-full flex flex-col gap-5">
             <div>
-              <label
-                htmlFor="fullName"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Full Name
-              </label>
+              <label htmlFor="fullName" className="block text-[14px] font-medium uppercase text-[#222] mb-2 tracking-wide">Full Name</label>
               <input
                 id="fullName"
                 name="fullName"
@@ -164,16 +152,12 @@ const Register = () => {
                 onChange={handleInputChange}
                 placeholder="Your Full Name"
                 required
-                className="w-full px-4 py-2 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full h-11 px-4 rounded-[8px] border border-[#ccc] bg-white text-[#222] text-[15px] placeholder-gray-400 focus:outline-none focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] transition-all ${error && !formData.fullName ? 'border-[#D32F2F]' : ''}`}
               />
+              {error && !formData.fullName && <div className="text-[#D32F2F] text-xs mt-1">{error}</div>}
             </div>
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Email Address
-              </label>
+              <label htmlFor="email" className="block text-[14px] font-medium uppercase text-[#222] mb-2 tracking-wide">Email Address</label>
               <input
                 id="email"
                 name="email"
@@ -182,33 +166,25 @@ const Register = () => {
                 onChange={handleInputChange}
                 placeholder="your@college.com"
                 required
-                className="w-full px-4 py-2 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full h-11 px-4 rounded-[8px] border border-[#ccc] bg-white text-[#222] text-[15px] placeholder-gray-400 focus:outline-none focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] transition-all ${error && !formData.email ? 'border-[#D32F2F]' : ''}`}
               />
+              {error && !formData.email && <div className="text-[#D32F2F] text-xs mt-1">{error}</div>}
             </div>
-            <motion.button
+            <button
               type="submit"
               disabled={isLoading || !formData.fullName || !formData.email}
-              whileHover={{ scale: 1.02 }}
-              className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-800 disabled:opacity-50"
+              className={`w-full h-11 mt-2 rounded-[8px] bg-[#D32F2F] text-white font-bold uppercase text-[16px] tracking-wide shadow transition-all duration-200 hover:bg-[#b71c1c] focus:outline-none focus:ring-2 focus:ring-[#D32F2F] ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
             >
-              {isLoading ? "Sending OTP..." : "Send OTP"}
-            </motion.button>
+              {isLoading ? 'Sending OTP...' : 'Send OTP'}
+            </button>
           </form>
         )}
-
         {/* Step 2: OTP Form */}
         {step === 2 && (
-          <form onSubmit={handleVerifyOtp} className="space-y-6">
-            <p className="text-center text-gray-600 dark:text-gray-400 -mt-4">
-              Enter the code sent to <strong>{formData.email}</strong>
-            </p>
+          <form onSubmit={handleVerifyOtp} className="w-full flex flex-col gap-5">
+            <div className="text-center text-[#222] text-[15px] mb-2">Enter the code sent to <span className="font-semibold">{formData.email}</span></div>
             <div>
-              <label
-                htmlFor="otp"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Verification Code
-              </label>
+              <label htmlFor="otp" className="block text-[14px] font-medium uppercase text-[#222] mb-2 tracking-wide">Verification Code</label>
               <input
                 id="otp"
                 type="text"
@@ -216,168 +192,92 @@ const Register = () => {
                 onChange={handleOtpChange}
                 placeholder="6-Digit Code"
                 maxLength={6}
-                className="w-full px-4 py-2 text-center tracking-widest text-lg rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full h-11 px-4 rounded-[8px] border border-[#ccc] bg-white text-[#222] text-[15px] text-center tracking-widest placeholder-gray-400 focus:outline-none focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] transition-all ${error && otp.length < 6 ? 'border-[#D32F2F]' : ''}`}
               />
+              {error && otp.length < 6 && <div className="text-[#D32F2F] text-xs mt-1">{error}</div>}
             </div>
-            <motion.button
+            <button
               type="submit"
               disabled={isLoading || otp.length < 6}
-              whileHover={{ scale: 1.02 }}
-              className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-800 disabled:opacity-50"
+              className={`w-full h-11 mt-2 rounded-[8px] bg-[#D32F2F] text-white font-bold uppercase text-[16px] tracking-wide shadow transition-all duration-200 hover:bg-[#b71c1c] focus:outline-none focus:ring-2 focus:ring-[#D32F2F] ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
             >
-              {isLoading ? "Verifying..." : "Verify"}
-            </motion.button>
-            <div className="text-center">
-              <p className="text-sm text-gray-500">
-                Didn't receive it?{" "}
-                <button
-                  type="button"
-                  onClick={handleResendOtp}
-                  disabled={isLoading}
-                  className="font-semibold text-purple-600 hover:text-purple-500 disabled:opacity-50"
-                >
-                  Resend OTP
-                </button>
-              </p>
+              {isLoading ? 'Verifying...' : 'Verify'}
+            </button>
+            <div className="text-center mt-2">
+              <span className="text-[13px] text-[#222]">Didn't receive it? </span>
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={isLoading}
+                className="font-semibold text-[#D32F2F] hover:underline disabled:opacity-60 text-[13px]"
+              >
+                Resend OTP
+              </button>
             </div>
           </form>
         )}
-
         {/* Step 3: Password and Details Form */}
         {step === 3 && (
-          <form onSubmit={handleCompleteRegistration} className="space-y-6">
-            <p className="text-center text-green-500 text-sm -mt-4">
-              Email Verified Successfully!
-            </p>
+          <form onSubmit={handleCompleteRegistration} className="w-full flex flex-col gap-5">
+            <div className="text-center text-green-600 text-[15px] mb-2">Email Verified Successfully!</div>
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Password
-              </label>
+              <label htmlFor="password" className="block text-[14px] font-medium uppercase text-[#222] mb-2 tracking-wide">Password</label>
               <div className="relative">
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="••••••••"
                   required
-                  className="w-full px-4 py-2 pr-10 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className={`w-full h-11 px-4 pr-10 rounded-[8px] border border-[#ccc] bg-white text-[#222] text-[15px] placeholder-gray-400 focus:outline-none focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] transition-all ${error && !formData.password ? 'border-[#D32F2F]' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                  tabIndex={-1}
                 >
                   {showPassword ? (
-                    <svg
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                      />
-                    </svg>
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/></svg>
                   ) : (
-                    <svg
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                   )}
                 </button>
               </div>
+              {error && !formData.password && <div className="text-[#D32F2F] text-xs mt-1">{error}</div>}
             </div>
             <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Confirm Password
-              </label>
+              <label htmlFor="confirmPassword" className="block text-[14px] font-medium uppercase text-[#222] mb-2 tracking-wide">Confirm Password</label>
               <div className="relative">
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                  type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   placeholder="••••••••"
                   required
-                  className="w-full px-4 py-2 pr-10 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className={`w-full h-11 px-4 pr-10 rounded-[8px] border border-[#ccc] bg-white text-[#222] text-[15px] placeholder-gray-400 focus:outline-none focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] transition-all ${error && !formData.confirmPassword ? 'border-[#D32F2F]' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                  tabIndex={-1}
                 >
                   {showConfirmPassword ? (
-                    <svg
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                      />
-                    </svg>
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/></svg>
                   ) : (
-                    <svg
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                   )}
                 </button>
               </div>
+              {error && !formData.confirmPassword && <div className="text-[#D32F2F] text-xs mt-1">{error}</div>}
             </div>
             <div>
-              <label
-                htmlFor="studentId"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Student ID
-              </label>
+              <label htmlFor="studentId" className="block text-[14px] font-medium uppercase text-[#222] mb-2 tracking-wide">Student ID</label>
               <input
                 id="studentId"
                 name="studentId"
@@ -386,40 +286,27 @@ const Register = () => {
                 onChange={handleInputChange}
                 placeholder="e.g. 12345678"
                 required
-                className="w-full px-4 py-2 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full h-11 px-4 rounded-[8px] border border-[#ccc] bg-white text-[#222] text-[15px] placeholder-gray-400 focus:outline-none focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] transition-all ${error && !formData.studentId ? 'border-[#D32F2F]' : ''}`}
               />
+              {error && !formData.studentId && <div className="text-[#D32F2F] text-xs mt-1">{error}</div>}
             </div>
-            <motion.button
+            <button
               type="submit"
               disabled={isLoading}
-              whileHover={{ scale: 1.02 }}
-              className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-800 disabled:opacity-50"
+              className={`w-full h-11 mt-2 rounded-[8px] bg-[#D32F2F] text-white font-bold uppercase text-[16px] tracking-wide shadow transition-all duration-200 hover:bg-[#b71c1c] focus:outline-none focus:ring-2 focus:ring-[#D32F2F] ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
             >
-              {isLoading ? "Completing..." : "Complete Registration"}
-            </motion.button>
+              {isLoading ? 'Completing...' : 'Complete Registration'}
+            </button>
           </form>
         )}
-
         {/* --- Universal Messages/Errors --- */}
-        {message && (
-          <p className="text-green-500 text-sm text-center mt-4">{message}</p>
-        )}
-        {error && (
-          <p className="text-red-500 text-sm text-center mt-4">{error}</p>
-        )}
-
-        <div className="mt-6 text-center">
-          <span className="text-gray-700 dark:text-gray-300">
-            Already have an account?{" "}
-          </span>
-          <a
-            href="/login"
-            className="text-purple-600 dark:text-purple-400 hover:underline"
-          >
-            Log in
-          </a>
+        {message && <div className="text-green-600 text-sm text-center mt-4">{message}</div>}
+        {error && <div className="text-[#D32F2F] text-sm text-center mt-4">{error}</div>}
+        <div className="mt-8 text-center">
+          <span className="text-[#222] text-[14px]">Already have an account? </span>
+          <a href="/login" className="text-[#D32F2F] font-semibold hover:underline text-[14px]">Log in</a>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
