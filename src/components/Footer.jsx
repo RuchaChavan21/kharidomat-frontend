@@ -4,118 +4,44 @@ import { motion } from 'framer-motion';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-8"
-        >
-          {/* Brand */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-            viewport={{ once: true }}
-            className="col-span-1 md:col-span-2"
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">🎓</span>
-              <h3 className="text-xl font-bold text-white">CampusRent</h3>
-            </div>
-            <p className="text-gray-400 mb-4 max-w-md">
-              Connect with fellow students to rent textbooks, electronics, sports equipment, and more. 
-              Save money, reduce waste, and build community.
-            </p>
-            <div className="flex space-x-4">
-              {['📧', '📱', '🐦', '📘'].map((icon, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  transition={{ duration: 0.2 }}
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-purple-600 transition-colors duration-200"
-                >
-                  <span className="text-lg">{icon}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-            viewport={{ once: true }}
-          >
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2">
-              {['Home', 'Browse Items', 'About', 'Dashboard'].map((item, index) => (
-                <motion.li
-                  key={item}
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.4 + index * 0.1, ease: "easeOut" }}
-                  viewport={{ once: true }}
-                  whileHover={{ x: 5 }}
-                >
-                  <Link 
-                    to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}
-                    className="text-gray-400 hover:text-white transition-colors duration-200"
-                  >
-                    {item}
-                  </Link>
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
-
-          {/* Support */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-            viewport={{ once: true }}
-          >
-            <h4 className="text-lg font-semibold mb-4">Support</h4>
-            <ul className="space-y-2">
-              {['Help Center', 'Contact Us', 'Privacy Policy', 'Terms of Service'].map((item, index) => (
-                <motion.li
-                  key={item}
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.5 + index * 0.1, ease: "easeOut" }}
-                  viewport={{ once: true }}
-                  whileHover={{ x: 5 }}
-                >
-                  <a 
-                    href="#"
-                    className="text-gray-400 hover:text-white transition-colors duration-200"
-                  >
-                    {item}
-                  </a>
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
-        </motion.div>
-
-        {/* Bottom Bar */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
-          viewport={{ once: true }}
-          className="border-t border-gray-800 mt-8 pt-8 text-center"
-        >
-          <p className="text-gray-400">
-            © 2025 CampusRent. All rights reserved. Made with ❤️ for students.
-          </p>
-        </motion.div>
+    <footer className="w-full bg-[#B9162C] text-white py-10 px-2 md:px-8 mt-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-2xl font-bold">🎓</span>
+            <span className="text-xl font-bold tracking-wide">KharidoMat</span>
+          </div>
+          <span className="text-sm">Rent Smart. Live Easy.</span>
+        </div>
+        <div>
+          <div className="font-bold mb-2 uppercase">Campus Rentals</div>
+          <ul className="space-y-1 text-sm">
+            <li><Link to="/items" className="hover:underline">Furniture</Link></li>
+            <li><Link to="/items" className="hover:underline">Electronics</Link></li>
+            <li><Link to="/items" className="hover:underline">Appliances</Link></li>
+          </ul>
+        </div>
+        <div>
+          <div className="font-bold mb-2 uppercase">Quick Links</div>
+          <ul className="space-y-1 text-sm">
+            <li><a href="#" className="hover:underline">FAQs</a></li>
+            <li><a href="#" className="hover:underline">Blog</a></li>
+            <li><a href="#" className="hover:underline">Privacy Policy</a></li>
+            <li><Link to="/about" className="hover:underline">Contact</Link></li>
+          </ul>
+        </div>
+        <div>
+          <div className="font-bold mb-2 uppercase">Contact</div>
+          <div className="text-sm mb-2">support@kharidomat.com</div>
+          <div className="text-sm mb-4">+91 98765 43210</div>
+          <div className="flex gap-3">
+            <a href="#" className="hover:text-[#70C9B0]" aria-label="Instagram"><svg width="24" height="24" fill="currentColor"><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" fill="none"/><rect x="7" y="7" width="10" height="10" rx="3" fill="white"/><circle cx="12" cy="12" r="2" fill="#B9162C"/></svg></a>
+            <a href="#" className="hover:text-[#70C9B0]" aria-label="LinkedIn"><svg width="24" height="24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" stroke="white" strokeWidth="2" fill="none"/><rect x="7" y="10" width="2" height="6" fill="white"/><rect x="11" y="10" width="2" height="6" fill="white"/><circle cx="8" cy="8" r="1" fill="white"/></svg></a>
+            <a href="#" className="hover:text-[#70C9B0]" aria-label="Mail"><svg width="24" height="24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" stroke="white" strokeWidth="2" fill="none"/><path d="M6 8l6 5 6-5" stroke="white" strokeWidth="2" fill="none"/></svg></a>
+          </div>
+        </div>
       </div>
+      <div className="text-center text-xs text-white/70 mt-8">&copy; 2025 KharidoMat. All rights reserved.</div>
     </footer>
   );
 };

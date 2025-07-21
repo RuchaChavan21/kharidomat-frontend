@@ -1,202 +1,209 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import ProfileDropdown from './ProfileDropdown';
-import { useTheme } from '../context/ThemeContext';
+
+const navLinks = [
+  { name: 'Home', path: '/' },
+  { name: 'Items', path: '/items' },
+  { name: 'My Bookings', path: '/my-bookings' },
+  { name: 'Contact', path: '/about' },
+];
 
 const Navbar = () => {
-  const location = useLocation();
   const { isLoggedIn } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
-  const { theme, toggleTheme } = useTheme();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [cartCount] = useState(0); // TODO: Replace with real cart count if available
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchRef = React.useRef();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    setMobileOpen(false); // Close mobile menu on route change
+  }, [location.pathname]);
 
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = [
-    { name: 'Browse Items', path: '/items' },
-    { name: 'About', path: '/about' },
-  ];
+  // Handlers for protected navigation
+  const handleProtectedNav = (path) => {
+    if (isLoggedIn) {
+      navigate(path);
+    } else {
+      navigate('/login');
+    }
+  };
+
+  // Close search dropdown on outside click or Escape
+  useEffect(() => {
+    if (!showSearch) return;
+    function handleClick(e) {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSearch(false);
+      }
+    }
+    function handleEsc(e) {
+      if (e.key === 'Escape') setShowSearch(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [showSearch]);
 
   return (
-    <motion.nav 
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled 
-          ? 'bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-800' 
-          : 'bg-white dark:bg-gray-900 shadow-soft border-b border-gray-100 dark:border-gray-800'
-      }`}
-    >
+    <nav className={`fixed top-0 left-0 right-0 z-50 bg-white shadow transition-all duration-300 ${isScrolled ? 'shadow-lg' : 'shadow-none'}`} style={{ fontFamily: 'inherit' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 lg:h-20">
-          {/* Enhanced Brand */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Link to="/" className="flex flex-col items-start group">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">🎓</span>
-                <h1 className="text-xl sm:text-2xl font-bold text-purple-600 group-hover:scale-105 transition-transform duration-300">
-                  CampusRent
-                </h1>
-              </div>
-              <p className="text-xs text-gray-500 ml-8 -mt-1 tracking-wide font-medium">
-                KharidoMat
-              </p>
-            </Link>
-          </motion.div>
-
-          {/* Navigation Links */}
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-            className="hidden md:flex items-center space-x-8"
-          >
-            {isLoggedIn && (
-              <>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <NavLink
-                    to="/dashboard"
-                    className={({ isActive }) =>
-                      `font-medium text-base px-4 py-2 rounded-lg transition-colors duration-200 h-12 flex items-center justify-center ${
-                        isActive
-                          ? 'bg-purple-600 text-white shadow-glow'
-                          : 'text-gray-700 dark:text-gray-200 hover:bg-purple-100 dark:hover:bg-gray-700 hover:text-purple-700 dark:hover:text-purple-300'
-                      } focus:outline-none focus:ring-2 focus:ring-purple-500`
-                    }
-                  >
-                    Dashboard
-                  </NavLink>
-                </motion.div>
-                {/* Chat Tab - now styled like all other tabs */}
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <NavLink
-                    to="/chat"
-                    className={({ isActive }) =>
-                      `font-medium text-base px-4 py-2 rounded-lg transition-colors duration-200 h-12 flex items-center justify-center ${
-                        isActive
-                          ? 'bg-purple-600 text-white shadow-glow'
-                          : 'text-gray-700 dark:text-gray-200 hover:bg-purple-100 dark:hover:bg-gray-700 hover:text-purple-700 dark:hover:text-purple-300'
-                      } focus:outline-none focus:ring-2 focus:ring-purple-500`
-                    }
-                  >
-                    <span role="img" aria-label="Chat">💬</span>
-                    <span className="hidden sm:inline">Chat</span>
-                  </NavLink>
-                </motion.div>
-              </>
-            )}
-            {(!isLoggedIn ? [{ name: 'Home', path: '/' }, ...navItems] : navItems).map((item, index) => (
-              <motion.div
-                key={item.path}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 + index * 0.1, ease: "easeOut" }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `font-medium text-base px-4 py-2 rounded-lg transition-colors duration-200 h-12 flex items-center justify-center ${
-                      isActive
-                        ? 'bg-purple-600 text-white shadow-glow'
-                        : 'text-gray-700 dark:text-gray-200 hover:bg-purple-100 dark:hover:bg-gray-700 hover:text-purple-700 dark:hover:text-purple-300'
-                    } focus:outline-none focus:ring-2 focus:ring-purple-500`
-                  }
-                >
-                  {item.name}
-                </NavLink>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* Auth Buttons & Profile Dropdown */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-            className="flex items-center space-x-4"
-          >
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg transition-colors duration-300 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-200 hover:bg-purple-100 dark:hover:bg-purple-900"
-              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            >
-              {theme === 'dark' ? (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1.5m0 15V21m8.485-8.485h-1.5m-15 0H3m15.364-6.364l-1.06 1.06m-12.728 0l-1.06-1.06m16.97 12.728l-1.06-1.06m-12.728 0l-1.06 1.06M12 7.5A4.5 4.5 0 1012 16.5 4.5 4.5 0 0012 7.5z" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0112 21.75c-5.385 0-9.75-4.365-9.75-9.75 0-4.136 2.64-7.64 6.37-9.175.512-.21 1.08-.03 1.387.453.306.482.18 1.12-.332 1.33A7.501 7.501 0 0012 19.5c2.485 0 4.675-1.21 6.025-3.067.34-.47 1.01-.57 1.41-.19.4.38.47 1.03.17 1.46z" />
-                </svg>
-              )}
+        <div className="flex items-center justify-between h-16 md:h-20">
+          {/* Left: Hamburger + Logo */}
+          <div className="flex items-center gap-4">
+            {/* Hamburger for mobile */}
+            <button className="md:hidden p-2 rounded hover:bg-gray-100 focus:outline-none" onClick={() => setMobileOpen(v => !v)} aria-label="Open menu">
+              <svg width="28" height="28" fill="none" stroke="#222" strokeWidth="2"><path d="M4 7h20M4 14h20M4 21h20" strokeLinecap="round"/></svg>
             </button>
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 group">
+              <span className="text-2xl">🎓</span>
+              <span className="text-xl md:text-2xl font-extrabold tracking-tight text-[#222] group-hover:text-[#D32F2F] transition-colors duration-200">KharidoMat</span>
+            </Link>
+          </div>
+          {/* Center: Nav Links */}
+          <div className="hidden md:flex gap-2 lg:gap-6 mx-auto">
+            <NavLink
+              key="Home"
+              to="/"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded font-bold uppercase tracking-wide text-base transition-colors duration-150 ${isActive ? 'text-[#D32F2F] underline underline-offset-8' : 'text-[#222] hover:text-[#D32F2F] hover:bg-[#fff3f3]'}`
+              }
+              end
+            >
+              Home
+            </NavLink>
+            <button
+              onClick={() => handleProtectedNav('/items')}
+              className="px-3 py-2 rounded font-bold uppercase tracking-wide text-base transition-colors duration-150 text-[#222] hover:text-[#D32F2F] hover:bg-[#fff3f3] focus:outline-none"
+              style={{ background: 'none', border: 'none' }}
+            >
+              Items
+            </button>
+            <NavLink
+              key="My Bookings"
+              to="/my-bookings"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded font-bold uppercase tracking-wide text-base transition-colors duration-150 ${isActive ? 'text-[#D32F2F] underline underline-offset-8' : 'text-[#222] hover:text-[#D32F2F] hover:bg-[#fff3f3]'}`
+              }
+            >
+              My Bookings
+            </NavLink>
+            <NavLink
+              key="Contact"
+              to="/about"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded font-bold uppercase tracking-wide text-base transition-colors duration-150 ${isActive ? 'text-[#D32F2F] underline underline-offset-8' : 'text-[#222] hover:text-[#D32F2F] hover:bg-[#fff3f3]'}`
+              }
+            >
+              Contact
+            </NavLink>
+          </div>
+          {/* Right: Icons */}
+          <div className="flex items-center gap-4">
+            {/* Profile/Account */}
             {isLoggedIn ? (
-              <>
-                {/* Profile Dropdown */}
-                <ProfileDropdown />
-              </>
+              <ProfileDropdown />
             ) : (
-              <>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Link to="/login" className="text-sm text-gray-600 hover:text-purple-600 transition-colors duration-200">
-                    Login
-                  </Link>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Link to="/register" className="text-sm px-4 py-2 rounded-xl font-medium bg-purple-600 hover:bg-purple-700 text-white shadow-glow hover:shadow-glow-lg transition-all duration-300">
-                    Get Started
-                  </Link>
-                </motion.div>
-              </>
+              <Link to="/login" className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222]" title="Account">
+                <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><circle cx="13" cy="9" r="4.5"/><path d="M4 22c0-3.5 4.5-5 9-5s9 1.5 9 5"/></svg>
+              </Link>
             )}
-          </motion.div>
-
-          {/* Mobile Menu Button */}
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-all duration-200"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </motion.button>
+            {/* Search */}
+            <div className="relative">
+              <button
+                onClick={() => setShowSearch(v => !v)}
+                className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222] focus:outline-none"
+                title="Search"
+                aria-label="Open search bar"
+              >
+                <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><circle cx="12" cy="12" r="8"/><path d="M20 20l-3-3"/></svg>
+              </button>
+              <AnimatePresence>
+                {showSearch && (
+                  <motion.div
+                    ref={searchRef}
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.18 }}
+                    className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-2 flex flex-col gap-2"
+                  >
+                    <input
+                      type="text"
+                      placeholder="Search for items..."
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-[#D32F2F]"
+                      autoFocus
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            {/* Wishlist */}
+            <button
+              onClick={() => handleProtectedNav('/wishlist')}
+              className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222] focus:outline-none"
+              title="Wishlist"
+              aria-label="Wishlist"
+            >
+              <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </button>
+          </div>
         </div>
       </div>
-    </motion.nav>
+      {/* Search Modal */}
+      {/* Remove any AnimatePresence or motion.div for search modal that is not inside the search icon's <div className="relative">. Only keep the dropdown search input beside the icon. */}
+      {/* Mobile Nav Drawer */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ duration: 0.25 }}
+            className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-50 flex flex-col p-6 gap-6"
+          >
+            <button className="self-end mb-4 p-2 rounded hover:bg-[#fff3f3]" onClick={() => setMobileOpen(false)} aria-label="Close menu">
+              <svg width="28" height="28" fill="none" stroke="#D32F2F" strokeWidth="2"><path d="M6 6l16 16M22 6L6 22" strokeLinecap="round"/></svg>
+            </button>
+            {navLinks.map(link => (
+              <NavLink
+                key={link.path}
+                to={link.path}
+                className={({ isActive }) =>
+                  `block px-3 py-3 rounded font-bold uppercase tracking-wide text-base transition-colors duration-150 ${isActive ? 'text-[#D32F2F] underline underline-offset-8' : 'text-[#222] hover:text-[#D32F2F] hover:bg-[#fff3f3]'}`
+                }
+                end={link.path === '/'}
+              >
+                {link.name}
+              </NavLink>
+            ))}
+            <div className="flex gap-4 mt-8">
+              <Link to="/login" className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222]" title="Account">
+                <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><circle cx="13" cy="9" r="4.5"/><path d="M4 22c0-3.5 4.5-5 9-5s9 1.5 9 5"/></svg>
+              </Link>
+              <Link to="/items" className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222]" title="Search">
+                <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><circle cx="12" cy="12" r="8"/><path d="M20 20l-3-3"/></svg>
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
   );
 };
 

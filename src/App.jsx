@@ -26,11 +26,7 @@ import Chat from './pages/Chat';
 import EditProfile from './pages/EditProfile';
 
 function PublicHomeRoute() {
-  const { user } = useAuth();
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  if (user || token) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  // Always show Home page, regardless of login state
   return <Home />;
 }
 

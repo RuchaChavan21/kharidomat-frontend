@@ -11,29 +11,21 @@ const VerifyOtp = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // Get email from sessionStorage
     const storedEmail = sessionStorage.getItem("resetEmail");
     if (!storedEmail) {
-      // If no email is stored, redirect back to forgot password
       navigate("/forgot-password");
       return;
     }
     setEmail(storedEmail);
   }, [navigate]);
 
-  // In VerifyOtp.jsx
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage("");
-
     try {
       await API.post("/users/verify", { email, otp });
-
       setMessage("OTP verified successfully!");
-
-      // It now passes the verified 'otp' to the ResetPassword page.
       setTimeout(() => {
         navigate("/reset-password", { state: { otp: otp } });
       }, 1500);
@@ -56,9 +48,7 @@ const VerifyOtp = () => {
   const resendOtp = async () => {
     setIsLoading(true);
     setMessage("");
-
     try {
-      // Use the forgot-password endpoint to resend the OTP
       await API.post("/users/forgot-password", { email });
       setMessage("A new OTP has been sent successfully!");
     } catch (error) {
@@ -74,112 +64,78 @@ const VerifyOtp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-accent-50 to-mint-50 pt-20">
-      <div className="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-md"
-        >
-          {/* Card */}
-          <div className="card p-8">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glow">
-                <span className="text-white font-bold text-2xl">📱</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 mb-2">
-                Verify OTP
-              </h2>
-              <p className="text-gray-700 leading-relaxed">
-                Enter the 6-digit code sent to
-              </p>
-              {email && (
-                <p className="text-sm text-gray-600 font-semibold mt-1">
-                  {email}
-                </p>
-              )}
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-[#fafbfc] px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-md mx-auto mt-10 mb-10 bg-white rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.10)] flex flex-col items-center p-8 md:p-10"
+        style={{ fontFamily: 'Inter, Arial, sans-serif' }}
+      >
+        {/* Header */}
+        <div className="w-16 h-16 bg-[#fff3f3] rounded-2xl flex items-center justify-center mb-4 shadow">
+          <span className="text-[#B9162C] font-bold text-3xl">📱</span>
+        </div>
+        <h2 className="text-[#222] font-semibold uppercase text-[24px] text-center mb-2 tracking-wide">Verify OTP</h2>
+        <div className="text-center text-[#555] text-[15px] mb-2">Enter the 6-digit code sent to</div>
+        {email && <div className="text-sm text-[#B9162C] font-semibold mb-4">{email}</div>}
 
-            {/* Message */}
-            {message && (
-              <div
-                className={`mb-6 p-4 rounded-lg text-sm ${
-                  message.includes("successfully")
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
-                }`}
-              >
-                {message}
-              </div>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label
-                  htmlFor="otp"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Verification Code
-                </label>
-                <input
-                  id="otp"
-                  type="text"
-                  placeholder="Enter 6-digit code"
-                  value={otp}
-                  onChange={handleOtpChange}
-                  className="input-field text-center text-2xl tracking-widest"
-                  maxLength={6}
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading || otp.length !== 6}
-                className="btn-primary w-full py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Verifying...
-                  </div>
-                ) : (
-                  "Verify & Proceed"
-                )}
-              </button>
-            </form>
-
-            {/* Resend OTP */}
-            <div className="text-center mt-6">
-              <p className="text-gray-700 text-sm">
-                Didn't receive the code?{" "}
-                <button
-                  onClick={resendOtp}
-                  disabled={isLoading}
-                  className="text-purple-600 hover:text-purple-700 font-semibold disabled:opacity-50"
-                >
-                  Resend OTP
-                </button>
-              </p>
-            </div>
-
-            {/* Back to Login */}
-            <div className="text-center mt-8">
-              <p className="text-gray-700 leading-relaxed">
-                <Link
-                  to="/login"
-                  className="text-purple-600 hover:text-purple-700 font-semibold"
-                >
-                  ← Back to Login
-                </Link>
-              </p>
-            </div>
+        {/* Message */}
+        {message && (
+          <div
+            className={`mb-6 p-4 rounded-lg text-sm w-full text-center ${
+              message.toLowerCase().includes("success")
+                ? "bg-green-50 text-green-700 border border-green-200"
+                : "bg-red-50 text-[#B9162C] border border-red-200"
+            }`}
+          >
+            {message}
           </div>
-        </motion.div>
-      </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
+          <div>
+            <label htmlFor="otp" className="block text-[14px] font-medium uppercase text-[#222] mb-2 tracking-wide">Verification Code</label>
+            <input
+              id="otp"
+              type="text"
+              placeholder="Enter 6-digit code"
+              value={otp}
+              onChange={handleOtpChange}
+              className="w-full h-11 px-4 rounded-[8px] border border-[#ccc] bg-white text-[#222] text-2xl tracking-widest text-center placeholder-gray-400 focus:outline-none focus:border-[#B9162C] focus:ring-2 focus:ring-[#B9162C] transition-all"
+              maxLength={6}
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isLoading || otp.length !== 6}
+            className={`w-full h-11 mt-2 rounded-[8px] bg-[#B9162C] text-white font-bold uppercase text-[16px] tracking-wide shadow transition-all duration-200 hover:bg-[#a01325] focus:outline-none focus:ring-2 focus:ring-[#B9162C] ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center"><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>Verifying...</div>
+            ) : ("Verify & Proceed")}
+          </button>
+        </form>
+
+        {/* Resend OTP */}
+        <div className="text-center mt-6">
+          <span className="text-[#222] text-[14px]">Didn't receive the code? </span>
+          <button
+            onClick={resendOtp}
+            disabled={isLoading}
+            className="text-[#B9162C] font-semibold hover:underline text-[14px] disabled:opacity-50"
+          >
+            Resend OTP
+          </button>
+        </div>
+
+        {/* Back to Login */}
+        <div className="text-center mt-8">
+          <Link to="/login" className="text-[#B9162C] font-semibold hover:underline text-[14px]">← Back to Login</Link>
+        </div>
+      </motion.div>
     </div>
   );
 };

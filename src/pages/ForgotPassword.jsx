@@ -42,93 +42,65 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-accent-50 to-mint-50 pt-20">
-      <div className="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-md"
-        >
-          {/* Card */}
-          <div className="card p-8">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glow">
-                <span className="text-white font-bold text-2xl">🔐</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 mb-2">
-                Forgot Password
-              </h2>
-              <p className="text-gray-700 leading-relaxed">
-                Enter your email address and we'll send you a verification code
-              </p>
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-[#fafbfc] px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-md mx-auto mt-10 mb-10 bg-white rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.10)] flex flex-col items-center p-8 md:p-10"
+        style={{ fontFamily: 'Inter, Arial, sans-serif' }}
+      >
+        {/* Header */}
+        <div className="w-16 h-16 bg-[#fff3f3] rounded-2xl flex items-center justify-center mb-4 shadow">
+          <span className="text-[#B9162C] font-bold text-3xl">🔒</span>
+        </div>
+        <h2 className="text-[#222] font-semibold uppercase text-[24px] text-center mb-2 tracking-wide">Forgot Password</h2>
+        <div className="text-center text-[#555] text-[15px] mb-8">Enter your email address and we'll send you a verification code</div>
 
-            {/* Message */}
-            {message && (
-              <div
-                className={`mb-6 p-4 rounded-lg text-sm ${
-                  message.includes("successfully")
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
-                }`}
-              >
-                {message}
-              </div>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-field"
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="btn-primary w-full py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Sending OTP...
-                  </div>
-                ) : (
-                  "Send OTP"
-                )}
-              </button>
-            </form>
-
-            {/* Back to Login */}
-            <div className="text-center mt-8">
-              <p className="text-gray-700 leading-relaxed">
-                Remember your password?{" "}
-                <Link
-                  to="/login"
-                  className="text-purple-600 hover:text-purple-700 font-semibold"
-                >
-                  Back to Login
-                </Link>
-              </p>
-            </div>
+        {/* Message */}
+        {message && (
+          <div
+            className={`mb-6 p-4 rounded-lg text-sm w-full text-center ${
+              message.includes("successfully")
+                ? "bg-green-50 text-green-700 border border-green-200"
+                : "bg-red-50 text-[#B9162C] border border-red-200"
+            }`}
+          >
+            {message}
           </div>
-        </motion.div>
-      </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
+          <div>
+            <label htmlFor="email" className="block text-[14px] font-medium uppercase text-[#222] mb-2 tracking-wide">Email Address</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full h-11 px-4 rounded-[8px] border border-[#ccc] bg-white text-[#222] text-[15px] placeholder-gray-400 focus:outline-none focus:border-[#B9162C] focus:ring-2 focus:ring-[#B9162C] transition-all"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full h-11 mt-2 rounded-[8px] bg-[#B9162C] text-white font-bold uppercase text-[16px] tracking-wide shadow transition-all duration-200 hover:bg-[#a01325] focus:outline-none focus:ring-2 focus:ring-[#B9162C] ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center"><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>Sending OTP...</div>
+            ) : ("Send OTP")}
+          </button>
+        </form>
+
+        {/* Back to Login */}
+        <div className="text-center mt-8">
+          <span className="text-[#222] text-[14px]">Remember your password? </span>
+          <Link to="/login" className="text-[#B9162C] font-semibold hover:underline text-[14px]">Back to Login</Link>
+        </div>
+      </motion.div>
     </div>
   );
 };

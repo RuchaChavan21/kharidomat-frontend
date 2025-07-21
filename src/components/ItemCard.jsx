@@ -150,144 +150,92 @@ const ItemCard = ({ item }) => {
   return (
     <>
       <motion.div
-        className="card group overflow-hidden relative bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 transition-all duration-300 min-h-[340px] w-[250px] flex flex-col"
+        className="relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 w-full flex flex-col p-0"
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         viewport={{ once: true }}
-        whileHover={{
-          y: -10,
-          scale: 1.025,
-          boxShadow: "0 8px 32px 0 rgba(80, 0, 200, 0.10)",
-        }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ y: -8, scale: 1.025 }}
       >
-        {/* Wishlist Heart Icon */}
+        {/* Best Seller Ribbon */}
+        {item.isBestSeller && (
+          <div className="absolute top-4 left-0 bg-[#B9162C] text-white text-xs font-bold px-3 py-1 rounded-r-xl shadow z-20">
+            Best Seller
+          </div>
+        )}
+        {/* Wishlist Heart Icon (unchanged) */}
         <motion.button
           onClick={handleWishlistToggle}
           disabled={isWishlistLoading || !isLoggedIn}
-          className="absolute top-4 right-4 z-20 w-9 h-9 bg-white/90 dark:bg-gray-900/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 dark:border-gray-700"
+          className="absolute top-4 right-4 z-20 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           transition={{ duration: 0.2 }}
         >
           {isWishlistLoading ? (
-            <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-4 h-4 border-2 border-[#B9162C] border-t-transparent rounded-full animate-spin"></div>
           ) : isInWishlist ? (
-            <FaHeart className="w-4 h-4 text-red-500" />
+            <FaHeart className="w-4 h-4 text-[#B9162C]" />
           ) : (
-            <FaRegHeart className="w-4 h-4 text-gray-600 dark:text-gray-300 hover:text-red-500 transition-colors duration-200" />
+            <FaRegHeart className="w-4 h-4 text-gray-600 hover:text-[#B9162C] transition-colors duration-200" />
           )}
         </motion.button>
-
-        {/* --- Content Area (clickable for details) --- */}
+        {/* Image */}
         <Link to={`/item/${item.id}`} className="block">
-          {/* Image Container */}
-          <div className="relative overflow-hidden rounded-t-xl aspect-[4/3] bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+          <div className="relative overflow-hidden rounded-t-xl w-full h-44 bg-gray-100 flex items-center justify-center">
             {itemImageUrl ? (
-              <img
+              <motion.img
                 src={itemImageUrl}
                 alt={item.title}
-                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 min-h-[120px] max-h-[150px]"
+                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                whileHover={{ scale: 1.07 }}
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "";
                 }}
               />
             ) : (
-              <div className="h-full w-full flex items-center justify-center text-4xl text-gray-300 dark:text-gray-600">
-                <span role="img" aria-label="No Image">
-                  🖼️
-                </span>
+              <div className="h-full w-full flex items-center justify-center text-4xl text-gray-300">
+                <span role="img" aria-label="No Image">🖼️</span>
               </div>
             )}
-            {/* Category Badge */}
-            <div
-              className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium shadow-sm ${getCategoryColor(
-                item.category
-              )} bg-white dark:bg-gray-900/80 border border-gray-200 dark:border-gray-700 transition-colors duration-300 tracking-wide`}
-            >
-              {item.category}
-            </div>
-            {/* Price Badge */}
-            <div className="absolute top-4 right-16 bg-white/90 dark:bg-gray-900/80 backdrop-blur-sm px-3 py-1 rounded-full text-base font-medium text-purple-500 border border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-300 tracking-wide">
-              ₹{item.pricePerDay}/day
-            </div>
-            {/* Overlay "Rent Now" Button - for quick action on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
-              <button
-                onClick={handleRentClick}
-                className="bg-white dark:bg-gray-900 text-purple-600 dark:text-purple-300 font-semibold px-6 py-2 rounded text-base shadow-lg hover:bg-purple-600 dark:hover:bg-purple-700 hover:text-white transition-all duration-300 transform hover:scale-105 border border-gray-200 dark:border-gray-700"
-              >
-                Rent Now
-              </button>
-            </div>
           </div>
-
-          {/* Content below image */}
           <div className="p-5 flex-1 flex flex-col justify-between">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200 truncate leading-relaxed">
-              {item.title}
-            </h3>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 tracking-wide">
-                {item.category}
-              </span>
-              <span className="text-sm font-medium text-purple-500 tracking-wide">
-                ₹{item.pricePerDay}
-              </span>
-            </div>
-            <div className="flex items-center justify-between mb-1">
-              {item.owner && (
-                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium line-clamp-1">
-                  Owner: {item.owner}
-                </span>
-              )}
-              {item.location && (
-                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium line-clamp-1">
-                  {item.location}
-                </span>
-              )}
+            <h3 className="font-bold text-lg text-gray-900 mb-1 truncate">{item.title}</h3>
+            <span className="inline-block bg-gray-100 text-gray-600 text-xs rounded-full px-3 py-1 mb-2">{item.category}</span>
+            <div className="font-bold text-[#B9162C] text-base mb-2">₹{item.pricePerDay} <span className="font-normal text-xs">per day</span></div>
+            <div className="flex items-center justify-between mb-2">
+              {item.location && <span className="text-xs text-gray-500 font-medium line-clamp-1">{item.location}</span>}
+              {item.owner && <span className="text-xs text-gray-400 font-medium line-clamp-1">Owner: {item.owner}</span>}
             </div>
             {item.rating && (
               <div className="flex items-center mt-1">
                 <span className="text-yellow-400 text-base mr-1">★</span>
-                <span className="text-gray-600 dark:text-gray-300 text-xs font-medium">
-                  {item.rating}
-                </span>
+                <span className="text-gray-600 text-xs font-medium">{item.rating}</span>
                 {item.totalReviews > 0 && (
-                  <span className="text-gray-500 dark:text-gray-400 text-xs ml-1">
-                    ({item.totalReviews} reviews)
-                  </span>
+                  <span className="text-gray-500 text-xs ml-1">({item.totalReviews} reviews)</span>
                 )}
               </div>
             )}
           </div>
         </Link>
-
-        {/* --- Separate Action Buttons at the bottom --- */}
+        {/* Action Buttons */}
         <div className="mt-auto flex gap-2 px-5 pb-4 pt-0">
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             transition={{ duration: 0.2 }}
-            onClick={() => {
-              if (!item.id && item.id !== 0) {
-                console.warn("Invalid item id for View Details:", item);
-                return;
-              }
-              navigate(`/item/${String(item.id)}`);
-            }}
-            className="flex-1 px-2 py-1.5 rounded bg-white text-purple-600 border border-purple-500 text-xs font-medium hover:bg-purple-600 hover:text-white focus-visible:ring-2 focus-visible:ring-purple-500 dark:bg-purple-600 dark:text-white dark:border-transparent dark:shadow-md dark:hover:bg-purple-700 dark:focus-visible:ring-2 dark:focus-visible:ring-purple-400 transition-all duration-200"
+            onClick={() => navigate(`/item/${String(item.id)}`)}
+            className="flex-1 px-2 py-2 rounded-lg bg-white border border-[#B9162C] text-[#B9162C] font-bold text-xs md:text-sm hover:bg-[#B9162C] hover:text-white transition-all duration-300"
           >
-            View Details
+            Details
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             transition={{ duration: 0.2 }}
             onClick={handleRentClick}
-            className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white py-1.5 px-2 rounded text-xs font-medium transition-all duration-200 shadow-glow hover:shadow-glow-lg border border-purple-700 dark:border-purple-800"
+            className="flex-1 px-2 py-2 rounded-lg bg-[#B9162C] text-white font-bold text-xs md:text-sm hover:bg-[#a01325] transition-all duration-300"
           >
             Rent Now
           </motion.button>
