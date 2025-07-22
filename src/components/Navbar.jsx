@@ -6,7 +6,7 @@ import ProfileDropdown from './ProfileDropdown';
 
 const navLinks = [
   { name: 'Home', path: '/' },
-  { name: 'Items', path: '/items' },
+  { name: 'Items', path: '/items' }, // Will remain here for data structure
   { name: 'My Bookings', path: '/my-bookings' },
   { name: 'Contact', path: '/about' },
 ];
@@ -31,7 +31,7 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handlers for protected navigation
+  // Handlers for protected navigation (still useful if direct clicks skip NavLink logic, though less common now)
   const handleProtectedNav = (path) => {
     if (isLoggedIn) {
       navigate(path);
@@ -77,6 +77,7 @@ const Navbar = () => {
           </div>
           {/* Center: Nav Links */}
           <div className="hidden md:flex gap-2 lg:gap-6 mx-auto">
+            {/* NavLink for Home */}
             <NavLink
               key="Home"
               to="/"
@@ -87,13 +88,19 @@ const Navbar = () => {
             >
               Home
             </NavLink>
-            <button
-              onClick={() => handleProtectedNav('/items')}
-              className="px-3 py-2 rounded font-bold uppercase tracking-wide text-base transition-colors duration-150 text-[#222] hover:text-[#D32F2F] hover:bg-[#fff3f3] focus:outline-none"
-              style={{ background: 'none', border: 'none' }}
+
+            {/* NavLink for Items - Changed from button to NavLink */}
+            <NavLink
+              key="Items" // Using key for consistency
+              to="/items"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded font-bold uppercase tracking-wide text-base transition-colors duration-150 ${isActive ? 'text-[#D32F2F] underline underline-offset-8' : 'text-[#222] hover:text-[#D32F2F] hover:bg-[#fff3f3]'}`
+              }
             >
               Items
-            </button>
+            </NavLink>
+
+            {/* NavLink for My Bookings */}
             <NavLink
               key="My Bookings"
               to="/my-bookings"
@@ -103,9 +110,10 @@ const Navbar = () => {
             >
               My Bookings
             </NavLink>
+            {/* NavLink for Contact (now '/about' based on your previous code) */}
             <NavLink
               key="Contact"
-              to="/about"
+              to="/about" // Assuming '/about' is the correct path for Contact page
               className={({ isActive }) =>
                 `px-3 py-2 rounded font-bold uppercase tracking-wide text-base transition-colors duration-150 ${isActive ? 'text-[#D32F2F] underline underline-offset-8' : 'text-[#222] hover:text-[#D32F2F] hover:bg-[#fff3f3]'}`
               }
@@ -155,7 +163,7 @@ const Navbar = () => {
             </div>
             {/* Wishlist */}
             <button
-              onClick={() => handleProtectedNav('/wishlist')}
+              onClick={() => handleProtectedNav('/wishlist')} // Using handleProtectedNav for wishlist
               className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222] focus:outline-none"
               title="Wishlist"
               aria-label="Wishlist"
@@ -165,8 +173,6 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-      {/* Search Modal */}
-      {/* Remove any AnimatePresence or motion.div for search modal that is not inside the search icon's <div className="relative">. Only keep the dropdown search input beside the icon. */}
       {/* Mobile Nav Drawer */}
       <AnimatePresence>
         {mobileOpen && (
@@ -193,11 +199,25 @@ const Navbar = () => {
               </NavLink>
             ))}
             <div className="flex gap-4 mt-8">
-              <Link to="/login" className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222]" title="Account">
-                <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><circle cx="13" cy="9" r="4.5"/><path d="M4 22c0-3.5 4.5-5 9-5s9 1.5 9 5"/></svg>
-              </Link>
-              <Link to="/items" className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222]" title="Search">
+              {/* Mobile version of icons - ensure consistency with desktop if possible */}
+              {isLoggedIn ? (
+                <ProfileDropdown /> // Or a simplified mobile profile link
+              ) : (
+                <Link to="/login" className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222]" title="Account">
+                  <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><circle cx="13" cy="9" r="4.5"/><path d="M4 22c0-3.5 4.5-5 9-5s9 1.5 9 5"/></svg>
+                </Link>
+              )}
+              {/* Search button in mobile menu */}
+              <button
+                onClick={() => { setShowSearch(true); setMobileOpen(false); }} // Open search and close mobile menu
+                className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222] focus:outline-none"
+                title="Search"
+                aria-label="Open search bar"
+              >
                 <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><circle cx="12" cy="12" r="8"/><path d="M20 20l-3-3"/></svg>
+              </button>
+              <Link to="/wishlist" className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222]" title="Wishlist">
+                <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
               </Link>
             </div>
           </motion.div>

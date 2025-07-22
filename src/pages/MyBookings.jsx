@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import API from "../services/api";
+import API from "../services/api"; // Assuming API is correctly configured to include the token
 
 const MyBookings = () => {
   const { user, isLoggedIn, token } = useAuth();
@@ -13,76 +13,7 @@ const MyBookings = () => {
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Mock data for demonstration
-  /*const mockBookings = [
-    {
-      id: 'BK001',
-      itemName: 'MacBook Pro 2023',
-      itemImage: 'https://via.placeholder.com/300x200?text=MacBook',
-      startDate: '2024-01-15',
-      endDate: '2024-01-20',
-      status: 'ACTIVE',
-      price: 200,
-      owner: 'John Doe',
-      totalAmount: 1000,
-      createdAt: '2024-01-10'
-    },
-    {
-      id: 'BK002',
-      itemName: 'Tennis Racket',
-      itemImage: 'https://via.placeholder.com/300x200?text=Tennis',
-      startDate: '2024-01-10',
-      endDate: '2024-01-12',
-      status: 'COMPLETED',
-      price: 50,
-      owner: 'Jane Smith',
-      totalAmount: 100,
-      createdAt: '2024-01-08'
-    },
-    {
-      id: 'BK003',
-      itemName: 'Scientific Calculator',
-      itemImage: 'https://via.placeholder.com/300x200?text=Calculator',
-      startDate: '2024-01-25',
-      endDate: '2024-01-30',
-      status: 'UPCOMING',
-      price: 25,
-      owner: 'Mike Johnson',
-      totalAmount: 125,
-      createdAt: '2024-01-20'
-    },
-    {
-      id: 'BK004',
-      itemName: 'DSLR Camera Kit',
-      itemImage: 'https://via.placeholder.com/300x200?text=Camera',
-      startDate: '2024-01-05',
-      endDate: '2024-01-07',
-      status: 'CANCELED',
-      price: 150,
-      owner: 'Sarah Wilson',
-      totalAmount: 300,
-      createdAt: '2024-01-03'
-    },
-    {
-      id: 'BK005',
-      itemName: 'Mountain Bike',
-      itemImage: 'https://via.placeholder.com/300x200?text=Bike',
-      startDate: '2024-02-01',
-      endDate: '2024-02-05',
-      status: 'ACTIVE',
-      price: 80,
-      owner: 'Alex Brown',
-      totalAmount: 400,
-      createdAt: '2024-01-28'
-    }
-  ];*/
-
-  useEffect(() => {
-    fetchBookings();
-  }, []);
-
   const fetchBookingsAndSummary = useCallback(async () => {
-    // Only fetch if logged in
     if (!isLoggedIn) {
       setLoading(false);
       return;
@@ -91,77 +22,70 @@ const MyBookings = () => {
       setLoading(true);
       setError(null);
 
-      // --- MODIFIED: Use Promise.all to fetch bookings and summary concurrently ---
-      const [bookingsResponse, summaryResponse] = await Promise.all([
-        API.get("/bookings/my"), // Fetches from http://localhost:8080/api/bookings/my
-        API.get("/bookings/status-grouped"), // Fetches summary data
-      ]);
+      // Fetch bookings for the current user (renter)
+      const bookingsResponse = await API.get("/bookings/my");
+      // Fetch summary of bookings grouped by status
+      const summaryResponse = await API.get("/bookings/status-grouped");
 
       setBookings(bookingsResponse.data);
       setSummary(summaryResponse.data);
     } catch (err) {
       setError("Failed to fetch your data. Please try again.");
-      console.error("Error fetching data:", err);
+      console.error("Error fetching data:", err.response?.data || err.message);
     } finally {
       setLoading(false);
     }
-  }, [isLoggedIn]); // Dependency on isLoggedIn
+  }, [isLoggedIn]);
 
   useEffect(() => {
     fetchBookingsAndSummary();
-  }, [fetchBookingsAndSummary]); // --- MODIFIED: useEffect depends on the memoized function
+  }, [fetchBookingsAndSummary]);
 
-  // --- MODIFIED: handleCancelBooking now calls the API ---
   const handleCancelBooking = async (bookingId) => {
     const confirmed = window.confirm(
-      "Are you sure you want to cancel this booking?"
+      "Are you sure you want to cancel this booking? This action cannot be undone."
     );
     if (!confirmed) return;
 
     try {
-      // Use API service to send a PUT request
       await API.put(`/bookings/cancel/${bookingId}`);
 
       alert("Booking cancelled successfully!");
-
-      // --- MODIFIED: Refetch data to ensure UI is in sync with the server ---
-      fetchBookingsAndSummary();
+      fetchBookingsAndSummary(); // Re-fetch data to update the UI
     } catch (error) {
       const errorMessage =
-        error.response?.data?.message || "Failed to cancel booking.";
+        error.response?.data?.message || "Failed to cancel booking. Please try again.";
       alert(`Error: ${errorMessage}`);
-      console.error("Error canceling booking:", error);
+      console.error("Error canceling booking:", error.response?.data || error.message);
     }
   };
 
   const getStatusBadge = (status) => {
     const statusConfig = {
       ACTIVE: {
-        color:
-          "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300",
+        color: "bg-green-100 text-green-800 border-green-300",
         text: "Active",
       },
       COMPLETED: {
-        color: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300",
+        color: "bg-blue-100 text-blue-800 border-blue-300",
         text: "Completed",
       },
       UPCOMING: {
-        color:
-          "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300",
+        color: "bg-yellow-100 text-yellow-800 border-yellow-300",
         text: "Upcoming",
       },
       CANCELED: {
-        color: "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300",
+        color: "bg-red-100 text-red-800 border-red-300",
         text: "Canceled",
       },
     };
     const config = statusConfig[status] || {
-      color: "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200",
+      color: "bg-gray-100 text-gray-800 border-gray-300",
       text: status,
     };
     return (
       <span
-        className={`px-3 py-1 rounded-full text-sm font-medium ${config.color} transition-colors duration-300`}
+        className={`px-3 py-1 rounded-full text-sm font-medium border ${config.color} transition-colors duration-300`}
       >
         {config.text}
       </span>
@@ -170,7 +94,6 @@ const MyBookings = () => {
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
-      // Changed to en-IN for Indian date format
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -180,43 +103,20 @@ const MyBookings = () => {
   const filteredBookings = bookings
     .filter((booking) => {
       const matchesFilter = filter === "all" || booking.status === filter;
-      // Ensure itemName exists before calling toLowerCase
-      const matchesSearch =
-        booking.item &&
-        booking.item.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const itemName = booking.item?.name || "";
+      const matchesSearch = itemName.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesFilter && matchesSearch;
     })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 pt-20 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-300">
-                Loading your bookings...
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // --- Start of UI Rendering ---
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 pt-20 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-300">
-                Loading your bookings...
-              </p>
-            </div>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] text-gray-900 font-sans p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D32F2F] mx-auto mb-4"></div>
+          <p className="text-gray-700 text-lg">Loading your bookings...</p>
         </div>
       </div>
     );
@@ -224,65 +124,75 @@ const MyBookings = () => {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 pt-20 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Access Denied
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Please log in to view your bookings.
-            </p>
-            <Link
-              to="/login"
-              className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-300"
-            >
-              Go to Login
-            </Link>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] text-gray-900 font-sans p-4">
+        <div className="text-center bg-white rounded-xl shadow-lg p-8 border-2 border-[#D32F2F]">
+          <h1 className="text-2xl font-extrabold uppercase text-[#D32F2F] mb-4 tracking-wide">
+            Access Denied
+          </h1>
+          <p className="text-gray-700 mb-6 font-medium text-lg">
+            Please log in to view your bookings.
+          </p>
+          <Link
+            to="/login"
+            className="bg-[#D32F2F] text-white font-bold px-8 py-4 rounded-lg shadow-lg text-lg uppercase border-2 border-[#D32F2F] hover:bg-white hover:text-[#D32F2F] transition-all duration-200"
+          >
+            Go to Login
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 pt-20 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-white text-gray-900 font-sans pt-24">
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Header */}
-        <motion.div /* ... */>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="p-6 bg-[#fff3f3] rounded-xl shadow-md border-2 border-[#D32F2F] text-center"
+        >
+          <h1 className="text-3xl md:text-4xl font-extrabold uppercase text-[#D32F2F] mb-2 tracking-wide">
             My Bookings 📋
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 text-lg">
+          <p className="text-gray-700 text-lg font-medium">
             Manage and track all your rental bookings
           </p>
         </motion.div>
 
         {/* Filters and Search */}
-        <motion.div /* ... */>
-          <div className="flex flex-col md:flex-row gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="p-6 bg-white rounded-xl shadow-md border border-gray-200"
+        >
+          <div className="flex flex-col md:flex-row gap-5 items-end">
             {/* Search */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="flex-1 w-full">
+              <label htmlFor="search" className="block text-sm font-semibold text-gray-700 mb-2">
                 Search Items
               </label>
               <input
+                id="search"
                 type="text"
                 placeholder="Search by item name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D32F2F] focus:border-transparent outline-none bg-white text-gray-900 transition-colors duration-300"
               />
             </div>
             {/* Filter */}
-            <div className="md:w-48">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="w-full md:w-48">
+              <label htmlFor="filter" className="block text-sm font-semibold text-gray-700 mb-2">
                 Filter by Status
               </label>
               <select
+                id="filter"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D32F2F] focus:border-transparent outline-none bg-white text-gray-900 transition-colors duration-300"
               >
                 <option value="all">All Bookings</option>
                 <option value="ACTIVE">Active</option>
@@ -296,96 +206,188 @@ const MyBookings = () => {
 
         {/* Error State */}
         {error && (
-          <motion.div /* ... */>
-            <p className="text-red-600 dark:text-red-300 font-medium">
-              {error}
-            </p>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-red-100 text-red-700 rounded-lg border border-red-300 flex flex-col sm:flex-row items-center justify-between gap-4"
+          >
+            <p className="font-medium text-center sm:text-left">{error}</p>
             <button
               onClick={fetchBookingsAndSummary}
-              className="mt-4 px-6 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-800 transition duration-300"
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 uppercase text-sm font-bold"
             >
               Try Again
             </button>
           </motion.div>
         )}
 
+        {/* Booking Summary */}
+        {summary && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white rounded-xl shadow-md p-6 border-2 border-[#D32F2F]"
+          >
+            <h3 className="text-xl font-extrabold uppercase text-[#D32F2F] mb-4 text-center tracking-wide">
+              Booking Summary
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div>
+                <p className="text-3xl font-extrabold text-[#D32F2F]">
+                  {bookings.length}
+                </p>
+                <p className="text-base text-gray-700 font-medium">
+                  Total Bookings
+                </p>
+              </div>
+              <div>
+                <p className="text-3xl font-extrabold text-green-600">
+                  {summary["ACTIVE"] || 0}
+                </p>
+                <p className="text-base text-gray-700 font-medium">
+                  Active
+                </p>
+              </div>
+              <div>
+                <p className="text-3xl font-extrabold text-blue-600">
+                  {summary["COMPLETED"] || 0}
+                </p>
+                <p className="text-base text-gray-700 font-medium">
+                  Completed
+                </p>
+              </div>
+              <div>
+                <p className="text-3xl font-extrabold text-red-600">
+                  {summary["CANCELED"] || 0}
+                </p>
+                <p className="text-base text-gray-700 font-medium">
+                  Canceled
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Bookings List */}
         <div className="space-y-6">
           {filteredBookings.length === 0 ? (
-            <motion.div /* ... */>
-              {/* ... No bookings found UI ... */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-8 text-center bg-white rounded-xl shadow-md border-2 border-[#D32F2F]"
+            >
+              <p className="text-xl font-semibold text-gray-700 mb-6">
+                No bookings found for the selected criteria.
+              </p>
+              <Link
+                to="/items"
+                className="bg-[#D32F2F] text-white font-bold px-8 py-4 rounded-lg shadow-lg text-lg uppercase border-2 border-[#D32F2F] hover:bg-white hover:text-[#D32F2F] transition-all duration-200"
+              >
+                Browse Items to Book
+              </Link>
             </motion.div>
           ) : (
             <AnimatePresence>
               {filteredBookings.map((booking, index) => (
                 <motion.div
                   key={booking.id}
-                  /* ... animation props ... */
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="bg-white rounded-xl shadow-lg border-2 border-[#D32F2F] overflow-hidden transition-all duration-300 hover:shadow-xl"
                 >
                   <div className="p-6">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                       {/* Item Info */}
-                      <div className="flex gap-4 flex-1">
-                        <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 border border-gray-200 dark:border-gray-700">
-                          {/* Assuming the API response for a booking includes the item object with its details */}
+                      <div className="flex gap-4 items-center flex-1">
+                        <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border-2 border-[#fff3f3]">
                           <img
                             src={
                               booking.item?.imageUrl ||
-                              "https://via.placeholder.com/80x80?text=Item"
+                              `https://via.placeholder.com/96x96?text=${booking.item?.name || 'Item'}` // More specific placeholder
                             }
-                            alt={booking.item?.name}
+                            alt={booking.item?.name || "Booked Item"}
                             className="w-full h-full object-cover"
                           />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                            {booking.item?.name}
+                          <h3 className="text-xl font-extrabold uppercase text-[#222] mb-1 tracking-wide">
+                            {booking.item?.name || "Unknown Item"}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                            Owner: {booking.owner?.name}
+                          <p className="text-sm text-gray-600 mb-2 font-medium">
+                            Owner:{" "}
+                            <span className="font-semibold">
+                              {booking.owner?.name || "N/A"}
+                            </span>
                           </p>
-                          <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-300">
-                            <span>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700">
+                            <span className="font-medium">
                               📅 {formatDate(booking.startDate)} -{" "}
                               {formatDate(booking.endDate)}
                             </span>
-                            <span>💰 ₹{booking.pricePerDay}/day</span>
-                            <span>💳 Total: ₹{booking.totalAmount}</span>
+                            <span className="font-medium">
+                              💰 ₹{booking.pricePerDay || 0}{" "}/day
+                            </span>
+                            <span className="font-bold text-[#D32F2F] text-base">
+                              💳 Total: ₹{booking.totalAmount || 0}
+                            </span>
                           </div>
                         </div>
                       </div>
                       {/* Status and Actions */}
-                      <div className="flex flex-col items-end gap-3">
+                      <div className="flex flex-col items-center lg:items-end gap-3 mt-4 lg:mt-0">
                         {getStatusBadge(booking.status)}
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mt-2 flex-wrap justify-center lg:justify-end">
                           <Link
                             to={`/booking/${booking.id}`}
-                            className="px-4 py-2 bg-purple-600 dark:bg-purple-700 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-purple-800 transition duration-300 text-sm font-medium"
+                            className="bg-[#D32F2F] text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-[#D32F2F] hover:bg-white hover:text-[#D32F2F] transition-all duration-200 whitespace-nowrap"
                           >
                             View Details
                           </Link>
+                          {/* Chat button */}
                           {booking.owner &&
                             user &&
-                            user.name !== booking.owner.name && (
+                            user.id !== booking.owner.id && (
                               <Link
                                 to={`/chat?user=${encodeURIComponent(
                                   booking.owner.name
-                                )}`}
-                                className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition duration-300 text-sm font-medium"
+                                )}&id=${booking.owner.id}`}
+                                className="bg-blue-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-blue-500 hover:bg-white hover:text-blue-500 transition-all duration-200 whitespace-nowrap"
                               >
                                 💬 Chat
                               </Link>
                             )}
-                          {booking.status === "ACTIVE" ||
-                          booking.status === "UPCOMING" ? (
+                          {/* Cancel button */}
+                          {(booking.status === "ACTIVE" ||
+                            booking.status === "UPCOMING") && (
                             <button
                               onClick={() => handleCancelBooking(booking.id)}
-                              className="px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-800 transition duration-300 text-sm font-medium"
+                              className="bg-red-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-red-500 hover:bg-white hover:text-red-500 transition-all duration-200 whitespace-nowrap"
                             >
                               Cancel
                             </button>
-                          ) : null}
+                          )}
+                           {/* Extend Booking button - placeholder, implement API.put('/bookings/extend/...') */}
+                           {(booking.status === "ACTIVE" ||
+                            booking.status === "UPCOMING") && (
+                            <Link
+                              to={`/extend-booking/${booking.id}`}
+                              className="bg-indigo-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-indigo-500 hover:bg-white hover:text-indigo-500 transition-all duration-200 whitespace-nowrap"
+                            >
+                              Extend
+                            </Link>
+                          )}
+                           {/* Return Item button - placeholder, implement API.get('/bookings/return/...') */}
+                           {(booking.status === "ACTIVE") && (
+                            <Link
+                              to={`/return-item/${booking.id}`}
+                              className="bg-orange-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-orange-500 hover:bg-white hover:text-orange-500 transition-all duration-200 whitespace-nowrap"
+                            >
+                              Return
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -395,52 +397,6 @@ const MyBookings = () => {
             </AnimatePresence>
           )}
         </div>
-
-        {/* Summary --- MODIFIED to use summary state */}
-        {summary && filteredBookings.length > 0 && (
-          <motion.div
-            /* ... animation props ... */
-            className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300"
-          >
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-              Booking Summary
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div>
-                <p className="text-2xl font-bold text-purple-600">
-                  {bookings.length}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Total Bookings
-                </p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-green-600">
-                  {summary["ACTIVE"] || 0}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Active
-                </p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-blue-600">
-                  {summary["COMPLETED"] || 0}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Completed
-                </p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-red-600">
-                  {summary["CANCELED"] || 0}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Canceled
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
       </div>
     </div>
   );

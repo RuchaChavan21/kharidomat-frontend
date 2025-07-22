@@ -70,9 +70,9 @@ const Items = () => {
     return (
         <div className={`min-h-screen bg-[#F9F9F9] pt-20 transition-colors duration-300 font-sans`}> {/* Use same bg and font as home */}
             {/* Hero Section */}
-            <section className="w-full bg-white rounded-xl shadow-lg max-w-4xl mx-auto mt-8 mb-8 px-8 py-10 flex flex-col items-center text-center">
-                <h1 className="font-bold text-3xl md:text-4xl text-[#B9162C] mb-2">Discover What’s Available in Your Campus</h1>
-                <p className="text-gray-600 text-lg mb-2">Explore rental items posted by fellow students</p>
+            <section className="w-full bg-[#fff3f3] rounded-xl shadow-md border-2 border-[#D32F2F] max-w-4xl mx-auto mt-8 mb-8 px-8 py-10 flex flex-col items-center text-center">
+                <h1 className="font-bold text-3xl md:text-4xl text-[#D32F2F] mb-2 uppercase tracking-wide">Discover What's Available</h1>
+                <p className="text-gray-700 text-lg font-medium">Explore rental items posted by fellow students in your campus</p>
             </section>
             {/* Filter & Sort Bar */}
             <section className="w-full max-w-7xl mx-auto px-4 md:px-8 mb-6">
