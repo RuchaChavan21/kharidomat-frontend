@@ -19,6 +19,8 @@ const ItemDetails = () => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [ownerDetails, setOwnerDetails] = useState(null); // <-- ADD THIS
+  const [loadingOwner, setLoadingOwner] = useState(true); // <-- ADD THIS
 
   // Fetch item details
   useEffect(() => {
@@ -45,6 +47,25 @@ const ItemDetails = () => {
 
     fetchItemDetails();
   }, [itemId]);
+
+  useEffect(() => {
+    if (item?.ownerId) {
+      const fetchOwnerDetails = async () => {
+        setLoadingOwner(true);
+        try {
+          const response = await API.get(`/users/profile/${item.ownerId}`);
+          setOwnerDetails(response.data);
+        } catch (error) {
+          console.error("Failed to fetch owner details:", error);
+          setOwnerDetails(null); // Set to null on error
+        } finally {
+          setLoadingOwner(false);
+        }
+      };
+      fetchOwnerDetails();
+    }
+  }, [item?.ownerId]); // This runs when item.ownerId is available
+
 
   // Wishlist check logic (like ItemCard)
   useEffect(() => {
@@ -402,28 +423,41 @@ const ItemDetails = () => {
               </>
             )}
           </div>
-          {/* Owner Details/Reviews Card */}
+          {/* --- MODIFIED: Owner Details/Reviews Card --- */}
           <div className="bg-white rounded-xl shadow-lg p-8">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Owner Details</h3>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-4">
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Posted by</p>
-                <p className="font-semibold text-gray-900 text-sm">{item.owner || 'Unknown'}</p>
-                {item.ownerEmail && <p className="text-xs text-gray-500">{item.ownerEmail}</p>}
+
+            {/* Check if item.owner exists before trying to display it */}
+            {item.owner ? (
+              <div className="flex items-center gap-4 mb-6">
+                <img
+                  src={item.owner.profilePictureUrl || '/images/default-avatar.png'}
+                  alt={item.owner.name}
+                  className="w-16 h-16 rounded-full object-cover border"
+                />
+                <div>
+                  <p className="font-semibold text-gray-900">{item.owner.name}</p>
+                  <p className="text-sm text-gray-500">{item.owner.email}</p>
+                  {item.owner.memberSince && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      Member since {new Date(item.owner.memberSince).toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Posted on</p>
-                <p className="font-semibold text-gray-900 text-sm">{item.postedDate ? item.postedDate : 'N/A'}</p>
+            ) : (
+              <p className="text-sm text-gray-500">Owner information not available.</p>
+            )}
+
+            {/* Your Ratings & Reviews section can stay the same */}
+            <div className="border-t pt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-yellow-400 text-lg">★</span>
+                <span className="text-gray-700 text-base font-semibold">{item.rating || 'N/A'}</span>
+                {item.totalReviews > 0 && <span className="text-gray-500 text-sm">({item.totalReviews} reviews)</span>}
               </div>
+              {item && <ReviewSection itemId={item.id} />}
             </div>
-            {/* Ratings & Reviews */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-yellow-400 text-lg">★</span>
-              <span className="text-gray-700 text-base font-semibold">{item.rating || 'N/A'}</span>
-              {item.totalReviews > 0 && <span className="text-gray-500 text-sm">({item.totalReviews} reviews)</span>}
-            </div>
-            {/* Review Section at the bottom */}
-            {item && <ReviewSection itemId={item.id} />}
           </div>
         </motion.div>
       </div>
@@ -432,9 +466,8 @@ const ItemDetails = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={showToast ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
         transition={{ duration: 0.3 }}
-        className={`fixed bottom-6 right-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg px-4 py-3 max-w-sm text-gray-900 dark:text-gray-100 ${
-          showToast ? "" : "pointer-events-none"
-        }`}
+        className={`fixed bottom-6 right-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg px-4 py-3 max-w-sm text-gray-900 dark:text-gray-100 ${showToast ? "" : "pointer-events-none"
+          }`}
         style={{ display: showToast ? "block" : "none" }}
       >
         <div className="flex items-center gap-3">
