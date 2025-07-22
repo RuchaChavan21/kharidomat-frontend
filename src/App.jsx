@@ -24,6 +24,7 @@ import { useAuth } from './context/AuthContext';
 import RecentListings from './pages/RecentListings';
 import Chat from './pages/Chat';
 import EditProfile from './pages/EditProfile';
+import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
 
 function PublicHomeRoute() {
   // Always show Home page, regardless of login state
@@ -36,6 +37,7 @@ const App = () => {
       <Navbar />
       <Routes>
         <Route path="/" element={<PublicHomeRoute />} />
+        <Route path="/oauth-success" element={<OAuth2RedirectHandler />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
