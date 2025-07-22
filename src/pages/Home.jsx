@@ -3,22 +3,36 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import Footer from '../components/Footer';
+import Footer from '../components/Footer'; // Assuming Footer is used elsewhere
 
-// Placeholder images for carousel and hero (replace with real assets as needed)
-const categoryImages = [
-  { title: 'Hostel Furniture', img: 'https://via.placeholder.com/200x120?text=Furniture' },
-  { title: 'Study Tables & Chairs', img: 'https://via.placeholder.com/200x120?text=Study+Table' },
-  { title: 'Electronics', img: 'https://via.placeholder.com/200x120?text=Electronics' },
-  { title: 'Appliances for PG/Hostels', img: 'https://via.placeholder.com/200x120?text=Appliances' },
-  { title: 'Mattresses', img: 'https://via.placeholder.com/200x120?text=Mattress' },
-  { title: 'Bikes', img: 'https://via.placeholder.com/200x120?text=Bike' },
+// Import your actual local images from src/assets/ with precise filenames
+import bikesImg from '../assets/bikes.jpg';
+import deskImg from '../assets/desk.jpg';
+import electronicsImg from '../assets/electronics.jpg';
+import hostelAppliancesImg from '../assets/hostelappliances.jpg';
+import hostelFurnitureImg from '../assets/hostelfurniture.jpg';
+import laptopImg from '../assets/laptop.jpg';
+import mattressesImg from '../assets/mattresses.jpg';
+import miniFridgeImg from '../assets/minifridge.jpg';
+import studyTablesAndChairImg from '../assets/studytablesandchair.jpg'; // Corrected filename here!
+
+// For hero section, picking relevant ones from your assets
+// Using available assets for the four layered product images:
+const heroSectionImages = [
+  deskImg,         // Suitable for a study/work desk
+  miniFridgeImg,   // Perfect for appliances
+  hostelFurnitureImg, // Generic furniture item (could represent a chair, small shelf etc.)
+  laptopImg,       // Electronic item
 ];
-const heroImages = [
-  'https://via.placeholder.com/180x120?text=Desk',
-  'https://via.placeholder.com/120x120?text=Mini+Fridge',
-  'https://via.placeholder.com/120x120?text=Bean+Bag',
-  'https://via.placeholder.com/120x120?text=Laptop',
+
+// Now use the imported variables for categoryImages with precise filenames
+const categoryImages = [
+  { title: 'Hostel Furniture', img: hostelFurnitureImg },
+  { title: 'Study Tables & Chairs', img: studyTablesAndChairImg }, // Corrected variable name
+  { title: 'Electronics', img: electronicsImg },
+  { title: 'Appliances for PG/Hostels', img: hostelAppliancesImg },
+  { title: 'Mattresses', img: mattressesImg },
+  { title: 'Bikes', img: bikesImg },
 ];
 
 const Home = () => {
@@ -81,14 +95,14 @@ const Home = () => {
             onClick={handleStartRenting}
             className="bg-white text-[#D32F2F] font-bold px-8 py-4 rounded-lg shadow-lg text-lg uppercase border-2 border-[#D32F2F] hover:bg-[#D32F2F] hover:text-white transition-all duration-200"
           >
-                  Start Renting
+            Start Renting
           </button>
-            </div>
+        </div>
         {/* Hero Images (layered) */}
         <div className="relative z-10 flex-1 flex items-end justify-center md:justify-end gap-4 px-6 md:px-16 py-8 md:py-24">
-          {heroImages.map((img, i) => (
+          {heroSectionImages.map((img, i) => ( // Changed to heroSectionImages
             <motion.img
-              key={img}
+              key={i} // Using index as key here as img path might not be unique if used multiple times
               src={img}
               alt="Product"
               className={`rounded-xl shadow-lg border-4 border-white w-32 h-24 object-cover ${i!==0?'ml-[-24px]':''}`}
@@ -133,7 +147,7 @@ const Home = () => {
                   scrollSnapAlign: 'start',
                   borderRadius: 16,
                   boxShadow: '0 4px 12px rgba(0,0,0,0.10)',
-                  background: `url(${cat.img}) center/cover no-repeat`,
+                  background: `url(${cat.img}) center/cover no-repeat`, // Image applied here
                   position: 'relative',
                   overflow: 'hidden',
                   marginRight: idx === categoryImages.length - 1 ? 0 : 20,
@@ -190,7 +204,7 @@ const Home = () => {
             <motion.div key={item.title} className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center gap-3 border-2 border-[#D32F2F] hover:shadow-lg transition-all duration-200" initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.1}}>
               <span className="text-4xl">{item.icon}</span>
               <span className="font-bold text-lg uppercase text-[#D32F2F]">{item.title}</span>
-        </motion.div>
+          </motion.div>
           ))}
         </div>
       </section>

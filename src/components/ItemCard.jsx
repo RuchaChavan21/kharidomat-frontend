@@ -114,7 +114,7 @@ const ItemCard = ({ item }) => {
       alert("Please log in to rent items!");
       navigate("/login");
     } else {
-      navigate(`/item/${item.id}?action=rent`); // Navigates to consolidated page with action
+      navigate(`/book-item/${item.id}`); // Go to BookItem page
     }
   };
 

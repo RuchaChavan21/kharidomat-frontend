@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import API from "../services/api"; // Assuming your API service is set up
 // import { useTheme } from "../context/ThemeContext"; // You can re-enable this if needed
@@ -20,9 +20,29 @@ const Register = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // States for UI toggles
+  // States for UI toggles and validation
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    specialChar: false,
+  });
+
+  const isFormValid = Object.values(passwordValidation).every(Boolean);
+
+  useEffect(() => {
+    const password = formData.password;
+    setPasswordValidation({
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      specialChar: /[^A-Za-z0-9]/.test(password),
+    });
+  }, [formData.password]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -246,6 +266,24 @@ const Register = () => {
                   )}
                 </button>
               </div>
+              {/* Password Validation Checklist */}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-xs">
+                <div className={`flex items-center gap-1.5 ${passwordValidation.length ? 'text-green-600' : 'text-gray-500'}`}>
+                  {passwordValidation.length ? '✔' : '✘'} At least 8 characters
+                </div>
+                <div className={`flex items-center gap-1.5 ${passwordValidation.uppercase ? 'text-green-600' : 'text-gray-500'}`}>
+                  {passwordValidation.uppercase ? '✔' : '✘'} Uppercase letter
+                </div>
+                <div className={`flex items-center gap-1.5 ${passwordValidation.lowercase ? 'text-green-600' : 'text-gray-500'}`}>
+                  {passwordValidation.lowercase ? '✔' : '✘'} Lowercase letter
+                </div>
+                <div className={`flex items-center gap-1.5 ${passwordValidation.number ? 'text-green-600' : 'text-gray-500'}`}>
+                  {passwordValidation.number ? '✔' : '✘'} At least one number
+                </div>
+                <div className={`flex items-center gap-1.5 ${passwordValidation.specialChar ? 'text-green-600' : 'text-gray-500'}`}>
+                  {passwordValidation.specialChar ? '✔' : '✘'} At least one special character
+                </div>
+              </div>
               {error && !formData.password && <div className="text-[#D32F2F] text-xs mt-1">{error}</div>}
             </div>
             <div>
@@ -292,8 +330,8 @@ const Register = () => {
             </div>
             <button
               type="submit"
-              disabled={isLoading}
-              className={`w-full h-11 mt-2 rounded-[8px] bg-[#D32F2F] text-white font-bold uppercase text-[16px] tracking-wide shadow transition-all duration-200 hover:bg-[#b71c1c] focus:outline-none focus:ring-2 focus:ring-[#D32F2F] ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
+              disabled={isLoading || !isFormValid}
+              className={`w-full h-11 mt-2 rounded-[8px] bg-[#D32F2F] text-white font-bold uppercase text-[16px] tracking-wide shadow transition-all duration-200 hover:bg-[#b71c1c] focus:outline-none focus:ring-2 focus:ring-[#D32F2F] ${isLoading || !isFormValid ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
             >
               {isLoading ? 'Completing...' : 'Complete Registration'}
             </button>
