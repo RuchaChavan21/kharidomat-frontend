@@ -1,150 +1,148 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const EditProfile = () => {
-  const { user, token, isLoggedIn } = useAuth();
+  const { user, isLoggedIn, token } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    bio: '',
-  });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     if (!isLoggedIn) {
       navigate('/login');
-      return;
+    } else if (user) {
+      setName(user.name);
+      setPhone(user.phone || '');
     }
-    const fetchProfile = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch('http://localhost:8080/api/users/me', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error('Failed to fetch profile');
-        const data = await res.json();
-        setForm({
-          name: data.name || '',
-          email: data.email || '',
-          phone: data.phone || '',
-          bio: data.bio || '',
-        });
-      } catch (err) {
-        setError('Failed to load profile.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, [isLoggedIn, token, navigate]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  }, [user, isLoggedIn, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSaving(true);
-    setError(null);
-    setSuccess(null);
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
     try {
-      const res = await fetch('http://localhost:8080/api/users/update', {
+      const response = await fetch(`http://localhost:8080/api/users/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ name, phone }),
       });
-      if (!res.ok) throw new Error('Failed to update profile');
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update profile');
+      }
+
       setSuccess('Profile updated successfully!');
     } catch (err) {
-      setError('Failed to update profile.');
+      setError(err.message);
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
-  if (loading) {
+  if (!isLoggedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-700 dark:text-gray-300">Loading profile...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] font-sans pt-20 px-4">
+        <div className="bg-white p-8 rounded-xl shadow-md text-center">
+          <h2 className="text-2xl font-semibold text-red-600 mb-4">Access Denied</h2>
+          <p className="text-gray-600 mb-6">You must be logged in to view this page.</p>
+          <Link to="/login" className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition duration-200">
+            Go to Login
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 pt-20">
-      <div className="w-full max-w-lg mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-100 dark:border-gray-700">
-        <h2 className="text-2xl font-bold mb-6 text-purple-700 dark:text-purple-400 text-center">Edit Profile</h2>
-        {error && <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-center">{error}</div>}
-        {success && <div className="bg-green-100 text-green-700 px-4 py-2 rounded mb-4 text-center">{success}</div>}
-        <form onSubmit={handleSubmit} className="space-y-5">
+    <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] px-4 py-8 pt-20 font-sans">
+      {/* Main container for the whole page. Removed the card styling from this div. */}
+      <motion.div
+        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="text-3xl font-bold text-center text-red-600 mb-6">Edit Profile</h2>
+
+        {/* Themed error */}
+        {error && (
+          <div className="bg-red-100 text-red-700 px-4 py-3 rounded-lg mb-4 text-center border border-red-300 font-medium">
+            {error}
+          </div>
+        )}
+
+        {/* Themed success */}
+        {success && (
+          <div className="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4 text-center border border-green-300 font-medium">
+            {success}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Name</label>
+            <label className="block text-gray-700 font-semibold mb-1">Name</label>
             <input
               type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-purple-500 transition-colors duration-300"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
               required
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-purple-500 transition-colors duration-300"
-              required
-              disabled
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Phone</label>
+            <label className="block text-gray-700 font-semibold mb-1">Phone</label>
             <input
               type="tel"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-purple-500 transition-colors duration-300"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+              placeholder="e.g., 9876543210"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Bio</label>
-            <textarea
-              name="bio"
-              value={form.bio}
-              onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-purple-500 transition-colors duration-300 min-h-[80px]"
-              maxLength={300}
+            <label className="block text-gray-700 font-semibold mb-1">Email</label>
+            <input
+              type="email"
+              value={user?.email}
+              disabled
+              className="w-full px-4 py-2 border bg-gray-100 text-gray-500 cursor-not-allowed rounded-lg"
             />
           </div>
-          <button
-            type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded transition disabled:opacity-60"
-            disabled={saving}
-          >
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
+
+          <div className="text-center">
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 mr-2 text-white border-t-2 border-b-2 border-white rounded-full" viewBox="0 0 24 24" />
+                  Updating...
+                </span>
+              ) : (
+                'Update Profile'
+              )}
+            </button>
+          </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };
 
-export default EditProfile; 
+export default EditProfile;
