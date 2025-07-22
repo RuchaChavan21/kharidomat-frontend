@@ -20,30 +20,20 @@ const Login = () => {
     setError(""); // Clear previous errors
 
     try {
-      // 1. Make the real API call to your /login endpoint
       const response = await API.post("/users/login", { email, password });
-
-      // 2. The response.data is the token string itself, based on your controller
       const token = response.data;
 
       if (token) {
-        // 3. Since the user object isn't returned from /login,
-        //    we create a placeholder. The token is the important part.
-        const user = { email };
+        const user = { email }; // Placeholder user object
         login(user, token); // This saves the token via your AuthContext
         console.log('Login successful:', { user, token }); // Debug log
-        // Remove navigate here, will move to useEffect
-        // navigate("/dashboard");
       } else {
-        // This case is unlikely if the request is successful, but good for safety
         setError("Login failed: An empty token was received.");
       }
     } catch (err) {
-      // 5. Handle errors from the backend (e.g., invalid credentials)
-      //    Axios stores the error response in err.response.data
       const errorMessage =
         err.response?.data?.message ||
-        err.response?.data || // For raw string error responses
+        err.response?.data ||
         "Login failed. Please check your credentials.";
       setError(errorMessage);
     } finally {
@@ -52,40 +42,55 @@ const Login = () => {
   };
 
   const handleGoogleSignIn = () => {
+    // Redirect to your backend's Google OAuth2 endpoint
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
   };
 
-  // Add this useEffect to navigate after isLoggedIn is true
   useEffect(() => {
     if (isLoggedIn) {
-      navigate("/");
+      navigate("/"); // Navigate to home or dashboard after successful login
     }
   }, [isLoggedIn, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fafbfc] px-4">
-      <div className="w-full max-w-md mx-auto mt-10 mb-10 bg-white rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.10)] flex flex-col items-center p-8 md:p-10" style={{ fontFamily: 'Inter, Arial, sans-serif' }}>
-        <h2 className="text-[#222] font-semibold uppercase text-[24px] text-center mb-2 tracking-wide">Login</h2>
-        <div className="text-center text-[#555] text-[15px] mb-8">Welcome back! Please login to continue.</div>
+    // Added pt-20 to push content down below the fixed Navbar
+    <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] px-4 pt-20 pb-8 font-sans">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md mx-auto bg-white rounded-xl shadow-lg border-2 border-[#D32F2F] flex flex-col items-center p-8 md:p-10"
+      >
+        <h2 className="text-[#D32F2F] font-extrabold uppercase text-3xl text-center mb-3 tracking-wide">Login</h2>
+        <p className="text-gray-700 text-lg text-center mb-8 font-medium">Welcome back! Please login to continue.</p>
+
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
           {/* Error Display Block */}
           {error && (
-            <div className="p-3 my-2 text-sm text-center text-[#D32F2F] bg-[#ffeaea] rounded-lg">{error}</div>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 my-2 text-base text-center text-red-700 bg-red-100 rounded-lg border border-red-300"
+            >
+              {error}
+            </motion.div>
           )}
+
           <div>
-            <label htmlFor="email" className="block text-[14px] font-medium uppercase text-[#222] mb-2 tracking-wide">Email Address</label>
+            <label htmlFor="email" className="block text-sm font-semibold uppercase text-[#222] mb-2 tracking-wide">Email Address</label>
             <input
               id="email"
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`w-full h-11 px-4 rounded-[8px] border border-[#ccc] bg-white text-[#222] text-[15px] placeholder-gray-400 focus:outline-none focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] transition-all ${error && !email ? 'border-[#D32F2F]' : ''}`}
+              className={`w-full h-11 px-4 rounded-lg border border-gray-300 bg-white text-gray-900 text-base placeholder-gray-500 focus:outline-none focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] transition-all duration-200 ${error && !email ? 'border-red-500' : ''}`}
               required
             />
           </div>
+
           <div>
-            <label htmlFor="password" className="block text-[14px] font-medium uppercase text-[#222] mb-2 tracking-wide">Password</label>
+            <label htmlFor="password" className="block text-sm font-semibold uppercase text-[#222] mb-2 tracking-wide">Password</label>
             <div className="relative">
               <input
                 id="password"
@@ -93,11 +98,11 @@ const Login = () => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`w-full h-11 px-4 pr-10 rounded-[8px] border border-[#ccc] bg-white text-[#222] text-[15px] placeholder-gray-400 focus:outline-none focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] transition-all ${error && !password ? 'border-[#D32F2F]' : ''}`}
+                className={`w-full h-11 px-4 pr-10 rounded-lg border border-gray-300 bg-white text-gray-900 text-base placeholder-gray-500 focus:outline-none focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] transition-all duration-200 ${error && !password ? 'border-red-500' : ''}`}
                 required
               />
-              <span 
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 cursor-pointer"
+              <span
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer hover:text-gray-700 transition-colors duration-200"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
@@ -108,14 +113,15 @@ const Login = () => {
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-between mt-1 mb-2">
-            <div></div>
-            <Link to="/forgot-password" className="text-[13px] text-[#D32F2F] font-medium hover:underline">Forgot password?</Link>
+
+          <div className="flex items-center justify-end mt-1 mb-2">
+            <Link to="/forgot-password" className="text-sm text-[#D32F2F] font-semibold hover:underline">Forgot password?</Link>
           </div>
+
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full h-11 mt-2 rounded-[8px] bg-[#D32F2F] text-white font-bold uppercase text-[16px] tracking-wide shadow transition-all duration-200 hover:bg-[#b71c1c] focus:outline-none focus:ring-2 focus:ring-[#D32F2F] ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
+            className={`w-full h-12 rounded-lg bg-[#D32F2F] text-white font-bold uppercase text-lg tracking-wide shadow-md transition-all duration-200 hover:bg-[#b71c1c] focus:outline-none focus:ring-2 focus:ring-[#D32F2F] focus:ring-offset-2 focus:ring-offset-white ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:scale-[1.01]'}`}
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
@@ -127,24 +133,26 @@ const Login = () => {
             )}
           </button>
         </form>
+
         {/* Divider */}
         <div className="my-6 w-full">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-600">Or continue with</span>
+              <span className="px-2 bg-white text-gray-600 font-medium">Or continue with</span>
             </div>
           </div>
         </div>
+
         {/* Social Login */}
         <div className="w-full mb-2">
           <button
             onClick={handleGoogleSignIn}
-            className="w-full flex items-center justify-center px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 hover:bg-gray-50 transition-colors duration-200 shadow-sm hover:shadow-md"
+            className="w-full flex items-center justify-center px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-800 hover:bg-gray-50 transition-colors duration-200 shadow-sm hover:shadow-md font-semibold text-base"
           >
-            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
               <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -153,12 +161,13 @@ const Login = () => {
             Continue with Google
           </button>
         </div>
+
         {/* Sign Up Link */}
-        <div className="text-center mt-8">
-          <span className="text-[#222] text-[14px]">New to KharidoMat? </span>
-          <Link to="/register" className="text-[#D32F2F] font-semibold hover:underline text-[14px]">Register</Link>
+        <div className="text-center mt-6">
+          <span className="text-gray-700 text-base font-medium">New to KharidoMat? </span>
+          <Link to="/register" className="text-[#D32F2F] font-bold hover:underline text-base">Register</Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

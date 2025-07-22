@@ -20,7 +20,16 @@ const ProfileDropdown = () => {
   // Get user info from AuthContext or localStorage
   const name = user?.fullName || user?.name || localStorage.getItem('name') || 'User';
   const email = user?.email || localStorage.getItem('email') || 'user@example.com';
-  const profileImageUrl = user?.profileImageUrl || localStorage.getItem('profileImageUrl') || '';
+  
+  // FIX 1: Use local state for the profile image to allow for immediate UI updates.
+  const [profileImage, setProfileImage] = useState('');
+
+  // FIX 2: Use useEffect to initialize and sync the local profileImage state 
+  // with the AuthContext or localStorage. This runs on mount and whenever the user object changes.
+  useEffect(() => {
+    setProfileImage(user?.profileImageUrl || localStorage.getItem('profileImageUrl') || '');
+  }, [user?.profileImageUrl]);
+
 
   // Get initials for avatar fallback
   const getInitials = (name) => {
@@ -70,11 +79,12 @@ const ProfileDropdown = () => {
     } else {
       setSelectedFile(null);
       setPreviewUrl('');
+      // Consider using a more integrated notification system instead of alert
       alert('Please select an image file under 5MB.');
     }
   };
 
-  // Handle profile picture upload
+  // FIX 3: Updated upload handler to set local state, triggering a re-render.
   const handleUpload = async () => {
     if (!selectedFile) return;
     setUploading(true);
@@ -82,24 +92,47 @@ const ProfileDropdown = () => {
       const formData = new FormData();
       formData.append('profilePicture', selectedFile);
       const userId = user?.id || localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+
+      // The browser will automatically set the 'Content-Type' for FormData
       const response = await fetch(`/api/users/${userId}/profile-picture`, {
         method: 'PUT',
         body: formData,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) throw new Error('Upload failed');
-      const data = await response.json();
-      if (data.profileImageUrl) {
-        localStorage.setItem('profileImageUrl', data.profileImageUrl);
-        if (user) user.profileImageUrl = data.profileImageUrl;
+
+      if (!response.ok) {
+        // You can add more specific error handling based on response status
+        throw new Error('Upload failed');
       }
+
+      const data = await response.json();
+
+      if (data.profileImageUrl) {
+        // 1. Update localStorage for persistence on page reload
+        localStorage.setItem('profileImageUrl', data.profileImageUrl);
+
+        // 2. Update the local state to re-render the component with the new image
+        setProfileImage(data.profileImageUrl);
+
+        // 3. Update the user object in context if possible.
+        // NOTE: The best practice is for your AuthContext to provide an `updateUser` function.
+        // Direct mutation `user.profileImageUrl = ...` will not re-render other components.
+        if (user) {
+          user.profileImageUrl = data.profileImageUrl;
+        }
+      }
+
+      // Reset and close the modal
       setShowEditPicModal(false);
       setSelectedFile(null);
       setPreviewUrl('');
+
     } catch (err) {
-      alert('Failed to upload profile picture.');
+      console.error('Failed to upload profile picture:', err);
+      alert('Failed to upload profile picture. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -120,8 +153,9 @@ const ProfileDropdown = () => {
         className="flex items-center justify-center w-11 h-11 rounded-full bg-white border-2 border-[#B9162C] shadow-md hover:shadow-lg transition-all focus:outline-none"
         aria-label="Open profile menu"
       >
-        {profileImageUrl ? (
-          <img src={profileImageUrl} alt="avatar" className="h-11 w-11 rounded-full object-cover border-2 border-[#B9162C]" />
+        {/* FIX 4: Use the new `profileImage` state variable here */}
+        {profileImage ? (
+          <img src={profileImage} alt="avatar" className="h-11 w-11 rounded-full object-cover" />
         ) : (
           <span className="relative w-11 h-11 flex items-center justify-center">
             <FaUserCircle className="w-11 h-11 text-[#F8B4B4] absolute" />
@@ -131,6 +165,7 @@ const ProfileDropdown = () => {
           </span>
         )}
       </button>
+
       {/* Dropdown */}
       <AnimatePresence>
         {open && (
@@ -139,16 +174,18 @@ const ProfileDropdown = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.18 }}
-            className="absolute right-0 top-12 w-72 bg-white rounded-xl shadow-2xl border border-gray-100 z-50"
+            className="absolute right-0 top-14 w-72 bg-white rounded-xl shadow-2xl border border-gray-100 z-50"
             style={{ minWidth: '18rem' }}
           >
             {/* Caret */}
-            <div className="absolute -top-2 right-8 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45 z-10"></div>
+            <div className="absolute -top-2 right-4 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45"></div>
+            
             {/* User Info */}
             <div className="px-6 pt-6 pb-4 border-b border-gray-100 bg-[#fff3f3] rounded-t-xl">
               <div className="flex items-center gap-4 mb-2">
-                {profileImageUrl ? (
-                  <img src={profileImageUrl} alt="avatar" className="w-12 h-12 rounded-full object-cover border-2 border-[#B9162C]" />
+                {/* FIX 5: Also use the `profileImage` state here */}
+                {profileImage ? (
+                  <img src={profileImage} alt="avatar" className="w-12 h-12 rounded-full object-cover border-2 border-[#B9162C]" />
                 ) : (
                   <span className="relative w-12 h-12 flex items-center justify-center">
                     <FaUserCircle className="w-12 h-12 text-[#F8B4B4] absolute" />
@@ -162,14 +199,17 @@ const ProfileDropdown = () => {
                   <div className="text-xs text-gray-500 leading-tight">{email}</div>
                 </div>
               </div>
-              {/* Edit Profile Picture Button */}
               <button
-                onClick={() => setShowEditPicModal(true)}
+                onClick={() => {
+                  setOpen(false); // Close dropdown before opening modal
+                  setShowEditPicModal(true);
+                }}
                 className="mt-2 px-3 py-1 text-xs font-bold rounded-lg bg-white border border-[#B9162C] text-[#B9162C] hover:bg-[#fff3f3] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#B9162C]"
               >
                 Edit Profile Picture
               </button>
             </div>
+
             {/* Menu */}
             <div className="py-2">
               {menu.map((item) => (
@@ -182,7 +222,6 @@ const ProfileDropdown = () => {
                   {item.label}
                 </button>
               ))}
-              {/* Edit Profile Option */}
               <button
                 onClick={() => { setOpen(false); navigate('/edit-profile'); }}
                 className="w-full flex items-center gap-3 px-6 py-3 text-[#222] hover:bg-[#fff3f3] hover:text-[#B9162C] font-bold text-sm rounded-none transition-colors duration-150 text-left"
@@ -190,7 +229,6 @@ const ProfileDropdown = () => {
                 <FaEdit className="text-[#B9162C] w-4 h-4" />
                 Edit Profile
               </button>
-              {/* Settings Option */}
               <button
                 onClick={() => { setOpen(false); navigate('/settings'); }}
                 className="w-full flex items-center gap-3 px-6 py-3 text-[#222] hover:bg-[#fff3f3] hover:text-[#B9162C] font-bold text-sm rounded-none transition-colors duration-150 text-left"
@@ -199,35 +237,51 @@ const ProfileDropdown = () => {
                 Settings
               </button>
               {/* Logout */}
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-6 py-3 text-[#B9162C] hover:bg-[#ffeaea] font-bold text-sm rounded-none transition-colors duration-150 text-left border-t border-gray-100 mt-2"
-              >
-                <FaSignOutAlt className="w-4 h-4" />
-                Logout
-              </button>
+              <div className="border-t border-gray-100 mt-2 pt-2">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-6 py-3 text-[#B9162C] hover:bg-[#ffeaea] font-bold text-sm rounded-b-xl transition-colors duration-150 text-left"
+                >
+                  <FaSignOutAlt className="w-4 h-4" />
+                  Logout
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
       {/* Edit Profile Picture Modal */}
       {showEditPicModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowEditPicModal(false)}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowEditPicModal(false)}>
           <div
             className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full border border-gray-200 transition-colors duration-300 relative"
             onClick={e => e.stopPropagation()}
           >
             <h2 className="text-xl font-bold mb-4 text-[#B9162C]">Edit Profile Picture</h2>
+            <p className="text-sm text-gray-500 mb-4">Choose a new photo (PNG, JPG under 5MB).</p>
             <input
               type="file"
-              accept="image/*"
+              accept="image/png, image/jpeg"
               ref={fileInputRef}
               onChange={handleFileChange}
-              className="mb-4 w-full text-sm text-gray-700"
+              className="hidden" // Hide the default input
             />
+            
+            {/* Custom File Input Button */}
+            <button
+              onClick={() => fileInputRef.current.click()}
+              className="w-full text-center px-4 py-2 mb-4 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-[#B9162C] hover:text-[#B9162C] transition-colors"
+            >
+              {selectedFile ? selectedFile.name : 'Click to select a file'}
+            </button>
+            
             {previewUrl && (
-              <img src={previewUrl} alt="Preview" className="w-24 h-24 rounded-full object-cover mx-auto mb-4 border-2 border-[#B9162C]" />
+              <div className='flex justify-center mb-4'>
+                 <img src={previewUrl} alt="Preview" className="w-24 h-24 rounded-full object-cover border-2 border-[#B9162C]" />
+              </div>
             )}
+            
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowEditPicModal(false)}
@@ -238,7 +292,7 @@ const ProfileDropdown = () => {
               </button>
               <button
                 onClick={handleUpload}
-                className="px-4 py-2 rounded-lg bg-[#B9162C] text-white font-bold hover:bg-[#a01325] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#B9162C]"
+                className="px-4 py-2 rounded-lg bg-[#B9162C] text-white font-bold hover:bg-[#a01325] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#B9162C] disabled:bg-gray-400 disabled:cursor-not-allowed"
                 disabled={!selectedFile || uploading}
               >
                 {uploading ? 'Uploading...' : 'Save'}
@@ -247,6 +301,8 @@ const ProfileDropdown = () => {
           </div>
         </div>
       )}
+
+      {/* Logout Confirmation Modal */}
       <ConfirmationModal
         isOpen={showLogoutModal}
         title="Confirm Logout"
@@ -261,4 +317,4 @@ const ProfileDropdown = () => {
   );
 };
 
-export default ProfileDropdown; 
+export default ProfileDropdown;
