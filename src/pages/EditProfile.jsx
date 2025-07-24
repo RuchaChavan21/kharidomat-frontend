@@ -4,10 +4,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const EditProfile = () => {
-  const { user, isLoggedIn, token } = useAuth();
+  const { user, isLoggedIn, token, refreshUser } = useAuth(); // Assuming you have a way to refresh user data
   const navigate = useNavigate();
-  const [name, setName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [prn, setPrn] = useState('');
+  const [academicYear, setAcademicYear] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -16,8 +18,11 @@ const EditProfile = () => {
     if (!isLoggedIn) {
       navigate('/login');
     } else if (user) {
-      setName(user.name);
+      // Use the correct field names from your User model
+      setFullName(user.fullName || '');
       setPhone(user.phone || '');
+      setPrn(user.prn || '');
+      setAcademicYear(user.academicYear || '');
     }
   }, [user, isLoggedIn, navigate]);
 
@@ -28,13 +33,18 @@ const EditProfile = () => {
     setSuccess('');
 
     try {
-      const response = await fetch(`http://localhost:8080/api/users/update`, {
+      // 1. Corrected the endpoint URL
+      // Note: Your controller has @RequestMapping("/api/users") and @PutMapping("/users/edit-profile")
+      // This might result in /api/users/users/edit-profile. 
+      // If that's a typo, and you meant @PutMapping("/edit-profile"), this URL is correct.
+      const response = await fetch(`http://localhost:8080/api/users/edit-profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, phone }),
+        // 2. Updated the body to match the backend's EditProfileRequest
+        body: JSON.stringify({ fullName, phone, prn, academicYear }),
       });
 
       const data = await response.json();
@@ -44,6 +54,11 @@ const EditProfile = () => {
       }
 
       setSuccess('Profile updated successfully!');
+      // Optional: Refresh user data in context to show updates across the app
+      if (refreshUser) {
+        refreshUser();
+      }
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -67,7 +82,6 @@ const EditProfile = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] px-4 py-8 pt-20 font-sans">
-      {/* Main container for the whole page. Removed the card styling from this div. */}
       <motion.div
         className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md"
         initial={{ opacity: 0, y: 40 }}
@@ -76,14 +90,12 @@ const EditProfile = () => {
       >
         <h2 className="text-3xl font-bold text-center text-red-600 mb-6">Edit Profile</h2>
 
-        {/* Themed error */}
         {error && (
           <div className="bg-red-100 text-red-700 px-4 py-3 rounded-lg mb-4 text-center border border-red-300 font-medium">
             {error}
           </div>
         )}
 
-        {/* Themed success */}
         {success && (
           <div className="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4 text-center border border-green-300 font-medium">
             {success}
@@ -91,12 +103,13 @@ const EditProfile = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* 3. Updated field for Full Name */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">Name</label>
+            <label className="block text-gray-700 font-semibold mb-1">Full Name</label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
               required
             />
@@ -110,6 +123,29 @@ const EditProfile = () => {
               onChange={(e) => setPhone(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
               placeholder="e.g., 9876543210"
+            />
+          </div>
+
+          {/* 4. Added new fields for PRN and Academic Year */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">PRN</label>
+            <input
+              type="text"
+              value={prn}
+              onChange={(e) => setPrn(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+              placeholder="Enter your PRN"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">Academic Year</label>
+            <input
+              type="text"
+              value={academicYear}
+              onChange={(e) => setAcademicYear(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+              placeholder="e.g., Third Year"
             />
           </div>
 
