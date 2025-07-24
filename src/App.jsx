@@ -25,46 +25,52 @@ import RecentListings from './pages/RecentListings';
 import Chat from './pages/Chat';
 import EditProfile from './pages/EditProfile';
 import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
+import VerifyReturns from './pages/VerifyReturns';
 
 function PublicHomeRoute() {
-  // Always show Home page, regardless of login state
-  return <Home />;
+    // Always show Home page, regardless of login state
+    return <Home />;
 }
 
 const App = () => {
-  return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<PublicHomeRoute />} />
-        <Route path="/oauth-success" element={<OAuth2RedirectHandler />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/verify-otp" element={<VerifyOtp />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/change-password" element={<PrivateRoute><ResetPassword /></PrivateRoute>} />
-        <Route path="/items" element={<Items />} />
-        <Route path="/item/:itemId" element={<ItemDetails />} />
-        <Route path="/items/:id" element={<ItemDetails />} />
-        <Route path="/bookings/item/:itemId" element={<PrivateRoute><BookOrRentItem /></PrivateRoute>} />
-        <Route path="/booking/:bookingId" element={<PrivateRoute><BookingDetails /></PrivateRoute>} />
-        <Route path="/about" element={<About />} />
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/my-bookings" element={<PrivateRoute><MyBookings /></PrivateRoute>} />
-        <Route path="/wishlist" element={<PrivateRoute><Wishlist /></PrivateRoute>} />
-        <Route path="/post-item" element={<PrivateRoute><PostItem /></PrivateRoute>} />
-        <Route path="/items/add" element={<PrivateRoute><PostItem /></PrivateRoute>} />
-        <Route path="/book-item/:itemId" element={<PrivateRoute><BookOrRentItem /></PrivateRoute>} />
-        <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-        <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
-        <Route path="/recent-listings" element={<RecentListings />} />
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/edit-profile" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
-      </Routes>
-      <Footer />
-    </Router>
-  );
+    return (
+        <Router>
+            <Navbar />
+            <Routes>
+                <Route path="/" element={<PublicHomeRoute />} />
+                <Route path="/oauth-success" element={<OAuth2RedirectHandler />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/verify-otp" element={<VerifyOtp />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/change-password" element={<PrivateRoute><ResetPassword /></PrivateRoute>} />
+                <Route path="/items" element={<Items />} />
+                <Route path="/item/:itemId" element={<ItemDetails />} />
+                <Route path="/items/:id" element={<ItemDetails />} />
+                <Route path="/bookings/item/:itemId" element={<PrivateRoute><BookOrRentItem /></PrivateRoute>} />
+                <Route path="/booking/:bookingId" element={<PrivateRoute><BookingDetails /></PrivateRoute>} />
+                <Route path="/about" element={<About />} />
+                <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                <Route path="/my-bookings" element={<PrivateRoute><MyBookings /></PrivateRoute>} />
+                <Route path="/wishlist" element={<PrivateRoute><Wishlist /></PrivateRoute>} />
+                <Route path="/post-item" element={<PrivateRoute><PostItem /></PrivateRoute>} />
+                <Route path="/items/add" element={<PrivateRoute><PostItem /></PrivateRoute>} />
+                <Route path="/book-item/:itemId" element={<PrivateRoute><BookOrRentItem /></PrivateRoute>} />
+                <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+                <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
+                <Route path="/recent-listings" element={<RecentListings />} />
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/edit-profile" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+                // The temporary public route for testing
+                <Route
+                    path="/verify-returns"
+                    element={<VerifyReturns />}
+                />
+            </Routes>
+            <Footer />
+        </Router>
+    );
 };
 
 export default App;
