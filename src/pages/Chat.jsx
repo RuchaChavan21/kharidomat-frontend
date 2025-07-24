@@ -29,7 +29,7 @@ const Chat = () => {
     const fetchChats = async () => {
       setLoadingChats(true);
       try {
-        const res = await fetch('http://localhost:8080/api/chats', {
+        const res = await fetch('/api/chats', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();

@@ -324,7 +324,7 @@ const ItemDetails = () => {
               <>
                 {item.imageName ? (
                   <img
-                    src={`http://localhost:8080/api/items/image/${item.imageName}`}
+                    src={`/api/items/image/${item.imageName}`}
                     alt={item.title}
                     className="w-full max-w-md h-80 object-cover rounded-lg shadow"
                   />
