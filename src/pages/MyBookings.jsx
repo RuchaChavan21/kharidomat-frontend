@@ -321,6 +321,10 @@ const MyBookings = () => {
                             <span className="font-semibold">
                               {booking.owner?.name || "N/A"}
                             </span>
+                            Email:{" "}
+                            <span className="font-semibold">
+                              {booking.owner?.email || "N/A"}
+                            </span>
                           </p>
                           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700">
                             <span className="font-medium">
@@ -328,7 +332,7 @@ const MyBookings = () => {
                               {formatDate(booking.endDate)}
                             </span>
                             <span className="font-medium">
-                              💰 ₹{booking.pricePerDay || 0}{" "}/day
+                              💰 ₹{booking.item?.pricePerDay || 0}{" "}/day
                             </span>
                             <span className="font-bold text-[#D32F2F] text-base">
                               💳 Total: ₹{booking.totalAmount || 0}
@@ -362,25 +366,25 @@ const MyBookings = () => {
                           {/* Cancel button */}
                           {(booking.status === "ACTIVE" ||
                             booking.status === "UPCOMING") && (
-                            <button
-                              onClick={() => handleCancelBooking(booking.id)}
-                              className="bg-red-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-red-500 hover:bg-white hover:text-red-500 transition-all duration-200 whitespace-nowrap"
-                            >
-                              Cancel
-                            </button>
-                          )}
-                           {/* Extend Booking button - placeholder, implement API.put('/bookings/extend/...') */}
-                           {(booking.status === "ACTIVE" ||
+                              <button
+                                onClick={() => handleCancelBooking(booking.id)}
+                                className="bg-red-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-red-500 hover:bg-white hover:text-red-500 transition-all duration-200 whitespace-nowrap"
+                              >
+                                Cancel
+                              </button>
+                            )}
+                          {/* Extend Booking button - placeholder, implement API.put('/bookings/extend/...') */}
+                          {(booking.status === "ACTIVE" ||
                             booking.status === "UPCOMING") && (
-                            <Link
-                              to={`/extend-booking/${booking.id}`}
-                              className="bg-indigo-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-indigo-500 hover:bg-white hover:text-indigo-500 transition-all duration-200 whitespace-nowrap"
-                            >
-                              Extend
-                            </Link>
-                          )}
-                           {/* Return Item button - placeholder, implement API.get('/bookings/return/...') */}
-                           {(booking.status === "ACTIVE") && (
+                              <Link
+                                to={`/extend-booking/${booking.id}`}
+                                className="bg-indigo-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-indigo-500 hover:bg-white hover:text-indigo-500 transition-all duration-200 whitespace-nowrap"
+                              >
+                                Extend
+                              </Link>
+                            )}
+                          {/* Return Item button - placeholder, implement API.get('/bookings/return/...') */}
+                          {(booking.status === "ACTIVE") && (
                             <Link
                               to={`/return-item/${booking.id}`}
                               className="bg-orange-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-orange-500 hover:bg-white hover:text-orange-500 transition-all duration-200 whitespace-nowrap"

@@ -119,7 +119,7 @@ const BookOrRentItem = () => {
     try {
       // 1. Create an order on your server.
       const orderRes = await API.post("/payment/create-order", {
-        amount: totalPrice * 100, // Convert Rupees to Paise
+        amount: totalPrice, // Convert Rupees to Paise
       });
 
       const orderData = orderRes.data;
