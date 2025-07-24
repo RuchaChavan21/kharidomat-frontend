@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import Footer from '../components/Footer'; // Assuming Footer is used elsewhere
+import ProfileCompletionModal from '../components/ProfileCompletionModal'; // Assuming this path is correct
 
 // Import your actual local images from src/assets/ with precise filenames
 import bikesImg from '../assets/bikes.jpg';
@@ -14,21 +14,20 @@ import hostelFurnitureImg from '../assets/hostelfurniture.jpg';
 import laptopImg from '../assets/laptop.jpg';
 import mattressesImg from '../assets/mattresses.jpg';
 import miniFridgeImg from '../assets/minifridge.jpg';
-import studyTablesAndChairImg from '../assets/studytablesandchair.jpg'; // Corrected filename here!
+import studyTablesAndChairImg from '../assets/studytablesandchair.jpg';
 
 // For hero section, picking relevant ones from your assets
-// Using available assets for the four layered product images:
 const heroSectionImages = [
-  deskImg,         // Suitable for a study/work desk
-  miniFridgeImg,   // Perfect for appliances
-  hostelFurnitureImg, // Generic furniture item (could represent a chair, small shelf etc.)
-  laptopImg,       // Electronic item
+  deskImg,
+  miniFridgeImg,
+  hostelFurnitureImg,
+  laptopImg,
 ];
 
 // Now use the imported variables for categoryImages with precise filenames
 const categoryImages = [
   { title: 'Hostel Furniture', img: hostelFurnitureImg },
-  { title: 'Study Tables & Chairs', img: studyTablesAndChairImg }, // Corrected variable name
+  { title: 'Study Tables & Chairs', img: studyTablesAndChairImg },
   { title: 'Electronics', img: electronicsImg },
   { title: 'Appliances for PG/Hostels', img: hostelAppliancesImg },
   { title: 'Mattresses', img: mattressesImg },
@@ -37,8 +36,23 @@ const categoryImages = [
 
 const Home = () => {
   const { theme } = useTheme();
-  const { isLoggedIn } = useAuth();
+  const { user, isLoggedIn } = useAuth(); // Added 'user' from useAuth
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false); // State for the modal
+
+  // useEffect to check for profile completion and show modal
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      // Adjust the condition based on your actual user schema fields
+      const isProfileComplete = user.phone && user.address;
+      const alreadyShown = sessionStorage.getItem("profileModalShown");
+
+      if (!isProfileComplete && !alreadyShown) {
+        setShowModal(true);
+        sessionStorage.setItem("profileModalShown", "true");
+      }
+    }
+  }, [isLoggedIn, user]);
 
   const handleStartRenting = (e) => {
     e.preventDefault();
@@ -51,11 +65,14 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
-      {/* Navbar (moved to Navbar.jsx, so not duplicated here) */}
+      {/* Modal for Profile Completion */}
+      {showModal && <ProfileCompletionModal onClose={() => setShowModal(false)} />}
+
       {/* Teal Offer Bar */}
       <div className="w-full bg-[#70C9B0] text-center py-2 text-sm font-semibold text-gray-900">
         GET FLAT 20% OFF ON EACH MONTH'S RENT <span className="font-bold text-[#D32F2F]">VIBE20</span> ! <a href="#" className="underline hover:text-[#D32F2F]">Click For More Offers!</a>
       </div>
+
       {/* Hero Banner */}
       <section className="relative overflow-hidden min-h-[480px] md:min-h-[540px] flex flex-col md:flex-row items-center justify-between bg-[#D32F2F]" style={{clipPath:'polygon(0 0, 100% 0, 100% 85%, 0 100%)'}}>
         {/* Left Triangle Graphics */}
@@ -100,9 +117,9 @@ const Home = () => {
         </div>
         {/* Hero Images (layered) */}
         <div className="relative z-10 flex-1 flex items-end justify-center md:justify-end gap-4 px-6 md:px-16 py-8 md:py-24">
-          {heroSectionImages.map((img, i) => ( // Changed to heroSectionImages
+          {heroSectionImages.map((img, i) => (
             <motion.img
-              key={i} // Using index as key here as img path might not be unique if used multiple times
+              key={i}
               src={img}
               alt="Product"
               className={`rounded-xl shadow-lg border-4 border-white w-32 h-24 object-cover ${i!==0?'ml-[-24px]':''}`}
@@ -114,16 +131,14 @@ const Home = () => {
           ))}
         </div>
       </section>
-      {/* Category Carousel */}
-      {/* CATEGORY SECTION (Rentickle style) */}
+      
+      {/* Category Section */}
       <section className="w-full bg-white pt-12 pb-12 md:pt-16 md:pb-16" style={{marginTop:48, marginBottom:48}}>
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          {/* Section Title */}
           <div className="flex flex-col items-center mb-8">
             <h2 className="text-[#222] font-extrabold uppercase text-[20px] md:text-[24px] tracking-wide text-center font-sans">Browse by Category</h2>
             <div className="mt-2 mb-2 h-[2px] w-[60px] bg-[#D32F2F] rounded-full" />
           </div>
-          {/* Horizontal Card Slider */}
           <div
             className="flex overflow-x-auto gap-5 md:gap-6 px-4 md:px-8 scrollbar-hide"
             style={{
@@ -147,7 +162,7 @@ const Home = () => {
                   scrollSnapAlign: 'start',
                   borderRadius: 16,
                   boxShadow: '0 4px 12px rgba(0,0,0,0.10)',
-                  background: `url(${cat.img}) center/cover no-repeat`, // Image applied here
+                  background: `url(${cat.img}) center/cover no-repeat`,
                   position: 'relative',
                   overflow: 'hidden',
                   marginRight: idx === categoryImages.length - 1 ? 0 : 20,
@@ -157,7 +172,6 @@ const Home = () => {
                 onFocus={e => e.currentTarget.classList.add('ring-2', 'ring-[#D32F2F]')}
                 onBlur={e => e.currentTarget.classList.remove('ring-2', 'ring-[#D32F2F]')}
               >
-                {/* Overlay gradient */}
                 <div style={{
                   position: 'absolute',
                   left: 0, right: 0, bottom: 0,
@@ -166,7 +180,6 @@ const Home = () => {
                   zIndex: 1,
                   pointerEvents: 'none',
                 }} />
-                {/* Title */}
                 <div style={{
                   position: 'absolute',
                   left: 16, bottom: 16, zIndex: 2,
@@ -179,7 +192,6 @@ const Home = () => {
                 }}>
                   {cat.title}
                 </div>
-                {/* Hover effect */}
                 <style>{`
                   a.group:hover, a.group:focus {
                     transform: translateY(-4px) scale(1.02);
@@ -193,6 +205,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       {/* Trust/Safety Section */}
       <section className="w-full bg-[#fff3f3] py-10 px-2 md:px-8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
@@ -204,31 +217,20 @@ const Home = () => {
             <motion.div key={item.title} className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center gap-3 border-2 border-[#D32F2F] hover:shadow-lg transition-all duration-200" initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.1}}>
               <span className="text-4xl">{item.icon}</span>
               <span className="font-bold text-lg uppercase text-[#D32F2F]">{item.title}</span>
-          </motion.div>
+            </motion.div>
           ))}
         </div>
       </section>
+
       {/* How It Works */}
       <section className="w-full bg-white py-16 px-2 md:px-8">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-extrabold uppercase mb-10 text-[#D32F2F] text-center tracking-tight">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
             {[
-              {icon: (
-                <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4">
-                  <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><rect x="8" y="12" width="20" height="14" rx="3"/><rect x="12" y="8" width="12" height="6" rx="2"/></svg>
-                </span>
-              ), title: 'Select what you need', desc: 'Choose from a wide range of rental products.'},
-              {icon: (
-                <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4">
-                  <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><circle cx="18" cy="14" r="6"/><rect x="10" y="22" width="16" height="8" rx="4"/></svg>
-                </span>
-              ), title: 'Verify your ID', desc: 'Upload your campus/student ID for verification.'},
-              {icon: (
-                <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4">
-                  <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><rect x="8" y="16" width="20" height="12" rx="4"/><path d="M18 16v-4"/><circle cx="18" cy="8" r="2"/></svg>
-                </span>
-              ), title: 'Pay & Relax', desc: 'Complete payment and enjoy hassle-free delivery.'},
+              {icon: ( <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><rect x="8" y="12" width="20" height="14" rx="3"/><rect x="12" y="8" width="12" height="6" rx="2"/></svg> </span> ), title: 'Select what you need', desc: 'Choose from a wide range of rental products.'},
+              {icon: ( <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><circle cx="18" cy="14" r="6"/><rect x="10" y="22" width="16" height="8" rx="4"/></svg> </span> ), title: 'Verify your ID', desc: 'Upload your campus/student ID for verification.'},
+              {icon: ( <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><rect x="8" y="16" width="20" height="12" rx="4"/><path d="M18 16v-4"/><circle cx="18" cy="8" r="2"/></svg> </span> ), title: 'Pay & Relax', desc: 'Complete payment and enjoy hassle-free delivery.'},
             ].map((step, i) => (
               <div key={step.title} className="bg-[#fff3f3] rounded-2xl shadow-2xl p-8 flex flex-col items-center">
                 {step.icon}
@@ -239,6 +241,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       {/* Promise Section */}
       <section className="w-full bg-[#fff3f3] py-10 px-2 md:px-8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
@@ -246,6 +249,7 @@ const Home = () => {
             {icon:'🔁', title:'Flexible Return'},
             {icon:'✅', title:'Verified Products'},
             {icon:'🤝', title:'Student Support'},
+            {icon:'🚚', title:'Free Delivery'} // Added a 4th item for better grid layout
           ].map((item, i) => (
             <motion.div key={item.title} className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center gap-3 border-2 border-[#D32F2F] hover:shadow-lg transition-all duration-200" initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.1}}>
               <span className="text-4xl">{item.icon}</span>
@@ -254,6 +258,7 @@ const Home = () => {
           ))}
         </div>
       </section>
+
       {/* Testimonials */}
       <section className="w-full bg-white py-12 px-2 md:px-8">
         <div className="max-w-5xl mx-auto">

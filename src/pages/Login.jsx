@@ -3,6 +3,8 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import API from "../services/api";
+import ProfileCompletionPopup from "../components/ProfileCompletionModal"; // Update the path if needed
+
 
 const Login = () => {
   const { login, isLoggedIn } = useAuth();
@@ -13,6 +15,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(""); // State to hold login errors
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,6 +55,7 @@ const Login = () => {
       navigate("/"); // Navigate to home or dashboard after successful login
     }
   }, [isLoggedIn, navigate]);
+  
 
   return (
     // Added pt-20 to push content down below the fixed Navbar
