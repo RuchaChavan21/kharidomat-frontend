@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const EditProfile = () => {
-  const { user, isLoggedIn, token, refreshUser } = useAuth(); // Assuming you have a way to refresh user data
+  const { user, isLoggedIn, token, refreshUser } = useAuth(); 
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -27,44 +27,44 @@ const EditProfile = () => {
   }, [user, isLoggedIn, navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+  setSuccess('');
 
-    try {
-      // 1. Corrected the endpoint URL
-      // Note: Your controller has @RequestMapping("/api/users") and @PutMapping("/users/edit-profile")
-      // This might result in /api/users/users/edit-profile. 
-      // If that's a typo, and you meant @PutMapping("/edit-profile"), this URL is correct.
-      const response = await fetch(`http://localhost:8080/api/users/edit-profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        // 2. Updated the body to match the backend's EditProfileRequest
-        body: JSON.stringify({ fullName, phone, prn, academicYear }),
-      });
+  try {
+    const response = await fetch(`http://localhost:8080/api/users/edit-profile`, {
+      method: 'PUT', // ← OR 'POST' if your backend uses @PostMapping
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ fullName, phone, prn, academicYear }),
+    });
 
-      const data = await response.json();
+    const contentType = response.headers.get("content-type");
+    let data;
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile');
-      }
-
-      setSuccess('Profile updated successfully!');
-      // Optional: Refresh user data in context to show updates across the app
-      if (refreshUser) {
-        refreshUser();
-      }
-
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      data = await response.text();
     }
-  };
+
+    if (!response.ok) {
+      throw new Error(data.message || data || 'Failed to update profile');
+    }
+
+    setSuccess('Profile updated successfully!');
+    if (refreshUser) refreshUser();
+
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (!isLoggedIn) {
     return (
