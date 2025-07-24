@@ -48,7 +48,7 @@ const BookOrRentItem = () => {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch(`/api/items/${itemId}`, {
+                const res = await fetch(`http://localhost:8080/api/items/${itemId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!res.ok) throw new Error('Failed to fetch item');
@@ -134,7 +134,7 @@ const BookOrRentItem = () => {
                 order_id: orderData.orderId,
                 handler: async function (response) {
                     // STEP 3: Verify the Payment on Your Backend
-                    const verificationResponse = await fetch('/api/payment/verify', {
+                    const verificationResponse = await fetch('http://localhost:8080/api/payment/verify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                         body: JSON.stringify({
@@ -152,7 +152,7 @@ const BookOrRentItem = () => {
                     console.log("Payment verified. Now creating booking...");
                     setShowPayment(false); // Close the payment modal
 
-                    const bookingRes = await fetch('/api/bookings', {
+                    const bookingRes = await fetch('http://localhost:8080/api/bookings', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                         body: JSON.stringify({ itemId, startDate, endDate, totalPrice }),

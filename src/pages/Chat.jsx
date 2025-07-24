@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { useTheme } from '../context/ThemeContext';
-import API from '../services/api'; 
 
 const Chat = () => {
   const { isLoggedIn, token, user } = useAuth();

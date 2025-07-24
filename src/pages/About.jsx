@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import heroImg from '../assets/mitaoe.jpg'; // Ensure this path is correct or replace with a generic placeholder
-import API from '../services/api'; 
+
 const infoCards = [
   {
     title: '🎯 Our Mission',
