@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import API from "../services/api"; // Assuming API is correctly configured to include the token
+import ExtendBookingModal from '../components/ExtendBookingModal';
 
 const MyBookings = () => {
   const { user, isLoggedIn, token } = useAuth();
@@ -12,6 +13,9 @@ const MyBookings = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [extendModal, setExtendModal] = useState({ open: false, booking: null });
+  const [extendLoading, setExtendLoading] = useState(false);
+  const [extendError, setExtendError] = useState('');
 
   const fetchBookingsAndSummary = useCallback(async () => {
     if (!isLoggedIn) {
@@ -57,6 +61,74 @@ const MyBookings = () => {
         error.response?.data?.message || "Failed to cancel booking. Please try again.";
       alert(`Error: ${errorMessage}`);
       console.error("Error canceling booking:", error.response?.data || error.message);
+    }
+  };
+
+  const handleReturnItem = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to mark this item as returned?")) {
+      return;
+    }
+
+    try {
+      const response = await API.get(`/bookings/return/${bookingId}`);
+
+      alert(response.data); // Show the success message from the backend
+      fetchBookingsAndSummary(); // Refresh the list
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Failed to return item.";
+      alert(`Error: ${errorMessage}`);
+      console.error("Error returning item:", error);
+    }
+  };
+
+  const handleExtendBooking = async (bookingId) => {
+    // Prompt the user for the new end date
+    const newEndDate = window.prompt("Please enter the new end date (YYYY-MM-DD):");
+
+    // Validate the input
+    if (!newEndDate || !/^\d{4}-\d{2}-\d{2}$/.test(newEndDate)) {
+      alert("Invalid date format. Please use YYYY-MM-DD.");
+      return;
+    }
+
+    try {
+      // The backend expects the new date as a request parameter.
+      // In Axios, you send this using the `params` config object.
+      await API.put(`/bookings/extend/${bookingId}`, null, {
+        params: { newEndDate }
+      });
+
+      alert("Booking extended successfully!");
+      fetchBookingsAndSummary(); // Refresh the list
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Failed to extend booking.";
+      alert(`Error: ${errorMessage}`);
+      console.error("Error extending booking:", error);
+    }
+  };
+
+  const handleOpenExtendModal = (booking) => {
+    setExtendModal({ open: true, booking });
+    setExtendError('');
+  };
+  const handleCloseExtendModal = () => {
+    setExtendModal({ open: false, booking: null });
+    setExtendError('');
+  };
+  const handleExtendBookingSubmit = async (newEndDate) => {
+    setExtendLoading(true);
+    setExtendError('');
+    try {
+      await API.put(`/bookings/extend/${extendModal.booking.id}`, null, {
+        params: { newEndDate }
+      });
+      handleCloseExtendModal();
+      fetchBookingsAndSummary();
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to extend booking.';
+      setExtendError(errorMessage);
+    } finally {
+      setExtendLoading(false);
     }
   };
 
@@ -269,6 +341,23 @@ const MyBookings = () => {
           </motion.div>
         )}
 
+        {/* Extend Booking Modal */}
+        <ExtendBookingModal
+          isOpen={extendModal.open}
+          onClose={handleCloseExtendModal}
+          onSubmit={handleExtendBookingSubmit}
+          currentEndDate={extendModal.booking ? extendModal.booking.endDate.split('T')[0] : ''}
+          minDate={extendModal.booking ? extendModal.booking.endDate.split('T')[0] : ''}
+          loading={extendLoading}
+        />
+        {extendError && extendModal.open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+            <div className="bg-red-100 text-red-700 px-4 py-2 rounded shadow text-center border border-red-300 pointer-events-auto">
+              {extendError}
+            </div>
+          </div>
+        )}
+
         {/* Bookings List */}
         <div className="space-y-6">
           {filteredBookings.length === 0 ? (
@@ -350,19 +439,7 @@ const MyBookings = () => {
                           >
                             View Details
                           </Link>
-                          {/* Chat button */}
-                          {booking.owner &&
-                            user &&
-                            user.id !== booking.owner.id && (
-                              <Link
-                                to={`/chat?user=${encodeURIComponent(
-                                  booking.owner.name
-                                )}&id=${booking.owner.id}`}
-                                className="bg-blue-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-blue-500 hover:bg-white hover:text-blue-500 transition-all duration-200 whitespace-nowrap"
-                              >
-                                💬 Chat
-                              </Link>
-                            )}
+
                           {/* Cancel button */}
                           {(booking.status === "ACTIVE" ||
                             booking.status === "UPCOMING") && (
@@ -373,24 +450,24 @@ const MyBookings = () => {
                                 Cancel
                               </button>
                             )}
-                          {/* Extend Booking button - placeholder, implement API.put('/bookings/extend/...') */}
-                          {(booking.status === "ACTIVE" ||
-                            booking.status === "UPCOMING") && (
-                              <Link
-                                to={`/extend-booking/${booking.id}`}
-                                className="bg-indigo-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-indigo-500 hover:bg-white hover:text-indigo-500 transition-all duration-200 whitespace-nowrap"
-                              >
-                                Extend
-                              </Link>
-                            )}
-                          {/* Return Item button - placeholder, implement API.get('/bookings/return/...') */}
+                          {/* Extend Booking button */}
+                          {(booking.status === "ACTIVE" || booking.status === "UPCOMING") && (
+                            <button
+                              onClick={() => handleOpenExtendModal(booking)}
+                              className="bg-white text-[#D32F2F] font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-[#D32F2F] hover:bg-[#D32F2F] hover:text-white transition-all duration-200 whitespace-nowrap"
+                            >
+                              Extend
+                            </button>
+                          )}
+
+                          {/* Return Item button */}
                           {(booking.status === "ACTIVE") && (
-                            <Link
-                              to={`/return-item/${booking.id}`}
+                            <button
+                              onClick={() => handleReturnItem(booking.id)}
                               className="bg-orange-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-orange-500 hover:bg-white hover:text-orange-500 transition-all duration-200 whitespace-nowrap"
                             >
                               Return
-                            </Link>
+                            </button>
                           )}
                         </div>
                       </div>
