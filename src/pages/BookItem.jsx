@@ -3,8 +3,12 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 // FaComments icon import removed as the chat button is no longer present
-import { FaCreditCard, FaCheckCircle } from 'react-icons/fa'; 
+import { FaCreditCard, FaCheckCircle } from 'react-icons/fa';
 import API from "../services/api";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+
 
 const BookOrRentItem = () => {
   const { itemId } = useParams();
@@ -16,8 +20,9 @@ const BookOrRentItem = () => {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
   const [formError, setFormError] = useState('');
@@ -26,6 +31,9 @@ const BookOrRentItem = () => {
   const [showPayment, setShowPayment] = useState(false);
 
   const isRentRoute = location.pathname.startsWith('/rent-now');
+  const [bookedDates, setBookedDates] = useState([]);
+
+
 
   // Effect to load Razorpay script
   useEffect(() => {
@@ -72,15 +80,40 @@ const BookOrRentItem = () => {
     fetchItem();
   }, [itemId, isLoggedIn, navigate]);
 
+  useEffect(() => {
+    const fetchBookedDates = async () => {
+      try {
+        const res = await API.get(`/bookings/${itemId}/bookings`);
+        const blocked = [];
+
+        res.data.forEach(({ startDate, endDate }) => {
+          const current = new Date(startDate);
+          const end = new Date(endDate);
+          while (current <= end) {
+            blocked.push(new Date(current).toISOString().split('T')[0]);
+            current.setDate(current.getDate() + 1);
+          }
+        });
+
+        setBookedDates(blocked);
+      } catch (err) {
+        console.error("Failed to fetch booked dates:", err);
+      }
+    };
+
+    if (itemId) fetchBookedDates();
+  }, [itemId]);
+
+
   // Calculate price based on dates
   useEffect(() => {
     if (startDate && endDate && item) {
       const start = new Date(startDate);
       const end = new Date(endDate);
       if (end < start) {
-         setTotalDays(0);
-         setTotalPrice(0);
-         return;
+        setTotalDays(0);
+        setTotalPrice(0);
+        return;
       }
       const diffTime = Math.abs(end - start);
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
@@ -94,14 +127,28 @@ const BookOrRentItem = () => {
 
   const validateDates = () => {
     if (!startDate || !endDate) return 'Please select both start and end dates.';
+  
     const start = new Date(startDate);
     const end = new Date(endDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+  
     if (start < today) return 'Start date cannot be in the past.';
     if (end < start) return 'End date must be on or after the start date.';
+  
+    // Check for overlapping with bookedDates
+    const check = new Date(start);
+    while (check <= end) {
+      const checkStr = check.toISOString().split('T')[0];
+      if (bookedDates.includes(checkStr)) {
+        return `Date ${checkStr} is already booked. Please select different dates.`;
+      }
+      check.setDate(check.getDate() + 1);
+    }
+  
     return null;
   };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -143,7 +190,7 @@ const BookOrRentItem = () => {
             });
 
             await API.post('/bookings', {
-                itemId, startDate, endDate, totalPrice
+              itemId, startDate, endDate, totalPrice
             });
 
             setSuccess('Booking successful! Redirecting...');
@@ -151,9 +198,9 @@ const BookOrRentItem = () => {
             setTimeout(() => navigate('/dashboard'), 2000);
 
           } catch (verificationError) {
-             console.error("Payment verification or booking failed:", verificationError);
-             setFormError("Payment succeeded, but booking failed. Please contact support.");
-             setShowPayment(false);
+            console.error("Payment verification or booking failed:", verificationError);
+            setFormError("Payment succeeded, but booking failed. Please contact support.");
+            setShowPayment(false);
           }
         },
         prefill: {
@@ -182,7 +229,7 @@ const BookOrRentItem = () => {
       setFormError("Could not initiate payment. Please try again.");
       setShowPayment(false);
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -225,7 +272,7 @@ const BookOrRentItem = () => {
             {ownerName && <p className="text-sm text-gray-600 mb-2">Owner: <span className="font-semibold">{ownerName}</span></p>}
             {item.location && <p className="text-sm text-gray-600 mb-2">Location: <span className="font-semibold">{item.location}</span></p>}
             {item.status && <p className="text-sm text-gray-600 mb-2">Status: <span className="font-semibold">{item.status}</span></p>}
-             {/* The chat button that caused the error has been completely removed. */}
+            {/* The chat button that caused the error has been completely removed. */}
           </div>
         </div>
 
