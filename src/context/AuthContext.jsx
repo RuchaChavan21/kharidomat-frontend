@@ -9,7 +9,6 @@ export const AuthProvider = ({ children }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  // Derived state for isLoggedIn
   const isLoggedIn = !!token;
 
   useEffect(() => {
@@ -24,12 +23,32 @@ export const AuthProvider = ({ children }) => {
     } else {
       localStorage.removeItem('user');
     }
-    console.log('AuthContext updated:', { token, user, isLoggedIn }); // Debug log
+
+    console.log('AuthContext updated:', { token, user, isLoggedIn });
   }, [token, user, isLoggedIn]);
 
-  const login = (userData, authToken) => {
-    setToken(authToken);
-    setUser(userData);
+  const login = async (placeholderUser, authToken) => {
+    try {
+      setToken(authToken);
+      localStorage.setItem('token', authToken);
+
+      // Fetch full user profile
+      const res = await fetch('http://localhost:8080/api/users/profile', {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!res.ok) throw new Error('Failed to fetch user profile');
+      const fullUser = await res.json();
+
+      setUser(fullUser);
+      localStorage.setItem('user', JSON.stringify(fullUser));
+    } catch (err) {
+      console.error('AuthContext login error:', err.message);
+      setToken(null);
+      setUser(null);
+    }
   };
 
   const logout = () => {

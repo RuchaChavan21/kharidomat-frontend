@@ -54,15 +54,6 @@ const Home = () => {
     }
   }, [isLoggedIn, user]);
 
-  const handleStartRenting = (e) => {
-    e.preventDefault();
-    if (isLoggedIn) {
-      navigate('/post-item');
-    } else {
-      navigate('/login');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-neutral-100 text-gray-900 font-sans font-inter cursor-default">
       {/* Modal for Profile Completion */}
@@ -108,12 +99,20 @@ const Home = () => {
             <span className="text-white text-5xl font-bold ml-2">”</span>
           </div>
           <p className="text-white text-xl md:text-2xl font-semibold mb-8 uppercase tracking-wide">AFFORDABLE. FLEXIBLE. HASSLE-FREE.</p>
-          <button
-            onClick={handleStartRenting}
-            className="bg-white text-[#D32F2F] font-bold uppercase px-8 py-4 rounded-2xl shadow-xl text-lg tracking-wide border-2 border-[#D32F2F] hover:bg-[#D32F2F] hover:text-white hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer"
-          >
-            Start Renting
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <button
+              onClick={() => navigate('/items')}
+              className="bg-white text-[#D32F2F] font-bold uppercase px-8 py-4 rounded-2xl shadow-xl text-lg tracking-wide border-2 border-[#D32F2F] hover:bg-[#D32F2F] hover:text-white hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer w-full sm:w-auto"
+            >
+              Start Renting
+            </button>
+            <button
+              onClick={() => navigate('/post-item')}
+              className="bg-[#D32F2F] text-white font-bold uppercase px-8 py-4 rounded-2xl shadow-xl text-lg tracking-wide border-2 border-[#D32F2F] hover:bg-white hover:text-[#D32F2F] hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer w-full sm:w-auto"
+            >
+              Post your item
+            </button>
+          </div>
         </div>
         {/* Hero Images (layered) */}
         <div className="relative z-10 flex-1 flex items-end justify-center md:justify-end gap-6 px-6 md:px-16 py-8 md:py-24">
@@ -221,28 +220,6 @@ const Home = () => {
               <span className="font-semibold text-lg uppercase text-[#D32F2F] tracking-wide">{item.title}</span>
             </motion.div>
           ))}
-        </div>
-      </section>
-      {/* Testimonials */}
-      <section className="w-full bg-white py-16 px-2 md:px-8">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-semibold text-[#D32F2F] text-center font-inter mb-10">What Students Say</h2>
-          <div className="flex flex-col md:flex-row gap-8 justify-center items-center">
-            {[
-              {name:'Amit S.', college:'IIT Bombay', img:'https://randomuser.me/api/portraits/men/32.jpg', text:'KharidoMat made my hostel life so much easier! Fast delivery and no deposit.'},
-              {name:'Priya R.', college:'BITS Pilani', img:'https://randomuser.me/api/portraits/women/44.jpg', text:'Loved the sanitized products and easy returns. Highly recommended!'},
-              {name:'Rahul T.', college:'VIT Vellore', img:'https://randomuser.me/api/portraits/men/54.jpg', text:'Affordable and flexible rental plans for students.'},
-            ].map((review, i) => (
-              <motion.div key={review.name} className="bg-[#fff3f3] rounded-2xl shadow-xl p-8 flex flex-col items-center gap-4 border border-[#D32F2F] max-w-xs w-full relative hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer" initial={{opacity:0, y:30}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.2}}>
-                <span className="absolute left-4 top-4 text-4xl text-[#D32F2F]">“</span>
-                <img src={review.img} alt={review.name} className="w-16 h-16 rounded-full border-4 border-white shadow-md mb-2" />
-                <p className="text-gray-800 font-medium text-base text-center font-inter">{review.text}</p>
-                <div className="mt-2 text-sm text-[#D32F2F] font-bold font-inter">{review.name}</div>
-                <div className="text-xs text-gray-500 font-inter">{review.college}</div>
-                <span className="absolute right-4 bottom-4 text-4xl text-[#D32F2F]">”</span>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
     </div>
