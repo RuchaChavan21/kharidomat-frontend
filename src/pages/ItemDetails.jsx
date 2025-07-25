@@ -177,18 +177,28 @@ const ItemDetails = () => {
   };
 
   // Function for adding to wishlist
-  const handleAddToWishlist = () => {
+
+  const handleAddToWishlist = async () => {
     if (!isLoggedIn) {
       alert("Please log in to add items to your wishlist!");
       navigate("/login");
       return;
     }
-    // TODO: Implement actual API call to add item to wishlist
-    // For now, it's just an alert:
-    alert(
-      `Item "${item.title}" added to wishlist! (API integration for wishlist pending)`
-    );
+
+    try {
+      const response = await API.post(`/users/wishlist/add/${user.email}/${item.id}`);
+      alert(`Item "${item.title}" added to wishlist!`);
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      if (error.response?.status === 401) {
+        alert("Session expired. Please log in again.");
+        navigate("/login");
+      } else {
+        alert("Failed to add item to wishlist.");
+      }
+    }
   };
+
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -324,7 +334,7 @@ const ItemDetails = () => {
               <>
                 {item.imageName ? (
                   <img
-                    src={`/api/items/image/${item.imageName}`}
+                    src={`http://localhost:8080/api/items/image/${item.imageName}`}
                     alt={item.title}
                     className="w-full max-w-md h-80 object-cover rounded-lg shadow"
                   />
