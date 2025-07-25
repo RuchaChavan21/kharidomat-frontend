@@ -30,6 +30,18 @@ const MyBookings = () => {
   const [returnStep, setReturnStep] = useState(1);
   const [otp, setOtp] = useState("");
 
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      // Clean up the script when the component unmounts
+      document.body.removeChild(script);
+    };
+  }, []); // The empty array [] ensures this runs only once.
+
   const fetchBookingsAndSummary = useCallback(async () => {
     if (!isLoggedIn) {
       setLoading(false);
@@ -66,19 +78,78 @@ const MyBookings = () => {
     setExtendError('');
   };
   const handleExtendBookingSubmit = async (newEndDate) => {
+    alert("Modal Submit Button Clicked!"); // <-- ADD THIS LINE
     setExtendLoading(true);
     setExtendError('');
+
     try {
-      await API.put(`/bookings/extend/${extendModal.booking.id}`, null, {
-        params: { newEndDate }
+      // --- STEP 1: Create the Payment Order on the backend ---
+      const orderResponse = await API.post(`/bookings/${extendModal.booking.id}/create-extension-order`, {
+        newEndDate: newEndDate,
       });
-      handleCloseExtendModal();
-      fetchBookingsAndSummary();
+      const { orderId, amount, currency } = orderResponse.data;
+
+      // --- STEP 2: Configure and Open Razorpay Checkout ---
+      const options = {
+        key: "rzp_test_n5Y0q2oWkbhx2b", // Replace with your actual Razorpay Key ID
+        amount: amount,
+        currency: currency,
+        name: "KharidoMat",
+        description: `Extend booking for ${extendModal.booking.item.name}`,
+        order_id: orderId,
+        handler: async (response) => {
+          // --- STEP 3: Verify Payment and Confirm Extension ---
+          // This part runs after the user completes the payment
+          try {
+            await API.post(`/bookings/${extendModal.booking.id}/verify-and-extend`, {
+              newEndDate: newEndDate,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            alert("Booking extended successfully!");
+            handleCloseExtendModal(); // Close the modal
+            fetchBookingsAndSummary(); // Refresh your bookings list
+
+          } catch (verificationError) {
+            console.error("Payment verification failed:", verificationError);
+            setExtendError("Payment succeeded, but failed to update booking. Please contact support.");
+          }
+        },
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+        },
+        theme: {
+          color: "#3399cc",
+        },
+        modal: {
+          ondismiss: function () {
+            setExtendLoading(false); // Stop loading if user closes the payment modal
+          }
+        }
+      };
+
+      console.log("2. Razorpay options object created:", options);
+      console.log("3. Checking for window.Razorpay object:", window.Razorpay);
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', (response) => {
+        console.error(response);
+        setExtendError(`Payment Failed: ${response.error.description}`);
+      });
+      rzp.open();
+      // We set loading to false in the ondismiss or handler callbacks now
+      return; // Exit the function here as Razorpay takes over
+
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Failed to extend booking.';
+      const errorMessage = error.response?.data?.message || 'Could not initiate extension payment.';
       setExtendError(errorMessage);
     } finally {
-      setExtendLoading(false);
+      // We can't set loading to false here anymore because the payment modal is asynchronous.
+      // It's handled in the Razorpay callbacks instead.
+      setExtendLoading(false); // Or remove this if handled entirely by callbacks
     }
   };
 
