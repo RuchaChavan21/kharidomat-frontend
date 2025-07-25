@@ -64,17 +64,17 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-neutral-100 text-gray-900 font-sans font-inter cursor-default">
       {/* Modal for Profile Completion */}
       {showModal && <ProfileCompletionModal onClose={() => setShowModal(false)} />}
 
       {/* Teal Offer Bar */}
       <div className="w-full bg-[#70C9B0] text-center py-2 text-sm font-semibold text-gray-900">
-        GET FLAT 20% OFF ON EACH MONTH'S RENT <span className="font-bold text-[#D32F2F]">VIBE20</span> ! <a href="#" className="underline hover:text-[#D32F2F]">Click For More Offers!</a>
+        GET FLAT 20% OFF ON EACH MONTH'S RENT <span className="font-bold text-[#D32F2F]">VIBE20</span> ! <a href="#" className="underline hover:text-[#D32F2F] transition-colors duration-200 cursor-pointer">Click For More Offers!</a>
       </div>
 
       {/* Hero Banner */}
-      <section className="relative overflow-hidden min-h-[480px] md:min-h-[540px] flex flex-col md:flex-row items-center justify-between bg-[#D32F2F]" style={{clipPath:'polygon(0 0, 100% 0, 100% 85%, 0 100%)'}}>
+      <section className="relative overflow-hidden min-h-[480px] md:min-h-[540px] flex flex-col md:flex-row items-center justify-between bg-gradient-to-br from-[#D32F2F] via-[#e57373] to-[#fff3f3]" style={{clipPath:'polygon(0 0, 100% 0, 100% 85%, 0 100%)'}}>
         {/* Left Triangle Graphics */}
         <div className="absolute left-0 top-0 h-full w-1/3 hidden md:block z-0">
           <svg width="100%" height="100%" viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -102,45 +102,44 @@ const Home = () => {
         <div className="relative z-10 flex-1 flex flex-col items-start justify-center px-6 md:px-16 py-12 md:py-24">
           <div className="flex items-center mb-4">
             <span className="text-white text-5xl font-bold mr-2">“</span>
-            <h1 className="text-white text-2xl md:text-4xl font-extrabold uppercase leading-tight tracking-wide">
+            <h1 className="text-white text-5xl md:text-5xl font-bold leading-tight tracking-tight font-inter">
               FURNITURE, ELECTRONICS & APPLIANCES ON RENT FOR STUDENTS
             </h1>
             <span className="text-white text-5xl font-bold ml-2">”</span>
           </div>
-          <p className="text-white text-lg md:text-2xl font-semibold mb-6 uppercase tracking-wide">AFFORDABLE. FLEXIBLE. HASSLE-FREE.</p>
+          <p className="text-white text-xl md:text-2xl font-semibold mb-8 uppercase tracking-wide">AFFORDABLE. FLEXIBLE. HASSLE-FREE.</p>
           <button
             onClick={handleStartRenting}
-            className="bg-white text-[#D32F2F] font-bold px-8 py-4 rounded-lg shadow-lg text-lg uppercase border-2 border-[#D32F2F] hover:bg-[#D32F2F] hover:text-white transition-all duration-200"
+            className="bg-white text-[#D32F2F] font-bold uppercase px-8 py-4 rounded-2xl shadow-xl text-lg tracking-wide border-2 border-[#D32F2F] hover:bg-[#D32F2F] hover:text-white hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer"
           >
             Start Renting
           </button>
         </div>
         {/* Hero Images (layered) */}
-        <div className="relative z-10 flex-1 flex items-end justify-center md:justify-end gap-4 px-6 md:px-16 py-8 md:py-24">
+        <div className="relative z-10 flex-1 flex items-end justify-center md:justify-end gap-6 px-6 md:px-16 py-8 md:py-24">
           {heroSectionImages.map((img, i) => (
             <motion.img
               key={i}
               src={img}
               alt="Product"
-              className={`rounded-xl shadow-lg border-4 border-white w-32 h-24 object-cover ${i!==0?'ml-[-24px]':''}`}
+              className={`rounded-2xl shadow-xl border-4 border-white w-36 h-28 object-cover ${i!==0?'ml-[-24px]':''} transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105`}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + i * 0.15, duration: 0.6 }}
-              style={{zIndex: 10-i}}
+              style={{zIndex: 10-i, cursor: 'pointer'}}
             />
           ))}
         </div>
       </section>
-      
       {/* Category Section */}
-      <section className="w-full bg-white pt-12 pb-12 md:pt-16 md:pb-16" style={{marginTop:48, marginBottom:48}}>
+      <section className="w-full bg-white pt-16 pb-16">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <div className="flex flex-col items-center mb-8">
-            <h2 className="text-[#222] font-extrabold uppercase text-[20px] md:text-[24px] tracking-wide text-center font-sans">Browse by Category</h2>
-            <div className="mt-2 mb-2 h-[2px] w-[60px] bg-[#D32F2F] rounded-full" />
+          <div className="flex flex-col items-center mb-10">
+            <h2 className="text-3xl font-semibold text-gray-800 tracking-tight font-inter">Browse by Category</h2>
+            <div className="mt-2 mb-2 h-[3px] w-[60px] bg-[#D32F2F] rounded-full" />
           </div>
           <div
-            className="flex overflow-x-auto gap-5 md:gap-6 px-4 md:px-8 scrollbar-hide"
+            className="flex overflow-x-auto gap-6 px-4 md:px-8 scrollbar-hide"
             style={{
               scrollSnapType: 'x mandatory',
               WebkitOverflowScrolling: 'touch',
@@ -155,126 +154,91 @@ const Home = () => {
                 href={cat.targetLink || '#'}
                 aria-label={`Browse ${cat.title}`}
                 tabIndex={0}
-                className="group focus:outline-[#D32F2F]"
+                className="group focus:outline-[#D32F2F] rounded-2xl shadow-xl bg-white border border-gray-200 transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 cursor-pointer flex flex-col justify-end min-w-[260px] max-w-[320px] h-[160px] relative overflow-hidden mr-5"
                 style={{
-                  minWidth: 260, maxWidth: 320, height: 160,
                   flex: '0 0 auto',
                   scrollSnapAlign: 'start',
-                  borderRadius: 16,
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.10)',
                   background: `url(${cat.img}) center/cover no-repeat`,
-                  position: 'relative',
-                  overflow: 'hidden',
-                  marginRight: idx === categoryImages.length - 1 ? 0 : 20,
                   outline: 'none',
-                  transition: 'transform 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.3s cubic-bezier(.4,0,.2,1)',
                 }}
                 onFocus={e => e.currentTarget.classList.add('ring-2', 'ring-[#D32F2F]')}
                 onBlur={e => e.currentTarget.classList.remove('ring-2', 'ring-[#D32F2F]')}
               >
-                <div style={{
-                  position: 'absolute',
-                  left: 0, right: 0, bottom: 0,
-                  height: '40%',
-                  background: 'linear-gradient(0deg, rgba(0,0,0,0.6) 80%, rgba(0,0,0,0.0) 100%)',
-                  zIndex: 1,
-                  pointerEvents: 'none',
-                }} />
-                <div style={{
-                  position: 'absolute',
-                  left: 16, bottom: 16, zIndex: 2,
-                  color: '#fff',
-                  fontWeight: 800,
-                  fontSize: 18,
-                  textTransform: 'uppercase',
-                  letterSpacing: 1,
-                  textShadow: '0 2px 8px rgba(0,0,0,0.25)',
-                }}>
+                <div className="absolute left-0 right-0 bottom-0 h-[40%] bg-gradient-to-t from-black/60 to-transparent z-10 pointer-events-none" />
+                <div className="absolute left-4 bottom-4 z-20 text-white font-bold text-lg uppercase tracking-wide drop-shadow-lg">
                   {cat.title}
                 </div>
-                <style>{`
-                  a.group:hover, a.group:focus {
-                    transform: translateY(-4px) scale(1.02);
-                    box-shadow: 0 8px 24px rgba(211,47,47,0.18);
-                  }
-                  .scrollbar-hide::-webkit-scrollbar { display: none; }
-                  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-                `}</style>
               </a>
             ))}
           </div>
         </div>
       </section>
-
       {/* Trust/Safety Section */}
-      <section className="w-full bg-[#fff3f3] py-10 px-2 md:px-8">
+      <section className="w-full bg-gradient-to-br from-[#fff3f3] via-white to-[#fff3f3] py-14 px-2 md:px-8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           {[
             {icon:'🔒', title:'Zero Deposit for Students'},
             {icon:'🧴', title:'Sanitized & Safe Delivery'},
             {icon:'🔄', title:'Easy Return'},
           ].map((item, i) => (
-            <motion.div key={item.title} className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center gap-3 border-2 border-[#D32F2F] hover:shadow-lg transition-all duration-200" initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.1}}>
+            <motion.div key={item.title} className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center gap-3 border border-[#D32F2F] hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer" initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.1}}>
               <span className="text-4xl">{item.icon}</span>
-              <span className="font-bold text-lg uppercase text-[#D32F2F]">{item.title}</span>
+              <span className="font-semibold text-lg uppercase text-[#D32F2F] tracking-wide">{item.title}</span>
             </motion.div>
           ))}
         </div>
       </section>
-
       {/* How It Works */}
-      <section className="w-full bg-white py-16 px-2 md:px-8">
+      <section className="w-full bg-white py-20 px-2 md:px-8">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-extrabold uppercase mb-10 text-[#D32F2F] text-center tracking-tight">How It Works</h2>
+          <h2 className="text-3xl font-semibold text-[#D32F2F] text-center tracking-tight font-inter mb-12">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
             {[
               {icon: ( <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><rect x="8" y="12" width="20" height="14" rx="3"/><rect x="12" y="8" width="12" height="6" rx="2"/></svg> </span> ), title: 'Select what you need', desc: 'Choose from a wide range of rental products.'},
               {icon: ( <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><circle cx="18" cy="14" r="6"/><rect x="10" y="22" width="16" height="8" rx="4"/></svg> </span> ), title: 'Verify your ID', desc: 'Upload your campus/student ID for verification.'},
               {icon: ( <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><rect x="8" y="16" width="20" height="12" rx="4"/><path d="M18 16v-4"/><circle cx="18" cy="8" r="2"/></svg> </span> ), title: 'Pay & Relax', desc: 'Complete payment and enjoy hassle-free delivery.'},
             ].map((step, i) => (
-              <div key={step.title} className="bg-[#fff3f3] rounded-2xl shadow-2xl p-8 flex flex-col items-center">
+              <div key={step.title} className="bg-[#fff3f3] rounded-2xl shadow-xl p-8 flex flex-col items-center hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer">
                 {step.icon}
-                <div className="font-extrabold text-lg md:text-xl uppercase text-[#222] mb-2 tracking-wide">{step.title}</div>
-                <div className="text-gray-600 text-base font-medium">{step.desc}</div>
+                <div className="font-semibold text-xl uppercase text-gray-800 mb-2 tracking-wide font-inter">{step.title}</div>
+                <div className="text-gray-500 text-base font-medium font-inter">{step.desc}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
-
       {/* Promise Section */}
-      <section className="w-full bg-[#fff3f3] py-10 px-2 md:px-8">
+      <section className="w-full bg-gradient-to-br from-[#fff3f3] via-white to-[#fff3f3] py-14 px-2 md:px-8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
           {[
             {icon:'🔁', title:'Flexible Return'},
             {icon:'✅', title:'Verified Products'},
             {icon:'🤝', title:'Student Support'},
-            {icon:'🚚', title:'Free Delivery'} // Added a 4th item for better grid layout
+            {icon:'🚚', title:'Free Delivery'}
           ].map((item, i) => (
-            <motion.div key={item.title} className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center gap-3 border-2 border-[#D32F2F] hover:shadow-lg transition-all duration-200" initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.1}}>
+            <motion.div key={item.title} className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center gap-3 border border-[#D32F2F] hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer" initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.1}}>
               <span className="text-4xl">{item.icon}</span>
-              <span className="font-bold text-lg uppercase text-[#D32F2F]">{item.title}</span>
+              <span className="font-semibold text-lg uppercase text-[#D32F2F] tracking-wide">{item.title}</span>
             </motion.div>
           ))}
         </div>
       </section>
-
       {/* Testimonials */}
-      <section className="w-full bg-white py-12 px-2 md:px-8">
+      <section className="w-full bg-white py-16 px-2 md:px-8">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold uppercase mb-8 text-[#D32F2F] text-center">What Students Say</h2>
+          <h2 className="text-3xl font-semibold text-[#D32F2F] text-center font-inter mb-10">What Students Say</h2>
           <div className="flex flex-col md:flex-row gap-8 justify-center items-center">
             {[
               {name:'Amit S.', college:'IIT Bombay', img:'https://randomuser.me/api/portraits/men/32.jpg', text:'KharidoMat made my hostel life so much easier! Fast delivery and no deposit.'},
               {name:'Priya R.', college:'BITS Pilani', img:'https://randomuser.me/api/portraits/women/44.jpg', text:'Loved the sanitized products and easy returns. Highly recommended!'},
               {name:'Rahul T.', college:'VIT Vellore', img:'https://randomuser.me/api/portraits/men/54.jpg', text:'Affordable and flexible rental plans for students.'},
             ].map((review, i) => (
-              <motion.div key={review.name} className="bg-[#fff3f3] rounded-xl shadow-lg p-8 flex flex-col items-center gap-4 border-2 border-[#D32F2F] max-w-xs w-full relative" initial={{opacity:0, y:30}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.2}}>
+              <motion.div key={review.name} className="bg-[#fff3f3] rounded-2xl shadow-xl p-8 flex flex-col items-center gap-4 border border-[#D32F2F] max-w-xs w-full relative hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer" initial={{opacity:0, y:30}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.2}}>
                 <span className="absolute left-4 top-4 text-4xl text-[#D32F2F]">“</span>
                 <img src={review.img} alt={review.name} className="w-16 h-16 rounded-full border-4 border-white shadow-md mb-2" />
-                <p className="text-gray-800 font-medium text-base text-center">{review.text}</p>
-                <div className="mt-2 text-sm text-[#D32F2F] font-bold">{review.name}</div>
-                <div className="text-xs text-gray-500">{review.college}</div>
+                <p className="text-gray-800 font-medium text-base text-center font-inter">{review.text}</p>
+                <div className="mt-2 text-sm text-[#D32F2F] font-bold font-inter">{review.name}</div>
+                <div className="text-xs text-gray-500 font-inter">{review.college}</div>
                 <span className="absolute right-4 bottom-4 text-4xl text-[#D32F2F]">”</span>
               </motion.div>
             ))}
