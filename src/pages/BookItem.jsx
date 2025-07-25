@@ -235,10 +235,10 @@ const BookOrRentItem = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] text-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D32F2F] mx-auto mb-4"></div>
-          <p className="text-gray-700">Loading item...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-700 text-lg font-medium">Loading item...</p>
         </div>
       </div>
     );
@@ -246,8 +246,10 @@ const BookOrRentItem = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] text-gray-900">
-        <div className="bg-red-100 text-red-700 px-6 py-4 rounded shadow text-center border border-red-300">{error}</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="bg-white text-red-700 px-8 py-6 rounded-2xl shadow-md text-center border border-red-300 max-w-md mx-auto">
+          {error}
+        </div>
       </div>
     );
   }
@@ -258,85 +260,84 @@ const BookOrRentItem = () => {
   const ownerName = item.owner?.name || item.owner;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] py-12 px-4 font-sans">
-      <div className="w-full max-w-2xl mx-auto bg-white text-gray-900 shadow-lg border-2 border-[#D32F2F] rounded-xl p-8 space-y-8">
-        <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
+    <div className="min-h-screen bg-gray-50 py-8 px-2">
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }} className="max-w-4xl mx-auto rounded-2xl shadow-xl bg-white border border-gray-200 p-6 sm:p-10 space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           {item.imageUrl && (
-            <img src={item.imageUrl} alt={itemTitle} className="w-48 h-48 object-cover rounded-xl shadow-md border-4 border-[#fff3f3]" />
+            <img src={item.imageUrl} alt={itemTitle} className="w-full h-64 object-cover rounded-2xl shadow-md border border-gray-200 transition-all duration-300 hover:shadow-lg hover:scale-105" />
           )}
-          <div className="flex-1 text-center md:text-left">
-            <h2 className="text-3xl font-extrabold uppercase text-[#D32F2F] mb-2 tracking-wide">{itemTitle}</h2>
-            <p className="text-gray-700 font-medium mb-2">{item.description}</p>
-            <p className="text-sm text-gray-600 mb-2">Category: <span className="font-semibold">{item.category}</span></p>
-            <p className="text-2xl font-bold text-[#D32F2F] mb-2">₹{item.pricePerDay} <span className="text-base font-medium text-gray-700">per day</span></p>
-            {ownerName && <p className="text-sm text-gray-600 mb-2">Owner: <span className="font-semibold">{ownerName}</span></p>}
-            {item.location && <p className="text-sm text-gray-600 mb-2">Location: <span className="font-semibold">{item.location}</span></p>}
-            {item.status && <p className="text-sm text-gray-600 mb-2">Status: <span className="font-semibold">{item.status}</span></p>}
-            {/* The chat button that caused the error has been completely removed. */}
+          <div className="flex flex-col justify-center space-y-2 text-center md:text-left">
+            <h2 className="text-4xl font-semibold text-gray-800 mb-1 leading-tight">{itemTitle}</h2>
+            <p className="text-lg text-gray-700 mb-1 font-medium">{item.description}</p>
+            <p className="text-sm text-gray-500">Category: <span className="font-medium text-gray-700">{item.category}</span></p>
+            <p className="text-2xl font-semibold text-indigo-600 mb-1">₹{item.pricePerDay} <span className="text-base font-normal text-gray-500">per day</span></p>
+            {ownerName && <p className="text-sm text-gray-500">Owner: <span className="font-medium text-gray-700">{ownerName}</span></p>}
+            {item.location && <p className="text-sm text-gray-500">Location: <span className="font-medium text-gray-700">{item.location}</span></p>}
+            {item.status && <p className="text-sm text-gray-500">Status: <span className="font-medium text-gray-700">{item.status}</span></p>}
           </div>
         </div>
 
-        <form className="space-y-6 mt-6 p-6 bg-[#fff3f3] rounded-xl border-2 border-[#D32F2F] shadow-inner" onSubmit={handleSubmit}>
-          <h3 className="text-xl font-extrabold uppercase text-[#D32F2F] mb-4 text-center tracking-wide">{isRentRoute ? 'Rent this Item' : 'Book this Item'}</h3>
-          {success && <div className="bg-green-100 text-green-700 px-4 py-3 rounded text-center flex items-center justify-center gap-2 border border-green-300"><FaCheckCircle className="text-green-500 text-xl" />{success}</div>}
-          {formError && <div className="bg-red-100 text-red-700 px-4 py-3 rounded text-center border border-red-300">{formError}</div>}
+        <form className="space-y-8 mt-2 p-6 bg-gray-50 rounded-xl shadow-inner border border-gray-200" onSubmit={handleSubmit}>
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">{isRentRoute ? 'Rent this Item' : 'Book this Item'}</h3>
+          {success && <div className="bg-green-50 text-green-700 px-4 py-3 rounded-xl text-center flex items-center justify-center gap-2 border border-green-300 text-base"><FaCheckCircle className="text-green-500 text-xl" />{success}</div>}
+          {formError && <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl text-center border border-red-300 text-base">{formError}</div>}
 
-          <div className="flex flex-col sm:flex-row gap-5">
-            <div className="flex-1">
-              <label htmlFor="startDate" className="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
-              <input id="startDate" type="date" name="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D32F2F] transition-colors duration-200" required min={new Date().toISOString().split('T')[0]} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="flex flex-col">
+              <label htmlFor="startDate" className="block text-base font-medium text-gray-700 mb-2">Start Date</label>
+              <input id="startDate" type="date" name="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 text-base bg-white" required min={new Date().toISOString().split('T')[0]} />
             </div>
-            <div className="flex-1">
-              <label htmlFor="endDate" className="block text-sm font-semibold text-gray-700 mb-2">End Date</label>
-              <input id="endDate" type="date" name="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D32F2F] transition-colors duration-200" required min={startDate || new Date().toISOString().split('T')[0]} />
+            <div className="flex flex-col">
+              <label htmlFor="endDate" className="block text-base font-medium text-gray-700 mb-2">End Date</label>
+              <input id="endDate" type="date" name="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 text-base bg-white" required min={startDate || new Date().toISOString().split('T')[0]} />
             </div>
           </div>
 
           {(startDate && endDate && totalPrice > 0) && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 bg-white border-2 border-[#D32F2F] rounded-xl shadow-md">
-              <h3 className="font-extrabold text-xl uppercase text-[#D32F2F] mb-4 tracking-wide">Rental Summary</h3>
-              <div className="space-y-3 text-gray-800">
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} className="p-6 bg-white border border-gray-200 rounded-xl shadow-md mt-2">
+              <h3 className="font-semibold text-xl text-gray-800 mb-4">Rental Summary</h3>
+              <div className="space-y-3 text-gray-700">
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Rental Days:</span>
-                  <span className="font-bold text-[#222]">{totalDays} days</span>
+                  <span className="font-semibold text-gray-800">{totalDays} days</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Price per day:</span>
-                  <span className="font-bold text-[#222]">₹{item.pricePerDay}</span>
+                  <span className="font-semibold text-gray-800">₹{item.pricePerDay}</span>
                 </div>
-                <div className="border-t-2 border-[#D32F2F] pt-4 mt-4">
+                <div className="border-t border-gray-200 pt-4 mt-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-xl font-extrabold uppercase text-[#D32F2F]">Total Price:</span>
-                    <span className="text-3xl font-extrabold text-[#D32F2F]">₹{totalPrice}</span>
+                    <span className="text-xl font-semibold text-gray-800">Total Price:</span>
+                    <span className="text-3xl font-extrabold text-indigo-600">₹{totalPrice}</span>
                   </div>
                 </div>
               </div>
             </motion.div>
           )}
 
-          <button type="submit" className="bg-[#D32F2F] text-white font-bold px-8 py-4 rounded-lg shadow-lg text-lg uppercase border-2 border-[#D32F2F] hover:bg-white hover:text-[#D32F2F] transition-all duration-200 w-full flex items-center justify-center gap-2" disabled={isSubmitting || totalPrice <= 0}>
+          <button type="submit" className="bg-indigo-600 hover:bg-white hover:text-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow transition-all duration-300 w-full flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 border border-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSubmitting || totalPrice <= 0}>
             <FaCreditCard /> {isSubmitting ? (isRentRoute ? 'Renting...' : 'Booking...') : (isRentRoute ? 'Rent Now & Pay' : 'Book Now & Pay')}
           </button>
         </form>
 
-        <div className="text-center mt-6">
-          <button onClick={() => navigate('/items')} className="text-[#D32F2F] hover:text-[#B9162C] font-semibold text-lg underline">
+        <div className="text-center mt-2">
+          <button onClick={() => navigate('/items')} className="text-indigo-600 hover:text-indigo-800 font-medium text-base underline transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
             ← Back to Items
           </button>
         </div>
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {showPayment && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div initial={{ scale: 0.9, y: 50, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 50, opacity: 0 }} transition={{ duration: 0.3 }} className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full border-2 border-[#D32F2F] text-center">
-              <FaCreditCard className="text-5xl text-[#D32F2F] mx-auto mb-6" />
-              <h2 className="text-2xl font-extrabold uppercase mb-3 text-[#222] tracking-wide">Confirm Payment</h2>
-              <p className="text-gray-700 text-lg mb-6">You will pay <span className="font-extrabold text-[#D32F2F]">₹{totalPrice}</span> for this {isRentRoute ? 'rental' : 'booking'}.</p>
-              <button className="bg-[#D32F2F] text-white font-bold px-8 py-4 rounded-lg shadow-lg text-lg uppercase border-2 border-[#D32F2F] hover:bg-white hover:text-[#D32F2F] transition-all duration-200 w-full flex items-center justify-center gap-2 mb-3" onClick={handlePayment} disabled={isSubmitting}>
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} transition={{ duration: 0.3 }} className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full border border-gray-200 text-center">
+              <FaCreditCard className="text-5xl text-indigo-600 mx-auto mb-6" />
+              <h2 className="text-2xl font-semibold mb-3 text-gray-800">Confirm Payment</h2>
+              <p className="text-base text-gray-700 mb-6">You will pay <span className="font-extrabold text-indigo-600">₹{totalPrice}</span> for this {isRentRoute ? 'rental' : 'booking'}.</p>
+              <button className="bg-indigo-600 hover:bg-white hover:text-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow transition-all duration-300 w-full flex items-center justify-center gap-2 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 border border-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed" onClick={handlePayment} disabled={isSubmitting}>
                 {isSubmitting ? 'Processing...' : 'Pay Now'}
               </button>
-              <button className="bg-gray-200 text-gray-800 font-bold px-8 py-4 rounded-lg shadow-md text-lg uppercase border-2 border-gray-200 hover:bg-gray-300 transition-all duration-200 w-full" onClick={() => setShowPayment(false)} disabled={isSubmitting}>
+              <button className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium px-6 py-3 rounded-xl shadow transition-all duration-300 w-full focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => setShowPayment(false)} disabled={isSubmitting}>
                 Cancel
               </button>
             </motion.div>
