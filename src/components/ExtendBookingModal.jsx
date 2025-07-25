@@ -1,31 +1,37 @@
 import React, { useState, useEffect } from 'react';
 
-const ExtendBookingModal = ({ isOpen, onClose, onSubmit, currentEndDate, minDate, loading }) => {
+// --- CHANGE 1: Add 'error' to the props being received ---
+const ExtendBookingModal = ({ isOpen, onClose, onSubmit, currentEndDate, minDate, loading, error: parentError }) => {
   const [newEndDate, setNewEndDate] = useState(currentEndDate || '');
-  const [error, setError] = useState('');
+  const [localError, setLocalError] = useState(''); // Use a different name for local validation errors
 
   useEffect(() => {
     setNewEndDate(currentEndDate || '');
-    setError('');
+    setLocalError('');
   }, [currentEndDate, isOpen]);
 
   if (!isOpen) return null;
 
   const handleDateChange = (e) => {
     setNewEndDate(e.target.value);
-    setError('');
+    setLocalError('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // --- CHANGE 2: Add a console log to see if this function runs ---
+    console.log("Modal's handleSubmit function was called!");
+
     if (!newEndDate) {
-      setError('Please select a new end date.');
+      setLocalError('Please select a new end date.');
       return;
     }
     if (new Date(newEndDate) <= new Date(minDate)) {
-      setError('End date must be after the current end date.');
+      setLocalError('End date must be after the current end date.');
       return;
     }
+    // If validation passes, call the parent function
     onSubmit(newEndDate);
   };
 
@@ -55,7 +61,14 @@ const ExtendBookingModal = ({ isOpen, onClose, onSubmit, currentEndDate, minDate
               disabled={loading}
             />
           </div>
-          {error && <div className="bg-red-100 text-red-700 px-4 py-2 rounded text-center border border-red-300">{error}</div>}
+          
+          {/* --- CHANGE 3: Display BOTH local validation errors and parent API errors --- */}
+          {(localError || parentError) && (
+            <div className="bg-red-100 text-red-700 px-4 py-2 rounded text-center border border-red-300">
+              {localError || parentError}
+            </div>
+          )}
+
           <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"
@@ -70,7 +83,7 @@ const ExtendBookingModal = ({ isOpen, onClose, onSubmit, currentEndDate, minDate
               className="px-4 py-2 rounded-lg bg-[#D32F2F] text-white font-medium hover:bg-white hover:text-[#D32F2F] hover:border-[#D32F2F] border-2 border-[#D32F2F] transition-colors duration-200 disabled:opacity-60"
               disabled={loading}
             >
-              {loading ? 'Extending...' : 'Extend'}
+              {loading ? 'Processing...' : 'Extend & Pay'}
             </button>
           </div>
         </form>
@@ -79,4 +92,4 @@ const ExtendBookingModal = ({ isOpen, onClose, onSubmit, currentEndDate, minDate
   );
 };
 
-export default ExtendBookingModal; 
+export default ExtendBookingModal;

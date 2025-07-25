@@ -22,7 +22,7 @@ const BookOrRentItem = () => {
   const [error, setError] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
   const [formError, setFormError] = useState('');
@@ -127,15 +127,15 @@ const BookOrRentItem = () => {
 
   const validateDates = () => {
     if (!startDate || !endDate) return 'Please select both start and end dates.';
-  
+
     const start = new Date(startDate);
     const end = new Date(endDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-  
+
     if (start < today) return 'Start date cannot be in the past.';
     if (end < start) return 'End date must be on or after the start date.';
-  
+
     // Check for overlapping with bookedDates
     const check = new Date(start);
     while (check <= end) {
@@ -145,10 +145,10 @@ const BookOrRentItem = () => {
       }
       check.setDate(check.getDate() + 1);
     }
-  
+
     return null;
   };
-  
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -259,6 +259,13 @@ const BookOrRentItem = () => {
   const itemTitle = item.title || item.name;
   const ownerName = item.owner?.name || item.owner;
 
+  const isOwner = user?.email === item?.owner?.email;
+  console.log("--- Owner Check ---");
+  console.log("Logged-in User ID:", user?.id, "(Type: " + typeof user?.id + ")");
+  console.log("Item Owner ID:", item?.owner?.id, "(Type: " + typeof item?.owner?.id + ")");
+  console.log("Are they the same?", isOwner);
+  console.log("-------------------");
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-2">
       <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }} className="max-w-4xl mx-auto rounded-2xl shadow-xl bg-white border border-gray-200 p-6 sm:p-10 space-y-8">
@@ -277,48 +284,54 @@ const BookOrRentItem = () => {
           </div>
         </div>
 
-        <form className="space-y-8 mt-2 p-6 bg-gray-50 rounded-xl shadow-inner border border-gray-200" onSubmit={handleSubmit}>
-          <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">{isRentRoute ? 'Rent this Item' : 'Book this Item'}</h3>
-          {success && <div className="bg-green-50 text-green-700 px-4 py-3 rounded-xl text-center flex items-center justify-center gap-2 border border-green-300 text-base"><FaCheckCircle className="text-green-500 text-xl" />{success}</div>}
-          {formError && <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl text-center border border-red-300 text-base">{formError}</div>}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="flex flex-col">
-              <label htmlFor="startDate" className="block text-base font-medium text-gray-700 mb-2">Start Date</label>
-              <input id="startDate" type="date" name="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 text-base bg-white" required min={new Date().toISOString().split('T')[0]} />
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="endDate" className="block text-base font-medium text-gray-700 mb-2">End Date</label>
-              <input id="endDate" type="date" name="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 text-base bg-white" required min={startDate || new Date().toISOString().split('T')[0]} />
-            </div>
+        {isOwner ? (
+          <div className="text-center p-6 bg-yellow-50 text-yellow-800 rounded-xl border-2 border-yellow-200 shadow-inner">
+            <h3 className="text-xl font-semibold">This is your item</h3>
+            <p className="mt-1">You cannot book or rent an item that you own.</p>
           </div>
+        ) : (
+          <form className="space-y-8 mt-2 p-6 bg-gray-50 rounded-xl shadow-inner border border-gray-200" onSubmit={handleSubmit}>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">{isRentRoute ? 'Rent this Item' : 'Book this Item'}</h3>
+            {success && <div className="bg-green-50 text-green-700 px-4 py-3 rounded-xl text-center flex items-center justify-center gap-2 border border-green-300 text-base"><FaCheckCircle className="text-green-500 text-xl" />{success}</div>}
+            {formError && <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl text-center border border-red-300 text-base">{formError}</div>}
 
-          {(startDate && endDate && totalPrice > 0) && (
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} className="p-6 bg-white border border-gray-200 rounded-xl shadow-md mt-2">
-              <h3 className="font-semibold text-xl text-gray-800 mb-4">Rental Summary</h3>
-              <div className="space-y-3 text-gray-700">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Rental Days:</span>
-                  <span className="font-semibold text-gray-800">{totalDays} days</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Price per day:</span>
-                  <span className="font-semibold text-gray-800">₹{item.pricePerDay}</span>
-                </div>
-                <div className="border-t border-gray-200 pt-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="flex flex-col">
+                <label htmlFor="startDate" className="block text-base font-medium text-gray-700 mb-2">Start Date</label>
+                <input id="startDate" type="date" name="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 text-base bg-white" required min={new Date().toISOString().split('T')[0]} />
+              </div>
+              <div className="flex flex-col">
+                <label htmlFor="endDate" className="block text-base font-medium text-gray-700 mb-2">End Date</label>
+                <input id="endDate" type="date" name="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 text-base bg-white" required min={startDate || new Date().toISOString().split('T')[0]} />
+              </div>
+            </div>
+
+            {(startDate && endDate && totalPrice > 0) && (
+              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} className="p-6 bg-white border border-gray-200 rounded-xl shadow-md mt-2">
+                <h3 className="font-semibold text-xl text-gray-800 mb-4">Rental Summary</h3>
+                <div className="space-y-3 text-gray-700">
                   <div className="flex justify-between items-center">
-                    <span className="text-xl font-semibold text-gray-800">Total Price:</span>
-                    <span className="text-3xl font-extrabold text-indigo-600">₹{totalPrice}</span>
+                    <span className="font-medium">Rental Days:</span>
+                    <span className="font-semibold text-gray-800">{totalDays} days</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Price per day:</span>
+                    <span className="font-semibold text-gray-800">₹{item.pricePerDay}</span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-4 mt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-semibold text-gray-800">Total Price:</span>
+                      <span className="text-3xl font-extrabold text-indigo-600">₹{totalPrice}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            )}
 
-          <button type="submit" className="bg-indigo-600 hover:bg-white hover:text-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow transition-all duration-300 w-full flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 border border-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSubmitting || totalPrice <= 0}>
-            <FaCreditCard /> {isSubmitting ? (isRentRoute ? 'Renting...' : 'Booking...') : (isRentRoute ? 'Rent Now & Pay' : 'Book Now & Pay')}
-          </button>
-        </form>
+            <button type="submit" className="bg-indigo-600 hover:bg-white hover:text-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow transition-all duration-300 w-full flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 border border-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSubmitting || totalPrice <= 0}>
+              <FaCreditCard /> {isSubmitting ? (isRentRoute ? 'Renting...' : 'Booking...') : (isRentRoute ? 'Rent Now & Pay' : 'Book Now & Pay')}
+            </button>
+          </form>)}
 
         <div className="text-center mt-2">
           <button onClick={() => navigate('/items')} className="text-indigo-600 hover:text-indigo-800 font-medium text-base underline transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
