@@ -284,9 +284,6 @@ const MyBookings = () => {
         {/* Error State */}
         {error && <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-red-100 text-red-700 rounded-lg border border-red-300 flex items-center justify-between"><p>{error}</p><button onClick={fetchBookingsAndSummary} className="px-6 py-2 bg-red-600 text-white rounded-lg">Try Again</button></motion.div>}
 
-        {/* Booking Summary */}
-        {summary && <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-white rounded-xl shadow-md p-6 border-2 border-[#D32F2F]"> {/* ...summary content... */}</motion.div>}
-
         {/* Modals */}
         <ExtendBookingModal isOpen={extendModal.open} onClose={handleCloseExtendModal} onSubmit={handleExtendBookingSubmit} currentEndDate={extendModal.booking?.endDate.split('T')[0]} minDate={extendModal.booking?.endDate.split('T')[0]} loading={extendLoading} error={extendError} />
         <ConfirmationModal isOpen={cancelModal.open} title="Cancel Booking" message="Are you sure you want to cancel this booking?" onConfirm={handleCancelBookingConfirm} onCancel={handleCloseCancelModal} confirmText={cancelLoading ? 'Cancelling...' : 'Cancel Booking'} error={cancelError} />
