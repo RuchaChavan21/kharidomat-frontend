@@ -19,31 +19,32 @@ const Login = () => {
 
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(""); // Clear previous errors
+  e.preventDefault();
+  setIsLoading(true);
+  setError("");
 
-    try {
-      const response = await API.post("/users/login", { email, password });
-      const token = response.data;
+  try {
+    const response = await API.post("/users/login", { email, password });
+    const token = response.data;
 
-      if (token) {
-        const user = { email }; // Placeholder user object
-        login(user, token); // This saves the token via your AuthContext
-        console.log('Login successful:', { user, token }); // Debug log
-      } else {
-        setError("Login failed: An empty token was received.");
-      }
-    } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data ||
-        "Login failed. Please check your credentials.";
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
+    if (token) {
+      const placeholderUser = { email }; // Keeps your structure safe
+      await login(placeholderUser, token); // Will fetch full user data
+      console.log('Login successful:', { token });
+    } else {
+      setError("Login failed: An empty token was received.");
     }
-  };
+  } catch (err) {
+    const errorMessage =
+      err.response?.data?.message ||
+      err.response?.data ||
+      "Login failed. Please check your credentials.";
+    setError(errorMessage);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleGoogleSignIn = () => {
     // Redirect to your backend's Google OAuth2 endpoint

@@ -199,15 +199,6 @@ const ProfileDropdown = () => {
                   <div className="text-xs text-gray-500 leading-tight">{email}</div>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  setOpen(false); // Close dropdown before opening modal
-                  setShowEditPicModal(true);
-                }}
-                className="mt-2 px-3 py-1 text-xs font-bold rounded-lg bg-white border border-[#B9162C] text-[#B9162C] hover:bg-[#fff3f3] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#B9162C]"
-              >
-                Edit Profile Picture
-              </button>
             </div>
 
             {/* Menu */}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ItemCard from '../components/ItemCard'; // Assuming ItemCard will be styled consistently
 import { useTheme } from '../context/ThemeContext';
 import API from '../services/api'; // Ensure this is correctly configured
@@ -9,6 +9,7 @@ import API from '../services/api'; // Ensure this is correctly configured
 const Wishlist = () => {
   const { user, isLoggedIn, token } = useAuth(); // Access user and token
   const { theme } = useTheme();
+  const navigate = useNavigate();
 
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -99,22 +100,21 @@ const Wishlist = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans pt-24">
+    <div className="min-h-screen bg-white pt-24 pb-12 px-4">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="p-6 bg-[#fff3f3] rounded-xl shadow-md border-2 border-[#D32F2F] text-center"
-        >
-          <h1 className="text-3xl md:text-4xl font-extrabold uppercase text-[#D32F2F] mb-2 tracking-wide">
-            My Wishlist ❤️
-          </h1>
-          <p className="text-gray-700 text-lg font-medium">
-            Items you've saved for later
-          </p>
-        </motion.div>
+        {/* Header Bar with Title and Back Button */}
+        <div className="flex justify-between items-center mb-8">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="text-left">
+            <h1 className="text-3xl md:text-4xl font-extrabold uppercase text-[#D32F2F] mb-2 tracking-wide">My Wishlist</h1>
+            <p className="text-gray-700 text-lg font-medium">All your favorite items in one place</p>
+          </motion.div>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="px-5 py-2 bg-[#D32F2F] text-white rounded-lg hover:bg-red-700 transition"
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
 
         {/* Error State */}
         {error && (

@@ -26,6 +26,8 @@ import Chat from './pages/Chat';
 import EditProfile from './pages/EditProfile';
 import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
 import VerifyReturns from './pages/VerifyReturns';
+import PaymentsPage from './pages/PaymentsPage';
+import EarningsBreakdown from './pages/EarningsBreakdown';
 
 function PublicHomeRoute() {
     // Always show Home page, regardless of login state
@@ -59,9 +61,11 @@ const App = () => {
                 <Route path="/book-item/:itemId" element={<PrivateRoute><BookOrRentItem /></PrivateRoute>} />
                 <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
                 <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
-                <Route path="/recent-listings" element={<RecentListings />} />
+                <Route path="/recent-listings" element={<PrivateRoute><RecentListings /></PrivateRoute>} />
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/edit-profile" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+                <Route path="/payments" element={<PrivateRoute><PaymentsPage /></PrivateRoute>} />
+                <Route path="/EarningsBreakdown" element={<PrivateRoute><EarningsBreakdown /></PrivateRoute>} />
                 // The temporary public route for testing
                 <Route
                     path="/verify-returns"

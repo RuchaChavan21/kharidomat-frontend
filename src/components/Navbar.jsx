@@ -9,7 +9,7 @@ const navLinks = [
   { name: 'Home', path: '/' },
   { name: 'Items', path: '/items' },
   { name: 'My Bookings', path: '/my-bookings', protected: true },
-  { name: 'Contact', path: '/about' },
+  { name: 'About', path: '/about' },
 ];
 
 const Navbar = () => {
@@ -17,6 +17,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const searchRef = useRef();
@@ -98,18 +99,6 @@ const Navbar = () => {
                 <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><circle cx="13" cy="9" r="4.5" /><path d="M4 22c0-3.5 4.5-5 9-5s9 1.5 9 5" /></svg>
               </Link>
             )}
-            <div className="relative">
-              <button onClick={() => setShowSearch(v => !v)} className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222] focus:outline-none" title="Search" aria-label="Open search bar">
-                <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><circle cx="12" cy="12" r="8" /><path d="M20 20l-3-3" /></svg>
-              </button>
-              <AnimatePresence>
-                {showSearch && (
-                  <motion.div ref={searchRef} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-2">
-                    <input type="text" placeholder="Search for items..." className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#D32F2F]" autoFocus />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
             <button onClick={() => handleProtectedNav('/wishlist')} className="p-2 rounded-full hover:bg-[#fff3f3] text-[#222] focus:outline-none" title="Wishlist" aria-label="Wishlist">
               <svg width="26" height="26" fill="none" stroke="#222" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
             </button>
