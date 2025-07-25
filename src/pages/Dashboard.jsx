@@ -427,6 +427,7 @@ const Dashboard = () => {
         const [listings, setListings] = useState([]);
         const [loading, setLoading] = useState(true);
         const [error, setError] = useState(null);
+        
 
         // Fetch listings from the actual API
         const fetchListings = useCallback(async () => {
