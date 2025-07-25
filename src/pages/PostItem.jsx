@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import API from '../services/api'; // <--- CORRECTED PATH HERE
+import API from '../services/api';
 
 const categories = [
   'Books',
@@ -14,7 +14,8 @@ const categories = [
 ];
 
 const PostItem = () => {
-  const { isLoggedIn } = useAuth();
+  // Get the token directly from useAuth context
+  const { isLoggedIn, token } = useAuth(); // <-- Get token from context here
   const navigate = useNavigate();
 
   if (!isLoggedIn) {
@@ -26,6 +27,7 @@ const PostItem = () => {
     name: '',
     description: '',
     category: '',
+    // Ensure these match your ItemPostRequest DTO on backend
     pricePerDay: '',
     startDate: '',
     endDate: '',
@@ -90,7 +92,7 @@ const PostItem = () => {
     let newItemId = null;
     try {
       const itemToPost = {
-        title: form.name, // Assuming 'name' maps to 'title' in your Item model
+        title: form.name,
         description: form.description,
         category: form.category,
         pricePerDay: Number(form.pricePerDay),
@@ -98,11 +100,12 @@ const PostItem = () => {
         endDate: form.endDate,
       };
 
+      // This API call should be handled by the interceptor for authorization
       const itemResponse = await API.post('/items/post', itemToPost);
       newItemId = itemResponse.data.id;
-      
+
       if (!newItemId) {
-          throw new Error('Item created but no ID returned. Cannot upload image.');
+        throw new Error('Item created but no ID returned. Cannot upload image.');
       }
 
     } catch (err) {
@@ -119,16 +122,37 @@ const PostItem = () => {
         const formData = new FormData();
         formData.append('file', imageFile); // Backend expects @RequestParam("file")
 
+        // console.log('Uploading image with token:', token); // Keep this for debugging if needed
+
+        // --- CRITICAL CHANGE: Remove explicit Authorization header here ---
+        // The API.js interceptor will automatically add the token if it's available in context/localStorage
         const uploadRes = await API.post(`/items/upload-image/${newItemId}`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
+            // Authorization: `Bearer ${token}`, // <-- REMOVE THIS LINE
           },
         });
-        
-        console.log('Image upload response:', uploadRes.data);
+
+        let uploadedImageName = null;
+        if (uploadRes.data && typeof uploadRes.data === 'object' && uploadRes.data.imageName) {
+          uploadedImageName = uploadRes.data.imageName;
+        } else if (typeof uploadRes.data === 'string') {
+          uploadedImageName = uploadRes.data;
+        } else {
+          console.warn("Unexpected image upload response data:", uploadRes.data);
+          setImageError("Image upload response was unexpected. Please check server logs.");
+        }
+
+        if (uploadedImageName) {
+          // Construct the full image URL using the received image name and API base URL
+          const fullImageUrl = `${API.defaults.baseURL}/items/image/${uploadedImageName}`;
+          console.log('Image uploaded successfully. Full URL:', fullImageUrl);
+          setMessage('Item posted and image uploaded successfully!');
+        } else {
+          throw new Error("Image name not received from upload response.");
+        }
 
         setImageUploading(false);
-        setMessage('Item posted and image uploaded successfully!');
 
       } catch (err) {
         setImageUploading(false);
@@ -138,7 +162,7 @@ const PostItem = () => {
         setError(prev => prev ? prev + '\n' + uploadErrorMessage : uploadErrorMessage);
       }
     } else if (!imageFile) {
-        setMessage('Item posted successfully! No image was uploaded.');
+      setMessage('Item posted successfully! No image was uploaded.');
     }
 
     setForm({
@@ -152,7 +176,6 @@ const PostItem = () => {
     setImageFile(null);
     setImagePreview(null);
     setLoading(false);
-    // Pass success message to dashboard
     let successMsg = imageFile ? 'Item posted and image uploaded successfully!' : 'Item posted successfully!';
     navigate('/dashboard', { state: { successMessage: successMsg } });
   };
@@ -229,7 +252,7 @@ const PostItem = () => {
               <div className="flex-1 relative">
                 <label htmlFor="startDate" className="block text-sm font-bold text-gray-900 mb-1">Start Date</label>
                 <span className="absolute left-3 top-9 text-gray-400 pointer-events-none">
-                  <svg width="18" height="18" fill="none" stroke="#B9162C" strokeWidth="2"><circle cx="9" cy="9" r="7"/><path d="M12 2v2M6 2v2M3 6h12"/></svg>
+                  <svg width="18" height="18" fill="none" stroke="#B9162C" strokeWidth="2"><circle cx="9" cy="9" r="7" /><path d="M12 2v2M6 2v2M3 6h12" /></svg>
                 </span>
                 <input
                   type="date"
@@ -244,7 +267,7 @@ const PostItem = () => {
               <div className="flex-1 relative">
                 <label htmlFor="endDate" className="block text-sm font-bold text-gray-900 mb-1">End Date</label>
                 <span className="absolute left-3 top-9 text-gray-400 pointer-events-none">
-                  <svg width="18" height="18" fill="none" stroke="#B9162C" strokeWidth="2"><circle cx="9" cy="9" r="7"/><path d="M12 2v2M6 2v2M3 6h12"/></svg>
+                  <svg width="18" height="18" fill="none" stroke="#B9162C" strokeWidth="2"><circle cx="9" cy="9" r="7" /><path d="M12 2v2M6 2v2M3 6h12" /></svg>
                 </span>
                 <input
                   type="date"
