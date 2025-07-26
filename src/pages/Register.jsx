@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom"; // Import Link for consistent navigation
 import API from "../services/api"; // Assuming your API service is set up
+import heroImg from '../assets/mitaoe.jpg'; // Import the same image from About page
 
 const Register = () => {
   // --- STATE MANAGEMENT ---
@@ -169,14 +170,32 @@ const Register = () => {
   };
 
   return (
-    // Added pt-20 to push content down below fixed Navbar (similar to Login page)
-    <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] px-4 py-8 pt-20 font-sans">
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md mx-auto bg-white rounded-xl shadow-lg border-2 border-[#D32F2F] flex flex-col items-center p-8 md:p-10"
+    <div className="min-h-screen flex flex-col md:flex-row font-sans">
+      {/* Left Half – Branding with Background Image */}
+      <div 
+        className="md:w-1/2 w-full flex items-center justify-center px-4 py-20 md:py-0 relative overflow-hidden"
+        style={{
+          backgroundImage: `url(${heroImg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
       >
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-[#D32F2F] bg-opacity-30"></div>
+        <h1 className="text-4xl md:text-6xl font-extrabold text-white text-center tracking-wide uppercase relative z-10">
+          KharidoMat
+        </h1>
+      </div>
+
+      {/* Right Half – Register Box */}
+      <div className="md:w-1/2 w-full flex items-center justify-center px-4 py-20 md:py-0 bg-white" style={{ paddingTop: '120px' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md mx-auto bg-white rounded-xl shadow-lg border-2 border-[#D32F2F] flex flex-col items-center p-8 md:p-10"
+        >
         <h2 className="text-[#D32F2F] font-extrabold uppercase text-3xl text-center mb-6 tracking-wide">
           {step === 1 ? 'Register' : step === 2 ? 'Verify Email' : 'Complete Registration'}
         </h2>
@@ -422,7 +441,8 @@ const Register = () => {
           <span className="text-gray-700 text-base font-medium">Already have an account? </span>
           <Link to="/login" className="text-[#D32F2F] font-bold hover:underline text-base">Log in</Link>
         </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 };
