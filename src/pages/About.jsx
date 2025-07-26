@@ -40,22 +40,22 @@ const About = () => {
     {
       icon: '🔒',
       title: 'Secure & Trusted',
-      description: 'Verified users and secure payment processing ensure safe transactions.'
+      description: 'Verified student users and secure payment processing ensure safe peer-to-peer transactions.'
+    },
+    {
+      icon: '🤝',
+      title: 'Peer-to-Peer Rentals',
+      description: 'Rent from fellow students and list your own items to earn money in our trusted campus community.'
+    },
+    {
+      icon: '📊',
+      title: 'All-in-One Dashboard',
+      description: 'Manage your bookings, listings, payments, and wishlists all in one convenient place.'
     },
     {
       icon: '⚡',
       title: 'Instant Booking',
-      description: 'Book items instantly with our streamlined rental process.'
-    },
-    {
-      icon: '📱',
-      title: 'Mobile Friendly',
-      description: 'Access CampusRent anywhere with our responsive mobile app.'
-    },
-    {
-      icon: '💬',
-      title: '24/7 Support',
-      description: 'Get help whenever you need it with our round-the-clock support team.'
+      description: 'Streamlined and easy process for renting items instantly with just a few clicks.'
     }
   ];
 
@@ -164,8 +164,8 @@ const About = () => {
                 <h3 className="text-2xl sm:text-3xl font-extrabold uppercase font-display text-[#D32F2F] mb-4 tracking-wide">
                   Our Mission
                 </h3>
-                <p className="text-base sm:text-lg leading-relaxed text-gray-700">
-                  To democratize access to educational resources by creating a trusted platform where students can share, rent, and access items they need for their academic journey. We believe that education should be accessible to everyone, regardless of their financial situation.
+                                <p className="text-base sm:text-lg leading-relaxed text-gray-700">
+                  To make college life more affordable by empowering students to easily rent necessary items like books, electronics, and academic tools directly from their peers. We reduce financial stress by creating a trusted platform where students can access what they need without the burden of purchasing everything new.
                 </p>
               </div>
             </motion.div>
@@ -185,8 +185,8 @@ const About = () => {
                 <h3 className="text-2xl sm:text-3xl font-extrabold uppercase font-display text-[#D32F2F] mb-4 tracking-wide">
                   Our Vision
                 </h3>
-                <p className="text-base sm:text-lg leading-relaxed text-gray-700">
-                  To become the leading student community platform that transforms how students access resources, build connections, and contribute to a more sustainable future. We envision a world where every student has access to the tools they need to succeed.
+                                <p className="text-base sm:text-lg leading-relaxed text-gray-700">
+                  To build a sustainable and connected campus community where students share resources instead of buying new. We envision a future that reduces waste and ensures every student has access to the tools they need to succeed, creating a more collaborative and environmentally conscious academic environment.
                 </p>
               </div>
             </motion.div>
@@ -194,64 +194,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Values Section - Adapting to home page card style */}
-      <section className="w-full bg-[#fff3f3] py-16 md:py-24 px-2 md:px-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl font-extrabold uppercase font-display text-[#D32F2F] mb-6 tracking-wide">
-              Our Core Values
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed">
-              The principles that guide everything we do and every decision we make
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: "🤝",
-                title: "Community First",
-                description: "We believe in the power of community. Every feature we build, every decision we make, is centered around fostering meaningful connections and building trust within campus communities.",
-              },
-              {
-                icon: "💰",
-                title: "Accessibility",
-                description: "Education should be accessible to everyone. We're committed to breaking down financial barriers and making quality resources available to students from all backgrounds.",
-              },
-              {
-                icon: "🌱",
-                title: "Sustainability",
-                description: "We're passionate about reducing waste and promoting responsible consumption. Every rental is a step toward a more sustainable future for our planet.",
-              }
-            ].map((value, index) => (
-              <motion.div
-                key={index}
-                className="bg-white rounded-xl shadow-lg p-8 text-center flex flex-col items-center border-2 border-[#D32F2F] hover:shadow-xl transition-all duration-300"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <div className="w-16 h-16 bg-[#fff3f3] rounded-2xl flex items-center justify-center mx-auto mb-6 border-2 border-[#D32F2F]">
-                  <span className="text-2xl">{value.icon}</span>
-                </div>
-                <h3 className="text-xl sm:text-2xl font-extrabold uppercase font-display text-[#D32F2F] mb-4 tracking-wide">
-                  {value.title}
-                </h3>
-                <p className="text-gray-700 leading-relaxed">
-                  {value.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* Features Section - Renamed to "Why KharidoMat?" and adapted card style */}
       <section className="w-full bg-white py-16 md:py-24 px-2 md:px-8">
