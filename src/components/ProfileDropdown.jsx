@@ -150,20 +150,21 @@ const ProfileDropdown = () => {
       {/* Avatar/Trigger */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center justify-center w-11 h-11 rounded-full bg-white border-2 border-[#B9162C] shadow-md hover:shadow-lg transition-all focus:outline-none"
+        className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-[#D32F2F] to-[#B9162C] border-2 border-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 focus:outline-none"
         aria-label="Open profile menu"
       >
         {/* FIX 4: Use the new `profileImage` state variable here */}
         {profileImage ? (
-          <img src={profileImage} alt="avatar" className="h-11 w-11 rounded-full object-cover" />
+          <img src={profileImage} alt="avatar" className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover" />
         ) : (
-          <span className="relative w-11 h-11 flex items-center justify-center">
-            <FaUserCircle className="w-11 h-11 text-[#F8B4B4] absolute" />
-            <span className="z-10 text-lg font-extrabold text-[#B9162C]">
+          <span className="flex items-center justify-center w-full h-full">
+            <span className="font-semibold text-white text-sm md:text-base">
               {getInitials(name)}
             </span>
           </span>
         )}
+        {/* Online status badge */}
+        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-white border-2 rounded-full"></span>
       </button>
 
       {/* Dropdown */}
@@ -185,11 +186,10 @@ const ProfileDropdown = () => {
               <div className="flex items-center gap-4 mb-2">
                 {/* FIX 5: Also use the `profileImage` state here */}
                 {profileImage ? (
-                  <img src={profileImage} alt="avatar" className="w-12 h-12 rounded-full object-cover border-2 border-[#B9162C]" />
+                  <img src={profileImage} alt="avatar" className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md" />
                 ) : (
-                  <span className="relative w-12 h-12 flex items-center justify-center">
-                    <FaUserCircle className="w-12 h-12 text-[#F8B4B4] absolute" />
-                    <span className="z-10 text-lg font-extrabold text-[#B9162C]">
+                  <span className="relative w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-[#D32F2F] to-[#B9162C] border-2 border-white shadow-md">
+                    <span className="font-semibold text-white text-base">
                       {getInitials(name)}
                     </span>
                   </span>

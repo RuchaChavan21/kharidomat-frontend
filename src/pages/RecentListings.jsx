@@ -153,18 +153,12 @@ const RecentListings = () => {
                         {getStatusBadge(item.status)}
                       </div>
                     </div>
-                    <div className="flex gap-3 mt-4">
-                      <button
-                        onClick={() => navigate(`/edit-item/${item.id}`)}
-                        className="flex-1 bg-blue-100 text-blue-700 text-sm px-3 py-2 rounded-lg font-semibold hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 border border-blue-200 dark:border-blue-700 transition-all duration-200"
-                      >
-                        Edit
-                      </button>
+                    <div className="mt-4">
                       <button
                         onClick={() => handleDeleteItem(item.id)}
-                        className="flex-1 bg-red-100 text-red-700 text-sm px-3 py-2 rounded-lg font-semibold hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 border border-red-200 dark:border-red-700 transition-all duration-200"
+                        className="w-full bg-red-500 text-white text-sm px-4 py-3 rounded-lg font-bold hover:bg-red-600 hover:shadow-lg border-2 border-red-500 hover:border-red-600 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                       >
-                        Delete
+                        🗑️ Delete Item
                       </button>
                     </div>
                   </motion.div>

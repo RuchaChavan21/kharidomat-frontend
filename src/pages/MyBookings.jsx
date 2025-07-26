@@ -326,20 +326,15 @@ const MyBookings = () => {
                   <div className="p-6">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                       {/* Item Info */}
-                      <div className="flex gap-4 items-center flex-1">
-                        <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border-2 border-[#fff3f3]">
-                          <img src={booking.item?.imageUrl || `https://via.placeholder.com/96x96?text=${booking.item?.name || 'Item'}`} alt={booking.item?.name || "Booked Item"} className="w-full h-full object-cover" />
-                        </div>
-                        <div className="flex-1">
+                                              <div className="flex-1">
                           <h3 className="text-xl font-extrabold uppercase text-[#222] mb-1 tracking-wide">{booking.item?.name || "Unknown Item"}</h3>
-                          <p className="text-sm text-gray-600 mb-2 font-medium">Owner: <span className="font-semibold">{booking.owner?.name || "N/A"}</span><br />Email: <span className="font-semibold">{booking.owner?.email || "N/A"}</span></p>
+                          {/* <p className="text-sm text-gray-600 mb-2 font-medium">Owner: <span className="font-semibold">{booking.owner?.name || "N/A"}</span><br />Email: <span className="font-semibold">{booking.owner?.email || "N/A"}</span></p> */}
                           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700">
                             <span className="font-medium">📅 {formatDate(booking.startDate)} - {formatDate(booking.endDate)}</span>
                             <span className="font-medium">💰 ₹{booking.item?.pricePerDay || 0} /day</span>
                             <span className="font-bold text-[#D32F2F] text-base">💳 Total: ₹{booking.totalAmount || 0}</span>
                           </div>
                         </div>
-                      </div>
                       {/* Status and Actions */}
                       <div className="flex flex-col items-center lg:items-end gap-3 mt-4 lg:mt-0">
                         {getStatusBadge(booking.status)}

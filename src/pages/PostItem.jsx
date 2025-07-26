@@ -185,8 +185,8 @@ const PostItem = () => {
     <div className="min-h-screen bg-[#fff3f3] flex flex-col items-center justify-center px-2 md:px-4 py-10 pt-24">
       {/* Page Title */}
       <div className="max-w-xl w-full text-left mt-4 mb-8">
-        <h1 className="w-full max-w-full break-words px-2 text-center md:text-left font-extrabold text-2xl sm:text-3xl md:text-4xl text-[#D32F2F] mb-2 tracking-wide uppercase">Post an Item for Rent</h1>
-        <p className="text-gray-700 text-lg font-medium text-center md:text-left px-2">List your item and start earning by sharing with the community.</p>
+        <h1 className="w-full max-w-full break-words px-2 text-center font-extrabold text-2xl sm:text-3xl md:text-4xl text-[#D32F2F] mb-2 tracking-wide uppercase">Post an Item for Rent</h1>
+        <p className="text-gray-700 text-lg font-medium text-center px-2">List your item and start earning by sharing with the community.</p>
       </div>
       {/* Basic Item Details Card + Form */}
       <motion.div
