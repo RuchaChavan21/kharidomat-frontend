@@ -15,13 +15,17 @@ import laptopImg from '../assets/laptop.jpg';
 import mattressesImg from '../assets/mattresses.jpg';
 import miniFridgeImg from '../assets/minifridge.jpg';
 import studyTablesAndChairImg from '../assets/studytablesandchair.jpg';
+import cycleImg from '../assets/cycle.jpg';
+import inductionImg from '../assets/induction.jpg';
+import calculatorImg from '../assets/calculator.jpg';
+import gamingImg from '../assets/gaming1.jpg';
 
-// For hero section, picking relevant ones from your assets
+// For hero section, using the new images
 const heroSectionImages = [
-  deskImg,
-  miniFridgeImg,
-  hostelFurnitureImg,
-  laptopImg,
+  cycleImg,
+  inductionImg,
+  calculatorImg,
+  gamingImg,
 ];
 
 // Now use the imported variables for categoryImages with precise filenames
@@ -176,13 +180,14 @@ const Home = () => {
       <section className="w-full bg-gradient-to-br from-[#fff3f3] via-white to-[#fff3f3] py-14 px-2 md:px-8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           {[
-            {icon:'🔒', title:'Zero Deposit for Students'},
-            {icon:'🧴', title:'Sanitized & Safe Delivery'},
-            {icon:'🔄', title:'Easy Return'},
+            {icon:'🎓', title:'Verified Student Rentals', desc:'Rent safely within your campus — only verified students can rent or post items.'},
+            {icon:'⚡', title:'Instant Bookings & Extensions', desc:'Book items instantly and extend your rental duration with ease.'},
+            {icon:'🔒', title:'Secure Online Payments', desc:'Make secure, verified payments with Razorpay integration.'},
           ].map((item, i) => (
             <motion.div key={item.title} className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center gap-3 border border-[#D32F2F] hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer" initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.1}}>
               <span className="text-4xl">{item.icon}</span>
               <span className="font-semibold text-lg uppercase text-[#D32F2F] tracking-wide">{item.title}</span>
+              <span className="text-gray-600 text-sm text-center leading-relaxed">{item.desc}</span>
             </motion.div>
           ))}
         </div>
@@ -208,16 +213,23 @@ const Home = () => {
       </section>
       {/* Promise Section */}
       <section className="w-full bg-gradient-to-br from-[#fff3f3] via-white to-[#fff3f3] py-14 px-2 md:px-8">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
           {[
-            {icon:'🔁', title:'Flexible Return'},
-            {icon:'✅', title:'Verified Products'},
-            {icon:'🤝', title:'Student Support'},
-            {icon:'🚚', title:'Free Delivery'}
+            {icon:'🔁', title:'OTP-Verified Returns', desc:'Return items securely using one-time password verification.'},
+            {icon:'🧑‍🎓', title:'Listed by Students', desc:'All rentals are posted by verified college students only.'},
+            {icon:'❤️', title:'Save to Wishlist', desc:'Add items to your wishlist and access them anytime.'},
+            {icon:'📊', title:'Track Bookings', desc:'View, manage, cancel, or extend your bookings with ease.'}
           ].map((item, i) => (
-            <motion.div key={item.title} className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center gap-3 border border-[#D32F2F] hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer" initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.1}}>
+            <motion.div 
+              key={item.title} 
+              className="bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center gap-3 border border-[#D32F2F] hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer" 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.1 }}
+            >
               <span className="text-4xl">{item.icon}</span>
-              <span className="font-semibold text-lg uppercase text-[#D32F2F] tracking-wide">{item.title}</span>
+              <span className="font-semibold text-lg uppercase text-[#D32F2F] tracking-wide text-center">{item.title}</span>
+              <span className="text-gray-600 text-sm text-center leading-relaxed">{item.desc}</span>
             </motion.div>
           ))}
         </div>
