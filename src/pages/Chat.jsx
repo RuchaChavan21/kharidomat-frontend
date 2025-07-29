@@ -69,30 +69,20 @@ const Chat = () => {
     }
   }, [messages]);
 
-  const handleSend = async (e) => {
+  const handleSend = (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedChat) return;
-    setSending(true);
-    try {
-      const res = await fetch(`http://localhost:8080/api/chats/${selectedChat.id}/send`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ message: newMessage }),
-      });
-      if (res.ok) {
-        const msg = await res.json();
-        setMessages((prev) => [...prev, msg]);
-        setNewMessage('');
-      }
-    } catch (err) {
-      // Optionally show error
-    } finally {
-      setSending(false);
-    }
-  };
+    if (!newMessage.trim() || !selectedChat || !stompClient.current) return;
+
+    const messagePayload = {
+        chatId: selectedChat.chatId,
+        senderId: user.id,
+        recipientId: selectedChat.otherUserId, // Assumes your DTO has otherUserId
+        content: newMessage,
+    };
+    
+    stompClient.current.send("http://localhost:8080/api/app/chat", {}, JSON.stringify(messagePayload));
+    setNewMessage('');
+};
 
   const handleSelectChat = (chat) => {
     setSelectedChat(chat);

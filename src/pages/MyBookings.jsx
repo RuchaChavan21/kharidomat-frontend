@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import ExtendBookingModal from '../components/ExtendBookingModal';
 import ConfirmationModal from '../components/ConfirmationModal';
+import { Calendar, MapPin, DollarSign, Clock, Eye, Filter, SortAsc, SortDesc } from 'lucide-react';
 
 const MyBookings = () => {
   const { user, isLoggedIn } = useAuth();
@@ -15,6 +16,7 @@ const MyBookings = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
 
   // State for Modals
   const [extendModal, setExtendModal] = useState({ open: false, booking: null });
@@ -37,10 +39,9 @@ const MyBookings = () => {
     document.body.appendChild(script);
 
     return () => {
-      // Clean up the script when the component unmounts
       document.body.removeChild(script);
     };
-  }, []); // The empty array [] ensures this runs only once.
+  }, []);
 
   const fetchBookingsAndSummary = useCallback(async () => {
     if (!isLoggedIn) {
@@ -78,28 +79,23 @@ const MyBookings = () => {
     setExtendError('');
   };
   const handleExtendBookingSubmit = async (newEndDate) => {
-    alert("Modal Submit Button Clicked!"); // <-- ADD THIS LINE
     setExtendLoading(true);
     setExtendError('');
 
     try {
-      // --- STEP 1: Create the Payment Order on the backend ---
       const orderResponse = await API.post(`/bookings/${extendModal.booking.id}/create-extension-order`, {
         newEndDate: newEndDate,
       });
       const { orderId, amount, currency } = orderResponse.data;
 
-      // --- STEP 2: Configure and Open Razorpay Checkout ---
       const options = {
-        key: "rzp_test_n5Y0q2oWkbhx2b", // Replace with your actual Razorpay Key ID
+        key: "rzp_test_n5Y0q2oWkbhx2b",
         amount: amount,
         currency: currency,
         name: "KharidoMat",
         description: `Extend booking for ${extendModal.booking.item.name}`,
         order_id: orderId,
         handler: async (response) => {
-          // --- STEP 3: Verify Payment and Confirm Extension ---
-          // This part runs after the user completes the payment
           try {
             await API.post(`/bookings/${extendModal.booking.id}/verify-and-extend`, {
               newEndDate: newEndDate,
@@ -109,8 +105,8 @@ const MyBookings = () => {
             });
 
             alert("Booking extended successfully!");
-            handleCloseExtendModal(); // Close the modal
-            fetchBookingsAndSummary(); // Refresh your bookings list
+            handleCloseExtendModal();
+            fetchBookingsAndSummary();
 
           } catch (verificationError) {
             console.error("Payment verification failed:", verificationError);
@@ -126,13 +122,10 @@ const MyBookings = () => {
         },
         modal: {
           ondismiss: function () {
-            setExtendLoading(false); // Stop loading if user closes the payment modal
+            setExtendLoading(false);
           }
         }
       };
-
-      console.log("2. Razorpay options object created:", options);
-      console.log("3. Checking for window.Razorpay object:", window.Razorpay);
 
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', (response) => {
@@ -140,16 +133,13 @@ const MyBookings = () => {
         setExtendError(`Payment Failed: ${response.error.description}`);
       });
       rzp.open();
-      // We set loading to false in the ondismiss or handler callbacks now
-      return; // Exit the function here as Razorpay takes over
+      return;
 
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Could not initiate extension payment.';
       setExtendError(errorMessage);
     } finally {
-      // We can't set loading to false here anymore because the payment modal is asynchronous.
-      // It's handled in the Razorpay callbacks instead.
-      setExtendLoading(false); // Or remove this if handled entirely by callbacks
+      setExtendLoading(false);
     }
   };
 
@@ -215,141 +205,432 @@ const MyBookings = () => {
   };
 
   // Helper functions
-  const getStatusBadge = (booking) => {
-    if (booking.returnStatus === 'pending_verification') {
-      return <span className={`px-3 py-1 rounded-full text-sm font-medium border bg-purple-100 text-purple-800 border-purple-300`}>Pending Return</span>;
-  }
+  const getStatusBadge = (status) => {
     const statusConfig = {
-      ACTIVE: { color: "bg-green-100 text-green-800 border-green-300", text: "Active" },
-      COMPLETED: { color: "bg-blue-100 text-blue-800 border-blue-300", text: "Completed" },
-      UPCOMING: { color: "bg-yellow-100 text-yellow-800 border-yellow-300", text: "Upcoming" },
-      CANCELED: { color: "bg-red-100 text-red-800 border-red-300", text: "Canceled" },
+      ACTIVE: { 
+        color: "bg-green-100 text-green-800 border-green-300", 
+        text: "Confirmed",
+        icon: "✅"
+      },
+      UPCOMING: { 
+        color: "bg-yellow-100 text-yellow-800 border-yellow-300", 
+        text: "Pending",
+        icon: "⏳"
+      },
+      COMPLETED: { 
+        color: "bg-blue-100 text-blue-800 border-blue-300", 
+        text: "Completed",
+        icon: "✅"
+      },
+      CANCELED: { 
+        color: "bg-red-100 text-red-800 border-red-300", 
+        text: "Cancelled",
+        icon: "❌"
+      },
     };
-    const config = statusConfig[booking] || { color: "bg-gray-100 text-gray-800 border-gray-300", text: booking };
-    return <span className={`px-3 py-1 rounded-full text-sm font-medium border ${config.color}`}>{config.text}</span>;
+    const config = statusConfig[status] || { 
+      color: "bg-gray-100 text-gray-800 border-gray-300", 
+      text: status,
+      icon: "❓"
+    };
+    return (
+      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${config.color}`}>
+        <span>{config.icon}</span>
+        {config.text}
+      </span>
+    );
   };
+
+  const getPaymentStatusBadge = (booking) => {
+    // Determine payment status based on booking data
+    const isPaid = booking.status === 'ACTIVE' || booking.status === 'COMPLETED';
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
+        isPaid 
+          ? 'bg-green-100 text-green-800 border border-green-300' 
+          : 'bg-orange-100 text-orange-800 border border-orange-300'
+      }`}>
+        {isPaid ? '💰 Paid' : '⏳ Pending'}
+      </span>
+    );
+  };
+
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" });
+    return new Date(dateString).toLocaleDateString("en-IN", { 
+      year: "numeric", 
+      month: "short", 
+      day: "numeric" 
+    });
   };
-  const filteredBookings = bookings
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const filteredAndSortedBookings = bookings
     .filter((booking) => {
       const matchesFilter = filter === "all" || booking.status === filter;
       const itemName = booking.item?.name || "";
       const matchesSearch = itemName.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesFilter && matchesSearch;
     })
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    .sort((a, b) => {
+      if (sortBy === "newest") {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      } else {
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      }
+    });
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#fff3f3]"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D32F2F]"></div></div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D32F2F] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your bookings...</p>
+        </div>
+      </div>
+    );
   }
+
   if (!isLoggedIn) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#fff3f3]"><div className="text-center p-8"><h1 className="text-2xl font-bold mb-4">Access Denied</h1><p>Please log in to view your bookings.</p><Link to="/login" className="mt-4 inline-block bg-[#D32F2F] text-white px-6 py-2 rounded">Go to Login</Link></div></div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center p-8">
+          <h1 className="text-2xl font-bold mb-4 text-gray-900">Access Denied</h1>
+          <p className="text-gray-600 mb-6">Please log in to view your bookings.</p>
+          <Link 
+            to="/login" 
+            className="inline-block bg-[#D32F2F] text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans pt-24">
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-8">
-        {/* Header Bar with Title and Back Button */}
-        <div className="flex justify-between items-center mb-8">
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="text-left">
-            <h1 className="text-3xl md:text-4xl font-extrabold uppercase text-[#D32F2F] mb-2 tracking-wide">My Bookings 📋</h1>
-            <p className="text-gray-700 text-lg font-medium">Manage and track all your rental bookings</p>
-          </motion.div>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="px-5 py-2 bg-[#D32F2F] text-white rounded-lg hover:bg-red-700 transition"
-          >
-            ← Back to Dashboard
-          </button>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Bookings</h1>
+              <p className="text-gray-600">Manage and track all your rental bookings</p>
+            </div>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#D32F2F] text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              ← Back to Dashboard
+            </button>
+          </div>
+        </motion.div>
 
         {/* Filters and Search */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="p-6 bg-white rounded-xl shadow-md border border-gray-200">
-          <div className="flex flex-col md:flex-row gap-5 items-end">
-            <div className="flex-1 w-full">
-              <label htmlFor="search" className="block text-sm font-semibold text-gray-700 mb-2">Search Items</label>
-              <input id="search" type="text" placeholder="Search by item name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D32F2F] outline-none" />
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8"
+        >
+          <div className="flex flex-col lg:flex-row gap-4 items-end">
+            <div className="flex-1">
+              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+                Search Items
+              </label>
+              <input 
+                id="search" 
+                type="text" 
+                placeholder="Search by item name..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D32F2F] focus:border-transparent outline-none transition-colors"
+              />
             </div>
-            <div className="w-full md:w-48">
-              <label htmlFor="filter" className="block text-sm font-semibold text-gray-700 mb-2">Filter by Status</label>
-              <select id="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D32F2F] outline-none">
-                <option value="all">All Bookings</option>
-                <option value="ACTIVE">Active</option>
-                <option value="UPCOMING">Upcoming</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="CANCELED">Canceled</option>
-              </select>
+            <div className="flex gap-3">
+              <div>
+                <label htmlFor="filter" className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <select 
+                  id="filter" 
+                  value={filter} 
+                  onChange={(e) => setFilter(e.target.value)} 
+                  className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D32F2F] focus:border-transparent outline-none transition-colors"
+                >
+                  <option value="all">All Bookings</option>
+                  <option value="ACTIVE">Confirmed</option>
+                  <option value="UPCOMING">Pending</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="CANCELED">Cancelled</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-2">
+                  Sort
+                </label>
+                <select 
+                  id="sort" 
+                  value={sortBy} 
+                  onChange={(e) => setSortBy(e.target.value)} 
+                  className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D32F2F] focus:border-transparent outline-none transition-colors"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+              </div>
             </div>
           </div>
         </motion.div>
 
         {/* Error State */}
-        {error && <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-red-100 text-red-700 rounded-lg border border-red-300 flex items-center justify-between"><p>{error}</p><button onClick={fetchBookingsAndSummary} className="px-6 py-2 bg-red-600 text-white rounded-lg">Try Again</button></motion.div>}
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }} 
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-red-50 border border-red-200 rounded-lg mb-6"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-red-700">{error}</p>
+              <button 
+                onClick={fetchBookingsAndSummary} 
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </motion.div>
+        )}
 
         {/* Modals */}
-        <ExtendBookingModal isOpen={extendModal.open} onClose={handleCloseExtendModal} onSubmit={handleExtendBookingSubmit} currentEndDate={extendModal.booking?.endDate.split('T')[0]} minDate={extendModal.booking?.endDate.split('T')[0]} loading={extendLoading} error={extendError} />
-        <ConfirmationModal isOpen={cancelModal.open} title="Cancel Booking" message="Are you sure you want to cancel this booking?" onConfirm={handleCancelBookingConfirm} onCancel={handleCloseCancelModal} confirmText={cancelLoading ? 'Cancelling...' : 'Cancel Booking'} error={cancelError} />
+        <ExtendBookingModal 
+          isOpen={extendModal.open} 
+          onClose={handleCloseExtendModal} 
+          onSubmit={handleExtendBookingSubmit} 
+          currentEndDate={extendModal.booking?.endDate.split('T')[0]} 
+          minDate={extendModal.booking?.endDate.split('T')[0]} 
+          loading={extendLoading} 
+          error={extendError} 
+        />
+        <ConfirmationModal 
+          isOpen={cancelModal.open} 
+          title="Cancel Booking" 
+          message="Are you sure you want to cancel this booking?" 
+          onConfirm={handleCancelBookingConfirm} 
+          onCancel={handleCloseCancelModal} 
+          confirmText={cancelLoading ? 'Cancelling...' : 'Cancel Booking'} 
+          error={cancelError} 
+        />
 
+        {/* Return Modal */}
         <AnimatePresence>
           {showReturnModal && selectedBooking && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-              <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full border-2 border-orange-500">
-                <h2 className="text-2xl font-extrabold uppercase text-center mb-4 text-orange-600 tracking-wide">Return Item</h2>
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ scale: 0.9, y: 30 }} 
+                animate={{ scale: 1, y: 0 }} 
+                exit={{ scale: 0.9, y: 30 }} 
+                className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full border border-gray-200"
+              >
+                <h2 className="text-2xl font-bold text-center mb-4 text-gray-900">Return Item</h2>
                 {returnStep === 1 && (
                   <div className="text-center">
-                    <p className="text-gray-600 mb-6">To return <span className="font-bold">{selectedBooking.item?.name}</span>, an OTP will be sent to your email.</p>
-                    <button onClick={handleRequestOtp} className="w-full bg-orange-500 text-white font-bold px-6 py-3 rounded-lg shadow-lg uppercase text-base border-2 border-orange-500 hover:bg-orange-600">Request OTP</button>
+                    <p className="text-gray-600 mb-6">
+                      To return <span className="font-semibold">{selectedBooking.item?.name}</span>, 
+                      an OTP will be sent to your email.
+                    </p>
+                    <button 
+                      onClick={handleRequestOtp} 
+                      className="w-full bg-orange-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
+                    >
+                      Request OTP
+                    </button>
                   </div>
                 )}
                 {returnStep === 2 && (
                   <div>
-                    <p className="text-center text-gray-600 mb-6">An OTP has been sent. Enter it below to confirm the return.</p>
-                    <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter 6-digit OTP" maxLength="6" className="w-full text-center tracking-[.5em] text-2xl font-bold px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500" />
-                    <button onClick={handleVerifyOtp} className="w-full mt-4 bg-orange-500 text-white font-bold px-6 py-3 rounded-lg shadow-lg uppercase text-base border-2 border-orange-500 hover:bg-orange-600">Verify & Complete Return</button>
+                    <p className="text-center text-gray-600 mb-6">
+                      An OTP has been sent. Enter it below to confirm the return.
+                    </p>
+                    <input 
+                      type="text" 
+                      value={otp} 
+                      onChange={(e) => setOtp(e.target.value)} 
+                      placeholder="Enter 6-digit OTP" 
+                      maxLength="6" 
+                      className="w-full text-center tracking-[.5em] text-2xl font-bold px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent mb-4"
+                    />
+                    <button 
+                      onClick={handleVerifyOtp} 
+                      className="w-full bg-orange-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
+                    >
+                      Verify & Complete Return
+                    </button>
                   </div>
                 )}
-                <button onClick={() => setShowReturnModal(false)} className="w-full mt-4 bg-gray-200 text-gray-800 font-bold px-6 py-3 rounded-lg shadow-md uppercase text-base border-2 border-gray-200 hover:bg-gray-300">Cancel</button>
+                <button 
+                  onClick={() => setShowReturnModal(false)} 
+                  className="w-full mt-4 bg-gray-200 text-gray-800 font-semibold px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Bookings List */}
+        {/* Bookings Grid */}
         <div className="space-y-6">
-          {filteredBookings.length === 0 ? (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-8 text-center bg-white rounded-xl shadow-md border-2 border-[#D32F2F]"><p className="text-xl font-semibold text-gray-700 mb-6">No bookings found.</p><Link to="/items" className="bg-[#D32F2F] text-white font-bold px-8 py-4 rounded-lg">Browse Items</Link></motion.div>
+          {filteredAndSortedBookings.length === 0 ? (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-16"
+            >
+              <div className="max-w-md mx-auto">
+                <div className="text-6xl mb-4">📋</div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No bookings found</h3>
+                <p className="text-gray-600 mb-6">
+                  {searchTerm || filter !== "all" 
+                    ? "Try adjusting your search or filter criteria."
+                    : "You have no bookings yet. Explore items to rent now!"
+                  }
+                </p>
+                <Link 
+                  to="/items" 
+                  className="inline-flex items-center gap-2 bg-[#D32F2F] text-white font-semibold px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Browse Items
+                </Link>
+              </div>
+            </motion.div>
           ) : (
-            <AnimatePresence>
-              {filteredBookings.map((booking, index) => (
-                <motion.div key={booking.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.3, delay: index * 0.05 }} className="bg-white rounded-xl shadow-lg border-2 border-[#D32F2F] overflow-hidden">
-                  <div className="p-6">
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <AnimatePresence>
+                {filteredAndSortedBookings.map((booking, index) => (
+                  <motion.div 
+                    key={booking.id} 
+                    initial={{ opacity: 0, y: 30 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    exit={{ opacity: 0, x: -50 }} 
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
+                  >
+                    <div className="p-6">
                       {/* Item Info */}
-                                              <div className="flex-1">
-                          <h3 className="text-xl font-extrabold uppercase text-[#222] mb-1 tracking-wide">{booking.item?.name || "Unknown Item"}</h3>
-                          {/* <p className="text-sm text-gray-600 mb-2 font-medium">Owner: <span className="font-semibold">{booking.owner?.name || "N/A"}</span><br />Email: <span className="font-semibold">{booking.owner?.email || "N/A"}</span></p> */}
-                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700">
-                            <span className="font-medium">📅 {formatDate(booking.startDate)} - {formatDate(booking.endDate)}</span>
-                            <span className="font-medium">💰 ₹{booking.item?.pricePerDay || 0} /day</span>
-                            <span className="font-bold text-[#D32F2F] text-base">💳 Total: ₹{booking.totalAmount || 0}</span>
+                      <div className="flex gap-4 mb-4">
+                        {/* Item Image */}
+                        <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+                          {booking.item?.imageName ? (
+                            <img
+                              src={`http://localhost:8080/api/items/image/${booking.item.imageName}`}
+                              alt={booking.item?.name || 'Item'}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div className={`w-full h-full flex items-center justify-center text-gray-400 ${booking.item?.imageName ? 'hidden' : 'flex'}`}>
+                            <span className="text-xl">📦</span>
                           </div>
                         </div>
-                      {/* Status and Actions */}
-                      <div className="flex flex-col items-center lg:items-end gap-3 mt-4 lg:mt-0">
-                        {getStatusBadge(booking.status)}
-                        <div className="flex gap-2 mt-2 flex-wrap justify-center lg:justify-end">
-                          <Link to={`/booking/${booking.id}`} className="bg-[#D32F2F] text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-[#D32F2F] hover:bg-white hover:text-[#D32F2F] transition-all">View Details</Link>
-                          {(booking.status === "ACTIVE" || booking.status === "UPCOMING") && (<button onClick={() => handleOpenCancelModal(booking)} className="bg-red-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-red-500 hover:bg-white hover:text-red-500 transition-all">Cancel</button>)}
-                          {(booking.status === "ACTIVE" || booking.status === "UPCOMING") && (<button onClick={() => handleOpenExtendModal(booking)} className="bg-indigo-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-indigo-500 hover:bg-white hover:text-indigo-500 transition-all">Extend</button>)}
-                          {(booking.status === "ACTIVE") && (<button onClick={() => openReturnModal(booking)} className="bg-orange-500 text-white font-bold px-5 py-2 rounded-lg shadow-md text-sm uppercase border-2 border-orange-500 hover:bg-white hover:text-orange-500 transition-all">Return</button>)}
+                        
+                        {/* Item Details */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
+                            {booking.item?.name || "Unknown Item"}
+                          </h3>
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>
+                              {formatDate(booking.startDate)} - {formatDate(booking.endDate)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <DollarSign className="w-4 h-4" />
+                            <span className="font-medium">
+                              {formatCurrency(booking.item?.pricePerDay || 0)} /day
+                            </span>
+                          </div>
                         </div>
                       </div>
+
+                      {/* Status and Payment Info */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex gap-2">
+                          {getStatusBadge(booking.status)}
+                          {getPaymentStatusBadge(booking)}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-600">Total Amount</p>
+                          <p className="text-lg font-bold text-[#D32F2F]">
+                            {formatCurrency(booking.totalAmount || 0)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 pt-4 border-t border-gray-100">
+                        <Link 
+                          to={`/booking/${booking.id}`}
+                          className="flex-1 inline-flex items-center justify-center gap-2 bg-[#D32F2F] text-white font-medium px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View Details
+                        </Link>
+                        
+                        {(booking.status === "ACTIVE" || booking.status === "UPCOMING") && (
+                          <button 
+                            onClick={() => handleOpenCancelModal(booking)}
+                            className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                        
+                        {(booking.status === "ACTIVE" || booking.status === "UPCOMING") && (
+                          <button 
+                            onClick={() => handleOpenExtendModal(booking)}
+                            className="px-4 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600 transition-colors"
+                          >
+                            Extend
+                          </button>
+                        )}
+                        
+                        {booking.status === "ACTIVE" && (
+                          <button 
+                            onClick={() => openReturnModal(booking)}
+                            className="px-4 py-2 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 transition-colors"
+                          >
+                            Return
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
           )}
         </div>
       </div>
