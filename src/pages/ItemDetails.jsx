@@ -141,32 +141,42 @@ const ItemDetails = () => {
     }
   };
 
+  // In your ItemDetails.jsx file
+
   const handleStartChat = async () => {
     if (!isLoggedIn) {
       alert("Please log in to start a chat!");
       navigate("/login");
       return;
     }
-    // Check if the current user is trying to chat with themselves
-    if (
-      user &&
-      item &&
-      (user.email === item.ownerEmail || user.id === item.ownerId)
-    ) {
-      alert("You cannot chat with yourself about your own item.");
+
+    // Use the ownerDetails state which is already being fetched
+    if (!ownerDetails) {
+      alert("Owner information is still loading or is unavailable for chat.");
       return;
     }
-    if (!item?.ownerId) {
-      // Ensure item and ownerId exist
-      alert("Owner information not available for chat.");
+
+    // Check if the current user is trying to chat with themselves
+    if (user?.id === ownerDetails.id) {
+      alert("You cannot chat with yourself.");
       return;
     }
 
     try {
-      const res = await API.post(`/chats/start/${item.ownerId}`);
+      // 1. Call your backend to get or create the chat room.
+      // The backend will return a unique chatId for this conversation.
+      const response = await API.post(`/chats/start/${ownerDetails.id}`);
+      const { chatId } = response.data;
 
-      alert("Chat started!");
-      navigate("/chat");
+      // 2. Navigate to the chat page, PASSING THE STATE.
+      // This sends the necessary info to the chat page.
+      navigate('/chat', {
+        state: {
+          chatId: chatId,
+          recipient: ownerDetails // Pass the full owner object
+        }
+      });
+
     } catch (error) {
       console.error("Failed to start chat:", error);
       const chatErrorMessage =

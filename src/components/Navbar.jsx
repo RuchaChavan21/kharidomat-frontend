@@ -65,9 +65,12 @@ const Navbar = () => {
             <button className="md:hidden p-2 rounded hover:bg-gray-100 focus:outline-none" onClick={() => setMobileOpen(v => !v)} aria-label="Open menu">
               <svg width="28" height="28" fill="none" stroke="#222" strokeWidth="2"><path d="M4 7h20M4 14h20M4 21h20" strokeLinecap="round" /></svg>
             </button>
-            <Link to="/" className="flex items-center gap-2 group">
-              <span className="text-2xl">🎓</span>
-              <span className="text-xl md:text-2xl font-extrabold tracking-tight text-[#222] group-hover:text-[#D32F2F] transition-colors duration-200">KharidoMat</span>
+            <Link to="/" className="flex items-center gap-3 group">
+              <span className="text-3xl">🎓</span>
+              <div className="flex flex-col">
+                <span className="text-xl md:text-2xl font-black tracking-wider text-[#222] group-hover:text-[#D32F2F] transition-colors duration-200 font-sans">KharidoMat</span>
+                <span className="text-xs md:text-sm font-semibold text-blue-500 tracking-widest uppercase">campus-rent</span>
+              </div>
             </Link>
           </div>
 

@@ -27,7 +27,6 @@ const PaymentsPage = () => {
       try {
         const res = await API.get('/bookings/my');
         setBookings(res.data);
-        console.log('PaymentsPage bookings:', res.data);
       } catch (err) {
         console.error('API error:', err);
         setError('Failed to load payment history.');
@@ -80,30 +79,38 @@ const PaymentsPage = () => {
                 <div className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     {/* Item Info */}
-                    <div className="flex gap-4 items-center flex-1">
-                      <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border-2 border-[#fff3f3]">
-                        <img
-                          src={booking.item?.imageUrl ? `/images/${booking.item.imageUrl}` : `https://via.placeholder.com/96x96?text=${booking.item?.title || 'Item'}`}
-                          alt={booking.item?.title || 'Payment Item'}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-xl font-extrabold uppercase text-[#222] mb-1 tracking-wide truncate">{booking.item?.title || 'Unknown Item'}</h3>
-                        <div className="text-xs text-gray-500 mb-1">
-                          {booking.startDate && booking.endDate && (
-                            <span>
-                              {new Date(booking.startDate).toLocaleDateString()} &rarr; {new Date(booking.endDate).toLocaleDateString()}
-                            </span>
-                          )}
+                                          <div className="flex gap-4 items-center flex-1">
+                        <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border-2 border-[#fff3f3]">
+                          {booking.item?.imageName ? (
+                            <img
+                              src={`http://localhost:8080/api/items/image/${booking.item.imageName}`}
+                              alt={booking.item?.name || 'Payment Item'}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div className={`w-full h-full flex items-center justify-center text-gray-400 ${booking.item?.imageName ? 'hidden' : 'flex'}`}>
+                            <span className="text-2xl">🖼️</span>
+                          </div>
                         </div>
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${statusColors[booking.status] || 'bg-gray-100 text-gray-700 border-gray-300'}`}>{booking.status}</span>
-                      </div>
+                                                <div className="flex-1 min-w-0">
+                          <h3 className="text-xl font-extrabold uppercase text-[#222] mb-1 tracking-wide truncate">{booking.item?.name || 'Unknown Item'}</h3>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700 mb-2">
+                            {booking.startDate && booking.endDate && (
+                              <span className="font-medium">📅 {new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}</span>
+                            )}
+                            <span className="font-medium">💰 ₹{booking.item?.pricePerDay || 0} /day</span>
+                          </div>
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${statusColors[booking.status] || 'bg-gray-100 text-gray-700 border-gray-300'}`}>{booking.status}</span>
+                        </div>
                     </div>
                     {/* Amount */}
                     <div className="flex flex-col items-end justify-center mt-4 lg:mt-0">
                       <span className="text-sm text-gray-500">Total Amount</span>
-                      <span className="text-lg font-bold text-[#D32F2F]">₹{booking.amount}</span>
+                      <span className="text-lg font-bold text-[#D32F2F]">₹{booking.totalAmount || booking.amount || 0}</span>
                     </div>
                   </div>
                 </div>

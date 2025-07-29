@@ -15,7 +15,7 @@ import laptopImg from '../assets/laptop.jpg';
 import mattressesImg from '../assets/mattresses.jpg';
 import miniFridgeImg from '../assets/minifridge.jpg';
 import studyTablesAndChairImg from '../assets/studytablesandchair.jpg';
-import cycleImg from '../assets/cycle.jpg';
+import cycleImg from '../assets/bikes.jpg';
 import inductionImg from '../assets/induction.jpg';
 import calculatorImg from '../assets/calculator.jpg';
 import gamingImg from '../assets/gaming1.jpg';
