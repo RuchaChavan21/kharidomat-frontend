@@ -189,8 +189,15 @@ const BookOrRentItem = () => {
               razorpay_signature: response.razorpay_signature,
             });
 
+            // --- MODIFY THIS PART TO SEND THE IDs ---
+            // This part creates the booking in your database
             await API.post('/bookings', {
-              itemId, startDate, endDate, totalPrice
+              itemId,
+              startDate,
+              endDate,
+              totalPrice,
+              razorpayPaymentId: response.razorpay_payment_id, // <-- ADD THIS
+              razorpayOrderId: response.razorpay_order_id    // <-- ADD THIS
             });
 
             setSuccess('Booking successful! Redirecting...');
