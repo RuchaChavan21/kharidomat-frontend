@@ -24,6 +24,7 @@ const RecentListings = () => {
       const response = await API.get('/items/my', {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log('Listings response:', response.data); // Debug log
       setListings(response.data);
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Failed to fetch your listings. Please try again.';
@@ -69,6 +70,30 @@ const RecentListings = () => {
     };
     const c = config[status] || 'bg-gray-100 text-gray-700 border-gray-300';
     return <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${c}`}>{status}</span>;
+  };
+
+  // Helper function to get category names
+  const getCategoryNames = (itemCategories) => {
+    if (!itemCategories) return ['Uncategorized'];
+
+    if (typeof itemCategories === 'string') {
+      return itemCategories.trim() ? [itemCategories.trim()] : ['Uncategorized'];
+    }
+
+    if (Array.isArray(itemCategories)) {
+      if (itemCategories.length === 0) return ['Uncategorized'];
+      return itemCategories.map(cat => {
+        if (typeof cat === 'string') return cat.trim() || 'Uncategorized';
+        if (typeof cat === 'object' && cat?.name) return cat.name;
+        return 'Uncategorized';
+      });
+    }
+
+    if (typeof itemCategories === 'object' && itemCategories?.name) {
+      return [itemCategories.name];
+    }
+
+    return ['Uncategorized'];
   };
 
   if (loading) {
@@ -125,10 +150,11 @@ const RecentListings = () => {
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
           >
             <AnimatePresence>
-              {listings.map((item, idx) => {
-                const itemImageUrl = item.imageName
-                  ? `http://localhost:8080/api/items/image/${item.imageName}`
-                  : "https://via.placeholder.com/128x128?text=No+Image";
+                             {listings.map((item, idx) => {
+                 console.log(`Item ${idx}:`, item); // Debug log for each item
+                 const itemImageUrl = item.imageName
+                   ? `http://localhost:8080/api/items/image/${item.imageName}`
+                   : "https://via.placeholder.com/128x128?text=No+Image";
                 return (
                   <motion.div
                     key={item.id}
@@ -146,9 +172,8 @@ const RecentListings = () => {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <h3 className="text-lg font-bold mb-1 text-center truncate w-full">{item.title}</h3>
-                      <div className="text-sm text-gray-500 dark:text-gray-300 mb-2">{item.category || 'Uncategorized'}</div>
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                                             <h3 className="text-lg font-bold mb-1 text-center truncate w-full">{item.title}</h3>
+                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span className="font-semibold text-[#D32F2F]">₹{item.pricePerDay} /day</span>
                         {getStatusBadge(item.status)}
                       </div>

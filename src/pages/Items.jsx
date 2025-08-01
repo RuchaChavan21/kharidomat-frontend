@@ -97,8 +97,18 @@ const Items = () => {
                         className="rounded-lg border border-gray-200 px-4 py-3 bg-white shadow-sm text-gray-900 focus:border-[#B9162C] transition-all duration-300"
                     >
                         <option value="All">All Categories</option>
-                        <option value="Furniture">Furniture</option>
                         <option value="Electronics">Electronics</option>
+                        <option value="Books">Books</option>
+                        <option value="Furniture">Furniture</option>
+                        <option value="Hostel Essentials">Hostel Essentials</option>
+                        <option value="Clothing & Costumes">Clothing & Costumes</option>
+                        <option value="Sports Equipment">Sports Equipment</option>
+                        <option value="Bicycles">Bicycles</option>
+                        <option value="Event Decor">Event Decor</option>
+                        <option value="Musical Instruments">Musical Instruments</option>
+                        <option value="Lab Equipment">Lab Equipment</option>
+                        <option value="Mobile Accessories">Mobile Accessories</option>
+                        <option value="Kitchenware">Kitchenware</option>
                         <option value="Stationery">Stationery</option>
                         <option value="Others">Others</option>
                     </select>
