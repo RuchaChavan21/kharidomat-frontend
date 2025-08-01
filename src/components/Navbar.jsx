@@ -68,8 +68,8 @@ const Navbar = () => {
             <Link to="/" className="flex items-center gap-3 group">
               <span className="text-3xl">🎓</span>
               <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-black tracking-wider text-[#222] group-hover:text-[#D32F2F] transition-colors duration-200 font-sans">KharidoMat</span>
-                <span className="text-xs md:text-sm font-semibold text-blue-500 tracking-widest uppercase">campus-rent</span>
+                <span className="text-xl md:text-2xl font-black tracking-wider text-[#222] group-hover:text-[#D32F2F] transition-colors duration-200 font-sans">Kharido-Mat!</span>
+                <span className="text-xs md:text-sm font-semibold text-blue-500 tracking-widest uppercase">campusrent</span>
               </div>
             </Link>
           </div>

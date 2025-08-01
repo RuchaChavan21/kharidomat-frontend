@@ -1,18 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import { motion } from 'framer-motion';
-
-const categories = [
-  'Books',
-  'Electronics',
-  'Furniture',
-  'Stationery',
-  'Music',
-  'Sports',
-  'Other',
-];
 
 const PostItem = () => {
   // Get the token directly from useAuth context
@@ -27,12 +17,13 @@ const PostItem = () => {
   const [form, setForm] = useState({
     name: '',
     description: '',
-    category: '',
     // Ensure these match your ItemPostRequest DTO on backend
     pricePerDay: '',
     startDate: '',
     endDate: '',
   });
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
@@ -41,9 +32,82 @@ const PostItem = () => {
   const [imageError, setImageError] = useState(null);
   const [imageUploading, setImageUploading] = useState(false);
 
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await API.get("/categories/all");
+        console.log("Categories response:", response.data);
+        
+        // Check if response.data is an array and has the expected structure
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setCategories(response.data);
+        } else {
+          // If API returns empty or unexpected data, use fallback
+          throw new Error("API returned empty or invalid data");
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        // Fallback categories if API fails or returns invalid data
+        const fallbackCategories = [
+          { name: 'Electronics' },
+          { name: 'Books' },
+          { name: 'Furniture' },
+          { name: 'Hostel Essentials' },
+          { name: 'Clothing & Costumes' },
+          { name: 'Sports Equipment' },
+          { name: 'Bicycles' },
+          { name: 'Event Decor' },
+          { name: 'Musical Instruments' },
+          { name: 'Lab Equipment' },
+          { name: 'Mobile Accessories' },
+          { name: 'Kitchenware' },
+          { name: 'Stationery' },
+          { name: 'Others' }
+        ];
+        setCategories(fallbackCategories);
+        console.log("Using fallback categories:", fallbackCategories);
+      }
+    };
+    
+    // For now, let's use fallback categories immediately to ensure all 14 are shown
+    const fallbackCategories = [
+      { name: 'Electronics' },
+      { name: 'Books' },
+      { name: 'Furniture' },
+      { name: 'Hostel Essentials' },
+      { name: 'Clothing & Costumes' },
+      { name: 'Sports Equipment' },
+      { name: 'Bicycles' },
+      { name: 'Event Decor' },
+      { name: 'Musical Instruments' },
+      { name: 'Lab Equipment' },
+      { name: 'Mobile Accessories' },
+      { name: 'Kitchenware' },
+      { name: 'Stationery' },
+      { name: 'Others' }
+    ];
+    setCategories(fallbackCategories);
+    console.log("Setting fallback categories immediately:", fallbackCategories);
+    
+    // Uncomment the line below when you want to fetch from API again
+    // fetchCategories();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCategoryChange = (e) => {
+    const selectedValue = e.target.value;
+    if (selectedValue && !selectedCategories.includes(selectedValue)) {
+      setSelectedCategories(prev => [...prev, selectedValue]);
+    }
+  };
+
+  const removeCategory = (categoryToRemove) => {
+    setSelectedCategories(prev => prev.filter(cat => cat !== categoryToRemove));
   };
 
   const handleImageChange = (e) => {
@@ -85,6 +149,13 @@ const PostItem = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate that at least one category is selected
+    if (selectedCategories.length === 0) {
+      setError("Please select at least one category.");
+      return;
+    }
+    
     setLoading(true);
     setMessage(null);
     setError(null);
@@ -95,7 +166,7 @@ const PostItem = () => {
       const itemToPost = {
         title: form.name,
         description: form.description,
-        category: form.category,
+        categories: selectedCategories,
         pricePerDay: Number(form.pricePerDay),
         startDate: form.startDate,
         endDate: form.endDate,
@@ -169,11 +240,11 @@ const PostItem = () => {
     setForm({
       name: '',
       description: '',
-      category: '',
       pricePerDay: '',
       startDate: '',
       endDate: '',
     });
+    setSelectedCategories([]);
     setImageFile(null);
     setImagePreview(null);
     setLoading(false);
@@ -223,20 +294,62 @@ const PostItem = () => {
             <div className="text-xs text-gray-400 mt-1">Include size, condition, and special notes.</div>
           </div>
           <div>
-            <label htmlFor="category" className="block text-base font-bold text-[#D32F2F] mb-2 uppercase tracking-wide">Category</label>
-            <select
-              id="category"
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              className="w-full border-2 border-gray-300 rounded-xl px-5 py-3 focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] bg-white text-gray-900 text-lg transition-all duration-300"
-              required
-            >
-              <option value="">Select category</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
+            <label className="block text-base font-bold text-[#D32F2F] mb-2 uppercase tracking-wide">Categories</label>
+            
+            {/* Dropdown for selecting categories */}
+            <div className="mb-4">
+              <select
+                onChange={handleCategoryChange}
+                className="w-full border-2 border-gray-300 rounded-xl px-5 py-3 focus:border-[#D32F2F] focus:ring-2 focus:ring-[#D32F2F] bg-white text-gray-900 text-lg transition-all duration-300"
+                defaultValue=""
+              >
+                <option value="">Select a category</option>
+                {categories.map((category) => (
+                  <option 
+                    key={category.name} 
+                    value={category.name}
+                    disabled={selectedCategories.includes(category.name)}
+                  >
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Display selected categories */}
+            {selectedCategories.length > 0 && (
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-[#D32F2F] mb-2 uppercase tracking-wide">Selected Categories:</label>
+                <div className="flex flex-wrap gap-2">
+                  {selectedCategories.map((category) => (
+                    <span
+                      key={category}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[#D32F2F] text-white"
+                    >
+                      {category}
+                      <button
+                        type="button"
+                        onClick={() => removeCategory(category)}
+                        className="ml-2 text-white hover:text-red-200 focus:outline-none"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedCategories.length === 0 && categories.length > 0 && (
+              <p className="text-sm text-gray-500 mt-1">Please select at least one category</p>
+            )}
+            
+            {/* Debug info - remove this later */}
+            <div className="text-xs text-gray-400 mt-1">
+              Debug: {categories.length} categories loaded, {selectedCategories.length} selected
+              <br />
+              Categories: {categories.map(cat => cat.name).join(', ')}
+            </div>
           </div>
           <div>
             <label htmlFor="pricePerDay" className="block text-base font-bold text-[#D32F2F] mb-2 uppercase tracking-wide">Price per day (₹)</label>

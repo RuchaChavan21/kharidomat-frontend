@@ -3,10 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const categories = [
   { name: 'All', icon: '🏠' },
-  { name: 'Furniture', icon: '🛏️' },
   { name: 'Electronics', icon: '💻' },
+  { name: 'Books', icon: '📚' },
+  { name: 'Furniture', icon: '🛏️' },
+  { name: 'Hostel Essentials', icon: '🏠' },
+  { name: 'Clothing & Costumes', icon: '👕' },
+  { name: 'Sports Equipment', icon: '⚽' },
+  { name: 'Bicycles', icon: '🚲' },
+  { name: 'Event Decor', icon: '🎉' },
+  { name: 'Musical Instruments', icon: '🎸' },
+  { name: 'Lab Equipment', icon: '🧪' },
+  { name: 'Mobile Accessories', icon: '📱' },
+  { name: 'Kitchenware', icon: '🍳' },
   { name: 'Stationery', icon: '✏️' },
-  { name: 'Appliances', icon: '🧊' },
   { name: 'Others', icon: '📦' },
 ];
 
