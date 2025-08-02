@@ -4,8 +4,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import API from "../services/api";
 import ProfileCompletionPopup from "../components/ProfileCompletionModal"; // Update the path if needed
-import heroImg from '../assets/mitaoe.jpg'; // Import the same image from About page
-
 
 const Login = () => {
   const { login, isLoggedIn } = useAuth();
@@ -61,21 +59,75 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row font-sans">
-      {/* Left Half – Branding with Background Image */}
-      <div 
-        className="md:w-1/2 w-full flex items-center justify-center px-4 py-20 md:py-0 relative overflow-hidden"
-        style={{
-          backgroundImage: `url(${heroImg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      >
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-[#D32F2F] bg-opacity-30"></div>
-        <h1 className="text-4xl md:text-6xl font-extrabold text-white text-center tracking-wide uppercase relative z-10">
-          KharidoMat
-        </h1>
+      {/* Left Half – Branding with Logo */}
+      <div className="md:w-1/2 w-full flex items-center justify-center px-4 py-20 md:py-0 bg-gradient-to-br from-[#D32F2F] to-[#b71c1c] relative overflow-hidden">
+        {/* Logo and App Name */}
+        <div className="text-center relative z-10">
+          {/* Logo SVG */}
+          <div className="mb-6">
+            <svg 
+              width="120" 
+              height="120" 
+              viewBox="0 0 120 120" 
+              className="mx-auto"
+              fill="none"
+            >
+              {/* Shopping bag icon */}
+              <path 
+                d="M30 40h60v50c0 5.5-4.5 10-10 10H40c-5.5 0-10-4.5-10-10V40z" 
+                fill="white" 
+                stroke="white" 
+                strokeWidth="2"
+              />
+              {/* Bag handles */}
+              <path 
+                d="M35 40c0-8.3 6.7-15 15-15s15 6.7 15 15" 
+                stroke="white" 
+                strokeWidth="2" 
+                fill="none"
+              />
+              <path 
+                d="M55 40c0-8.3 6.7-15 15-15s15 6.7 15 15" 
+                stroke="white" 
+                strokeWidth="2" 
+                fill="none"
+              />
+              {/* Money symbol */}
+              <text 
+                x="60" 
+                y="75" 
+                textAnchor="middle" 
+                fill="#D32F2F" 
+                fontSize="24" 
+                fontWeight="bold"
+              >
+                ₹
+              </text>
+            </svg>
+          </div>
+          
+          {/* App Name */}
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white text-center tracking-wide">
+            Kharido-mat!
+          </h1>
+          
+          {/* Tagline */}
+          <p className="text-white text-lg md:text-xl mt-4 font-medium opacity-90">
+            Campus Rental Marketplace
+          </p>
+          
+          {/* Decorative elements */}
+          <div className="mt-8 flex justify-center space-x-2">
+            <div className="w-3 h-3 bg-white rounded-full opacity-60"></div>
+            <div className="w-3 h-3 bg-white rounded-full opacity-40"></div>
+            <div className="w-3 h-3 bg-white rounded-full opacity-60"></div>
+          </div>
+        </div>
+        
+        {/* Background decorative elements */}
+        <div className="absolute top-10 left-10 w-20 h-20 bg-white opacity-10 rounded-full"></div>
+        <div className="absolute bottom-20 right-10 w-16 h-16 bg-white opacity-10 rounded-full"></div>
+        <div className="absolute top-1/2 left-5 w-12 h-12 bg-white opacity-10 rounded-full"></div>
       </div>
 
       {/* Right Half – Login Box */}
