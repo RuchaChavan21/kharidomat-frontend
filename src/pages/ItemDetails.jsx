@@ -19,8 +19,6 @@ const ItemDetails = () => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [ownerDetails, setOwnerDetails] = useState(null); // <-- ADD THIS
-  const [loadingOwner, setLoadingOwner] = useState(true); // <-- ADD THIS
 
   // Fetch item details
   useEffect(() => {
@@ -48,23 +46,7 @@ const ItemDetails = () => {
     fetchItemDetails();
   }, [itemId]);
 
-  useEffect(() => {
-    if (item?.ownerId) {
-      const fetchOwnerDetails = async () => {
-        setLoadingOwner(true);
-        try {
-          const response = await API.get(`/users/profile/${item.ownerId}`);
-          setOwnerDetails(response.data);
-        } catch (error) {
-          console.error("Failed to fetch owner details:", error);
-          setOwnerDetails(null); // Set to null on error
-        } finally {
-          setLoadingOwner(false);
-        }
-      };
-      fetchOwnerDetails();
-    }
-  }, [item?.ownerId]); // This runs when item.ownerId is available
+
 
 
   // Wishlist check logic (like ItemCard)
@@ -141,50 +123,7 @@ const ItemDetails = () => {
     }
   };
 
-  // In your ItemDetails.jsx file
 
-  const handleStartChat = async () => {
-    if (!isLoggedIn) {
-      alert("Please log in to start a chat!");
-      navigate("/login");
-      return;
-    }
-
-    // Use the ownerDetails state which is already being fetched
-    if (!ownerDetails) {
-      alert("Owner information is still loading or is unavailable for chat.");
-      return;
-    }
-
-    // Check if the current user is trying to chat with themselves
-    if (user?.id === ownerDetails.id) {
-      alert("You cannot chat with yourself.");
-      return;
-    }
-
-    try {
-      // 1. Call your backend to get or create the chat room.
-      // The backend will return a unique chatId for this conversation.
-      const response = await API.post(`/chats/start/${ownerDetails.id}`);
-      const { chatId } = response.data;
-
-      // 2. Navigate to the chat page, PASSING THE STATE.
-      // This sends the necessary info to the chat page.
-      navigate('/chat', {
-        state: {
-          chatId: chatId,
-          recipient: ownerDetails // Pass the full owner object
-        }
-      });
-
-    } catch (error) {
-      console.error("Failed to start chat:", error);
-      const chatErrorMessage =
-        error.response?.data?.message ||
-        "Failed to start chat. Please try again.";
-      alert(chatErrorMessage);
-    }
-  };
 
   // Function for adding to wishlist
 
@@ -394,7 +333,7 @@ const ItemDetails = () => {
                 <svg ... />
               </button> */}
             </div>
-            {/* Price and Rent Now + Chat */}
+            {/* Price and Rent Now */}
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-2">
               <div className="text-2xl font-bold text-[#B9162C]">₹{item.pricePerDay} <span className="text-base font-normal text-gray-500">/ day</span></div>
               <button
@@ -402,12 +341,6 @@ const ItemDetails = () => {
                 className="bg-[#B9162C] text-white font-bold rounded-lg px-8 py-3 shadow hover:bg-[#a01325] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#B9162C] focus:ring-offset-2 w-full sm:w-auto"
               >
                 Rent Now
-              </button>
-              <button
-                onClick={handleStartChat}
-                className="bg-blue-600 text-white font-bold rounded-lg px-8 py-3 shadow hover:bg-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 w-full sm:w-auto"
-              >
-                Chat
               </button>
             </div>
             {/* Short Description */}

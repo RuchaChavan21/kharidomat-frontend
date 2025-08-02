@@ -399,7 +399,7 @@ const PostItem = () => {
                   name="startDate"
                   value={form.startDate}
                   onChange={handleChange}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={new Date().toISOString().split('T')[0]} // <-- This line
                   className="w-full rounded-lg border border-gray-300 px-8 py-2.5 focus:ring-2 focus:ring-red-400 focus:border-red-400 bg-white text-gray-900 text-base transition-all duration-200"
                   required
                 />
