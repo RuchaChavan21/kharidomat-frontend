@@ -142,7 +142,7 @@ const ResetPassword = () => {
           
           {/* App Name */}
           <h1 className="text-4xl md:text-6xl font-extrabold text-white text-center tracking-wide">
-            Kharido-mat!
+            Kharido-Mat!
           </h1>
           
           {/* Tagline */}

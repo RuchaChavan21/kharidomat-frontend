@@ -56,8 +56,36 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    try {
+      if (!token) {
+        console.log('No token available for refreshUser');
+        return;
+      }
+
+      const res = await fetch('http://localhost:8080/api/users/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch user profile');
+      }
+
+      const updatedUser = await res.json();
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      console.log('User profile refreshed successfully:', updatedUser);
+    } catch (err) {
+      console.error('AuthContext refreshUser error:', err.message);
+      // Don't clear user/token on refresh failure, just log the error
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isLoggedIn, token, user, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, token, user, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

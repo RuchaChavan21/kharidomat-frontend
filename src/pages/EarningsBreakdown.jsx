@@ -14,7 +14,7 @@ const EarningsBreakdown = () => {
     const fetchMyListings = async () => {
       try {
         setLoading(true);
-        const res = await API.get("/items/my", {
+        const res = await API.get("/items/my-with-bookings", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -31,16 +31,18 @@ const EarningsBreakdown = () => {
     fetchMyListings();
   }, [token]);
 
-  const calculateEarnings = (bookings, pricePerDay) => {
-    let total = 0;
-    bookings.forEach((b) => {
-      const start = new Date(b.startDate);
-      const end = new Date(b.endDate);
-      const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-      total += days * pricePerDay;
-    });
-    return total;
-  };
+const calculateEarnings = (bookings, pricePerDay) => {
+  let total = 0;
+  bookings.forEach((b) => {
+    const start = new Date(b.startDate);
+    const end = new Date(b.endDate);
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const days = Math.round((end - start) / msPerDay) + 1;
+    total += days * pricePerDay;
+  });
+  return total;
+};
+
 
   const totalEarnings = items.reduce(
     (acc, item) => acc + calculateEarnings(item.bookings || [], item.pricePerDay),
