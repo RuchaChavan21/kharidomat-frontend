@@ -206,7 +206,7 @@ const BookOrRentItem = () => {
 
           } catch (verificationError) {
             console.error("Payment verification or booking failed:", verificationError);
-            setFormError("Payment succeeded, but booking failed. Please contact support.");
+            setFormError("Payment was made but the item was just booked by someone else. A refund will be initiated.");
             setShowPayment(false);
           }
         },
