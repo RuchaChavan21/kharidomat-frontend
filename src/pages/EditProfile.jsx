@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-
 import { useAuth } from '../context/AuthContext';
-
 import { useNavigate, Link } from 'react-router-dom';
-
 import { motion } from 'framer-motion';
+import { FaTimes } from 'react-icons/fa';
 
 
 
@@ -51,6 +49,17 @@ const EditProfile = () => {
     }
 
   }, [user, isLoggedIn, navigate]);
+
+  // Auto-close modal after successful update
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        navigate('/');
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [success, navigate]);
 
 
 
@@ -113,7 +122,7 @@ const EditProfile = () => {
 
 
       setSuccess('Profile updated successfully!');
-
+      
       if (refreshUser) refreshUser();
 
 
@@ -164,27 +173,44 @@ const EditProfile = () => {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center bg-[#fff3f3] px-4 py-8 pt-20 font-sans">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30">
 
       <motion.div
 
-        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 max-h-[90vh] overflow-y-auto"
 
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, scale: 0.95 }}
 
-        animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
 
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
 
       >
 
-        <h2 className="text-3xl font-bold text-center text-red-600 mb-6">Edit Profile</h2>
+        {/* Header with Close Button */}
+        <div className="sticky top-0 bg-white rounded-t-2xl px-6 py-4 flex items-center justify-between border-b border-gray-200">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-red-600">Edit Profile</h2>
+            <p className="text-gray-600 text-sm mt-1">Update your personal information</p>
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="ml-4 p-2 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-full transition-colors duration-200"
+            aria-label="Close modal"
+          >
+            <FaTimes className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Form Content */}
+        <div className="p-6">
+          <div className="border-b border-gray-200 mb-4"></div>
 
 
 
         {error && (
 
-          <div className="bg-red-100 text-red-700 px-4 py-3 rounded-lg mb-4 text-center border border-red-300 font-medium">
+          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm border border-red-200">
 
             {error}
 
@@ -194,25 +220,17 @@ const EditProfile = () => {
 
 
 
-        {success && (
-
-          <div className="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4 text-center border border-green-300 font-medium">
-
-            {success}
-
-          </div>
-
-        )}
 
 
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
 
           {/* 3. Updated field for Full Name */}
 
           <div>
 
-            <label className="block text-gray-700 font-semibold mb-1">Full Name</label>
+            <label className="block text-sm font-semibold text-red-600 uppercase tracking-wide mb-1">Full Name</label>
 
             <input
 
@@ -222,7 +240,7 @@ const EditProfile = () => {
 
               onChange={(e) => setFullName(e.target.value)}
 
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-red-400 focus:border-red-400 bg-white text-gray-900 transition-all duration-200"
 
               required
 
@@ -234,7 +252,7 @@ const EditProfile = () => {
 
           <div>
 
-            <label className="block text-gray-700 font-semibold mb-1">Phone</label>
+            <label className="block text-sm font-semibold text-red-600 uppercase tracking-wide mb-1">Phone</label>
 
             <input
 
@@ -244,7 +262,7 @@ const EditProfile = () => {
 
               onChange={(e) => setPhone(e.target.value)}
 
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-red-400 focus:border-red-400 bg-white text-gray-900 transition-all duration-200"
 
               placeholder="e.g., 9876543210"
 
@@ -258,7 +276,7 @@ const EditProfile = () => {
 
           <div>
 
-            <label className="block text-gray-700 font-semibold mb-1">PRN</label>
+            <label className="block text-sm font-semibold text-red-600 uppercase tracking-wide mb-1">PRN</label>
 
             <input
 
@@ -268,7 +286,7 @@ const EditProfile = () => {
 
               onChange={(e) => setPrn(e.target.value)}
 
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-red-400 focus:border-red-400 bg-white text-gray-900 transition-all duration-200"
 
               placeholder="Enter your PRN"
 
@@ -280,7 +298,7 @@ const EditProfile = () => {
 
           <div>
 
-            <label className="block text-gray-700 font-semibold mb-1">Academic Year</label>
+            <label className="block text-sm font-semibold text-red-600 uppercase tracking-wide mb-1">Academic Year</label>
 
             <input
 
@@ -290,7 +308,7 @@ const EditProfile = () => {
 
               onChange={(e) => setAcademicYear(e.target.value)}
 
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-red-400 focus:border-red-400 bg-white text-gray-900 transition-all duration-200"
 
               placeholder="e.g., Third Year"
 
@@ -302,7 +320,7 @@ const EditProfile = () => {
 
           <div>
 
-            <label className="block text-gray-700 font-semibold mb-1">Email</label>
+            <label className="block text-sm font-semibold text-red-600 uppercase tracking-wide mb-1">Email</label>
 
             <input
 
@@ -312,7 +330,7 @@ const EditProfile = () => {
 
               disabled
 
-              className="w-full px-4 py-2 border bg-gray-100 text-gray-500 cursor-not-allowed rounded-lg"
+              className="w-full rounded-lg border border-gray-300 p-2 bg-gray-100 text-gray-500 cursor-not-allowed transition-all duration-200"
 
             />
 
@@ -320,7 +338,7 @@ const EditProfile = () => {
 
 
 
-          <div className="text-center">
+          <div className="flex justify-center mt-6">
 
             <button
 
@@ -328,7 +346,7 @@ const EditProfile = () => {
 
               disabled={loading}
 
-              className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200"
+              className="bg-red-600 text-white px-6 py-2.5 rounded-lg hover:bg-red-700 transition-all duration-200 font-semibold"
 
             >
 
@@ -352,11 +370,26 @@ const EditProfile = () => {
 
           </div>
 
+          {success && (
+
+            <div className="mt-4 bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm border border-green-200 flex items-center justify-between">
+
+              <span className="flex items-center">
+                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                {success}
+              </span>
+              <span className="text-xs text-green-500">Redirecting...</span>
+
+            </div>
+
+          )}
+
         </form>
-
-      </motion.div>
-
-    </div>
+      </div>
+    </motion.div>
+  </div>
 
   );
 

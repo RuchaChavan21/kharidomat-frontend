@@ -23,13 +23,15 @@ const Settings = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="bg-[#fff3f3] rounded-lg p-5 flex items-center gap-4"
+              className="bg-[#fff3f3] rounded-lg p-5 flex items-center gap-4 cursor-pointer hover:bg-[#ffeaea] transition-colors"
             >
-              <FaUser className="text-[#B9162C] w-6 h-6" />
-              <div>
-                <div className="font-semibold text-[#222]">Account Info</div>
-                <div className="text-gray-500 text-sm">Update your name, email, and profile picture</div>
-              </div>
+              <Link to="/edit-profile" className="flex items-center gap-4 w-full">
+                <FaUser className="text-[#B9162C] w-6 h-6" />
+                <div>
+                  <div className="font-semibold text-[#222]">Account Info</div>
+                  <div className="text-gray-500 text-sm">Update your name, email, and profile picture</div>
+                </div>
+              </Link>
             </motion.div>
 
             <motion.div
