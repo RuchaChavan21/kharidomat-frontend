@@ -68,74 +68,59 @@ const Home = () => {
         GET FLAT 20% OFF ON EACH MONTH'S RENT <span className="font-bold text-[#D32F2F]">VIBE20</span> ! <a href="#" className="underline hover:text-[#D32F2F] transition-colors duration-200 cursor-pointer">Click For More Offers!</a>
       </div>
 
-      {/* Hero Banner */}
-      <section className="relative overflow-hidden min-h-[480px] md:min-h-[540px] flex flex-col md:flex-row items-center justify-between bg-gradient-to-br from-[#D32F2F] via-[#e57373] to-[#fff3f3]" style={{clipPath:'polygon(0 0, 100% 0, 100% 85%, 0 100%)'}}>
-        {/* Left Triangle Graphics */}
-        <div className="absolute left-0 top-0 h-full w-1/3 hidden md:block z-0">
-          <svg width="100%" height="100%" viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="0,0 300,0 0,400" fill="#b71c1c"/>
-            <g opacity="0.7">
-              <polygon points="0,0 60,0 0,80" fill="#fff"/>
-              <polygon points="30,100 90,60 60,180" fill="#fff"/>
-              <polygon points="80,200 120,120 0,220" fill="#fff"/>
-            </g>
-          </svg>
-        </div>
-        {/* Right Square Graphics */}
-        <div className="absolute right-0 top-0 h-full w-1/2 hidden md:block z-0">
-          <svg width="100%" height="100%" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g stroke="#fff" strokeWidth="3">
-              <rect x="40" y="40" width="40" height="40"/>
-              <rect x="120" y="100" width="30" height="30"/>
-              <rect x="200" y="60" width="50" height="50"/>
-              <rect x="300" y="200" width="40" height="40"/>
-              <rect x="350" y="300" width="30" height="30"/>
-            </g>
-          </svg>
-        </div>
+      {/* Hero Banner with Background Video */}
+      <section className="relative overflow-hidden min-h-[100vh] flex flex-col md:flex-row items-center justify-between">
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+          style={{ 
+            filter: 'brightness(0.7) contrast(1.1)',
+            objectPosition: 'center center'
+          }}
+        >
+          <source src="/Kharidomat_is_a_202508121623.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/30 z-10"></div>
+        
         {/* Hero Content */}
-        <div className="relative z-10 flex-1 flex flex-col items-start justify-center px-6 md:px-16 py-12 md:py-24">
-          <div className="flex items-center mb-4">
-            <span className="text-white text-5xl font-bold mr-2">“</span>
-            <h1 className="text-white text-5xl md:text-5xl font-bold leading-tight tracking-tight font-inter">
+        <div className="relative z-20 flex-1 flex flex-col items-start justify-center px-6 md:px-16 py-12 md:py-24">
+          <div className="flex items-center mb-6">
+            <span className="text-white text-4xl md:text-5xl lg:text-6xl font-bold mr-2 drop-shadow-2xl"></span>
+            <h1 className="text-white text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight tracking-tight font-inter drop-shadow-2xl">
               FURNITURE, ELECTRONICS & APPLIANCES ON RENT FOR STUDENTS
             </h1>
-            <span className="text-white text-5xl font-bold ml-2">”</span>
+            <span className="text-white text-4xl md:text-5xl lg:text-6xl font-bold ml-2 drop-shadow-2xl"></span>
           </div>
-          <p className="text-white text-xl md:text-2xl font-semibold mb-8 uppercase tracking-wide">AFFORDABLE. FLEXIBLE. HASSLE-FREE.</p>
+          <p className="text-white text-lg md:text-xl lg:text-2xl font-semibold mb-8 uppercase tracking-wide drop-shadow-lg">
+            AFFORDABLE. FLEXIBLE. HASSLE-FREE.
+          </p>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <button
               onClick={() => navigate('/items')}
-              className="bg-white text-[#D32F2F] font-bold uppercase px-8 py-4 rounded-2xl shadow-xl text-lg tracking-wide border-2 border-[#D32F2F] hover:bg-[#D32F2F] hover:text-white hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer w-full sm:w-auto"
+              className="bg-white text-[#D32F2F] font-bold uppercase px-6 md:px-8 py-3 md:py-4 rounded-2xl shadow-2xl text-base md:text-lg tracking-wide border-2 border-white hover:bg-[#D32F2F] hover:text-white hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer w-full sm:w-auto backdrop-blur-sm bg-white/90"
             >
               Start Renting
             </button>
             <button
               onClick={() => navigate('/post-item')}
-              className="bg-[#D32F2F] text-white font-bold uppercase px-8 py-4 rounded-2xl shadow-xl text-lg tracking-wide border-2 border-[#D32F2F] hover:bg-white hover:text-[#D32F2F] hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer w-full sm:w-auto"
+              className="bg-[#D32F2F] text-white font-bold uppercase px-6 md:px-8 py-3 md:py-4 rounded-2xl shadow-2xl text-base md:text-lg tracking-wide border-2 border-[#D32F2F] hover:bg-white hover:text-[#D32F2F] hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer w-full sm:w-auto backdrop-blur-sm bg-[#D32F2F]/90"
             >
               Post your item
             </button>
           </div>
         </div>
-        {/* Hero Images (layered) */}
-        <div className="relative z-10 flex-1 flex items-end justify-center md:justify-end gap-6 px-6 md:px-16 py-8 md:py-24">
-          {heroSectionImages.map((img, i) => (
-            <motion.img
-              key={i}
-              src={img}
-              alt="Product"
-              className={`rounded-2xl shadow-xl border-4 border-white w-36 h-28 object-cover ${i!==0?'ml-[-24px]':''} transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105`}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.15, duration: 0.6 }}
-              style={{zIndex: 10-i, cursor: 'pointer'}}
-            />
-          ))}
-        </div>
+        
+
       </section>
       {/* Category Section */}
-      <section className="w-full bg-white pt-16 pb-16">
+      <section className="w-full bg-white pt-20 pb-16">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="flex flex-col items-center mb-10">
             <h2 className="text-3xl font-semibold text-gray-800 tracking-tight font-inter">Browse by Category</h2>
