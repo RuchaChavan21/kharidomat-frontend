@@ -59,9 +59,28 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row font-sans">
-      {/* Left Half – Branding with Logo */}
-      <div className="md:w-1/2 w-full flex items-center justify-center px-4 py-20 md:py-0 bg-gradient-to-br from-[#D32F2F] to-[#b71c1c] relative overflow-hidden">
-        {/* Logo and App Name */}
+      {/* Left Half – Video Background */}
+      <div className="md:w-1/2 w-full flex items-center justify-center px-4 py-20 md:py-0 relative overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ 
+            filter: 'brightness(0.7) contrast(1.1)',
+            objectPosition: 'center center'
+          }}
+        >
+          <source src="/Generate_the_video_202508121803.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        
+        {/* Dark overlay for better readability */}
+        <div className="absolute inset-0 bg-black/30"></div>
+        
+        {/* Logo and App Name over video */}
         <div className="text-center relative z-10">
           {/* Logo SVG */}
           <div className="mb-6">
@@ -107,12 +126,12 @@ const Login = () => {
           </div>
           
           {/* App Name */}
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white text-center tracking-wide">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white text-center tracking-wide drop-shadow-2xl">
             Kharido-mat!
           </h1>
           
           {/* Tagline */}
-          <p className="text-white text-lg md:text-xl mt-4 font-medium opacity-90">
+          <p className="text-white text-lg md:text-xl mt-4 font-medium opacity-90 drop-shadow-lg">
             Campus Rental Marketplace
           </p>
           
@@ -123,11 +142,6 @@ const Login = () => {
             <div className="w-3 h-3 bg-white rounded-full opacity-60"></div>
           </div>
         </div>
-        
-        {/* Background decorative elements */}
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white opacity-10 rounded-full"></div>
-        <div className="absolute bottom-20 right-10 w-16 h-16 bg-white opacity-10 rounded-full"></div>
-        <div className="absolute top-1/2 left-5 w-12 h-12 bg-white opacity-10 rounded-full"></div>
       </div>
 
       {/* Right Half – Login Box */}
