@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
-import API from "../services/api"; // +++ ADDED: Import your API service
+import API from "../services/api";
 
 const BookingDetails = () => {
   const { bookingId } = useParams();
@@ -15,13 +15,11 @@ const BookingDetails = () => {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isExtending, setIsExtending] = useState(false);
 
-  // --- MODIFIED: Fetch booking details from the API ---
   const fetchBookingDetails = useCallback(async () => {
     try {
       setIsLoading(true);
       setError("");
-
-      const response = await API.get(`/bookings/${bookingId}`);
+      const response = await API.get(`/bookings/${bookingId}`); // Assuming /api prefix
       setBooking(response.data);
     } catch (err) {
       setError(
@@ -37,7 +35,6 @@ const BookingDetails = () => {
     fetchBookingDetails();
   }, [fetchBookingDetails]);
 
-  // --- MODIFIED: Handle cancellation via API ---
   const handleCancelBooking = async () => {
     if (
       !window.confirm(
@@ -46,15 +43,10 @@ const BookingDetails = () => {
     ) {
       return;
     }
-
     try {
       setIsCancelling(true);
-
-      // Using the /api/bookings/cancel/{id} endpoint
       await API.put(`/bookings/cancel/${bookingId}`);
-
       alert("Booking cancelled successfully!");
-      // Refetch details to update the status
       fetchBookingDetails();
     } catch (err) {
       const errorMessage =
@@ -66,33 +58,24 @@ const BookingDetails = () => {
     }
   };
 
-  // --- MODIFIED: Handle extension via API ---
   const handleExtendBooking = async () => {
     const newEndDateStr = prompt(
       `The current booking ends on ${formatDate(
         booking.endDate
       )}. Please enter the new end date (YYYY-MM-DD):`,
-      booking.endDate.split("T")[0] // Pre-fill with current end date
+      booking.endDate.split("T")[0]
     );
-
-    if (!newEndDateStr) return; // User cancelled the prompt
-
-    // Basic validation
+    if (!newEndDateStr) return;
     if (new Date(newEndDateStr) <= new Date(booking.endDate)) {
       alert("The new end date must be after the current end date.");
       return;
     }
-
     try {
       setIsExtending(true);
-
-      // Using the /api/bookings/extend/{id}?newEndDate=... endpoint
       await API.put(
         `/bookings/extend/${bookingId}?newEndDate=${newEndDateStr}`
       );
-
       alert("Booking extended successfully!");
-      // Refetch details to show updated dates and total amount
       fetchBookingDetails();
     } catch (err) {
       const errorMessage =
@@ -110,7 +93,6 @@ const BookingDetails = () => {
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
-      // Using Indian locale
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -118,7 +100,6 @@ const BookingDetails = () => {
   };
 
   const getStatusIcon = (status) => {
-    // ... (no changes needed in helper functions)
     const icons = {
       ACTIVE: "🟢",
       UPCOMING: "⏳",
@@ -128,7 +109,45 @@ const BookingDetails = () => {
     return icons[status] || "❓";
   };
 
-  // --- UI Logic (Largely unchanged, but now relies on live data) ---
+  // +++ NEW: HELPER FUNCTION TO DISPLAY DEPOSIT STATUS +++
+  const renderDepositStatus = (booking) => {
+    // Don't render anything if there was no deposit or status is missing
+    if (!booking.securityDeposit || !booking.depositStatus) {
+      return null;
+    }
+
+    let statusStyle = "";
+    let statusText = "";
+
+    switch (booking.depositStatus) {
+      case "REFUNDED":
+        statusStyle = "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300";
+        statusText = `✅ Refunded (₹${booking.securityDeposit})`;
+        break;
+      case "FORFEITED":
+        statusStyle = "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300";
+        statusText = `❌ Forfeited (₹${booking.securityDeposit})`;
+        break;
+      case "HELD":
+      default:
+        statusStyle = "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300";
+        statusText = `⏳ Held (₹${booking.securityDeposit})`;
+        break;
+    }
+
+    return (
+      <div>
+        <h3 className="font-semibold text-gray-500 dark:text-gray-400">
+          Security Deposit
+        </h3>
+        <span className={`px-3 py-1 mt-1 inline-block rounded-full text-sm font-medium ${statusStyle}`}>
+          {statusText}
+        </span>
+      </div>
+    );
+  };
+
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
@@ -202,7 +221,7 @@ const BookingDetails = () => {
                   ₹{booking.totalAmount}
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Total ({booking.totalDays} days)
+                  Total Paid
                 </div>
               </div>
             </div>
@@ -213,7 +232,7 @@ const BookingDetails = () => {
               <div className="md:col-span-1">
                 <img
                   src={
-                    booking.item.imageUrl ||
+                    `/items/image/${booking.item.imageUrl}` || // Assuming correct image URL structure
                     "https://via.placeholder.com/400x300?text=Item"
                   }
                   alt={booking.item.name}
@@ -237,9 +256,13 @@ const BookingDetails = () => {
                     Item Owner
                   </h3>
                   <p className="text-lg text-gray-800 dark:text-gray-100">
-                    {booking.owner.name} ({booking.owner.email})
+                    {booking.owner.fullName} ({booking.owner.email})
                   </p>
                 </div>
+
+                {/* +++ ADDED: Display the deposit status here +++ */}
+                {renderDepositStatus(booking)}
+
                 {booking.notes && (
                   <div>
                     <h3 className="font-semibold text-gray-500 dark:text-gray-400">
