@@ -241,6 +241,39 @@ const MyBookings = () => {
     );
   };
 
+  // ADD THIS ENTIRE FUNCTION
+const renderDepositStatus = (booking) => {
+    // Don't render anything if there was no deposit or status is missing
+    if (!booking.securityDeposit || !booking.depositStatus) {
+      return null;
+    }
+
+    let statusStyle = "";
+    let statusText = "";
+
+    switch (booking.depositStatus) {
+      case "REFUNDED":
+        statusStyle = "bg-green-100 text-green-700 border-green-300";
+        statusText = `✅ Deposit Refunded`;
+        break;
+      case "FORFEITED":
+        statusStyle = "bg-red-100 text-red-800 border-red-300";
+        statusText = `❌ Deposit Forfeited`;
+        break;
+      case "HELD":
+      default:
+        statusStyle = "bg-yellow-100 text-yellow-700 border-yellow-300";
+        statusText = `⏳ Deposit Held`;
+        break;
+    }
+
+    return (
+       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${statusStyle}`}>
+         {statusText}
+       </span>
+    );
+};
+
   const getPaymentStatusBadge = (booking) => {
     // Determine payment status based on booking data
     const isPaid = booking.status === 'ACTIVE' || booking.status === 'COMPLETED';
@@ -580,6 +613,7 @@ const MyBookings = () => {
                         <div className="flex gap-2">
                           {getStatusBadge(booking.status)}
                           {getPaymentStatusBadge(booking)}
+                           {renderDepositStatus(booking)}
                         </div>
                         <div className="text-right">
                           <p className="text-sm text-gray-600">Total Amount</p>
