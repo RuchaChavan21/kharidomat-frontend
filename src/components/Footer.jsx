@@ -12,10 +12,10 @@ const Footer = () => {
   };
 
   return (
-    <footer className="w-full bg-[#D32F2F] text-white py-10 px-2 md:px-8 mt-8">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="w-full bg-[#D32F2F] text-white py-10 px-6 md:px-8 mt-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
         {/* Left Section - Logo & Tagline */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 items-center md:items-start">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-2xl font-bold">🎓</span>
             <span className="text-xl font-bold tracking-wide">KharidoMat</span>
@@ -38,10 +38,10 @@ const Footer = () => {
         <div>
           <div className="font-semibold uppercase text-sm mb-4">Quick Links</div>
           <ul className="space-y-2 text-sm">
-            <li><button onClick={() => handleNavigation('/')} className="hover:text-red-200 hover:underline text-left">Home</button></li>
-            <li><button onClick={() => handleNavigation('/items')} className="hover:text-red-200 hover:underline text-left">Items</button></li>
-            <li><button onClick={() => handleNavigation('/my-bookings')} className="hover:text-red-200 hover:underline text-left">My Bookings</button></li>
-            <li><button onClick={() => handleNavigation('/about')} className="hover:text-red-200 hover:underline text-left">About</button></li>
+            <li><button onClick={() => handleNavigation('/')} className="hover:text-red-200 hover:underline w-full md:w-auto text-center md:text-left">Home</button></li>
+            <li><button onClick={() => handleNavigation('/items')} className="hover:text-red-200 hover:underline w-full md:w-auto text-center md:text-left">Items</button></li>
+            <li><button onClick={() => handleNavigation('/my-bookings')} className="hover:text-red-200 hover:underline w-full md:w-auto text-center md:text-left">My Bookings</button></li>
+            <li><button onClick={() => handleNavigation('/about')} className="hover:text-red-200 hover:underline w-full md:w-auto text-center md:text-left">About</button></li>
           </ul>
         </div>
 
@@ -58,7 +58,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Bottom - Copyright */}
       <div className="text-center text-xs text-white/70 mt-8">
         © 2025 KharidoMat. All rights reserved.

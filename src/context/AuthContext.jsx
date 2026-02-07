@@ -32,6 +32,21 @@ export const AuthProvider = ({ children }) => {
       setToken(authToken);
       localStorage.setItem('token', authToken);
 
+      if (authToken === 'DEMO_TOKEN') {
+        const demoUser = {
+          id: 'demo-user-123',
+          name: 'Demo User',
+          email: 'demo@kharidomat.com',
+          role: 'USER',
+          profileCreate: true
+        };
+        setUser(demoUser);
+        localStorage.setItem('user', JSON.stringify(demoUser));
+        console.log('Logged in as Demo User');
+        return;
+      }
+
+      /*
       // Fetch full user profile
       const res = await fetch('http://localhost:8080/api/users/profile', {
         headers: {
@@ -44,6 +59,22 @@ export const AuthProvider = ({ children }) => {
 
       setUser(fullUser);
       localStorage.setItem('user', JSON.stringify(fullUser));
+      */
+
+      // STATIC MODE: Always use demo user
+      const staticUser = {
+        id: 'demo-user-123',
+        name: 'Demo User',
+        fullName: 'Demo User',
+        email: placeholderUser?.email || 'demo@kharidomat.com',
+        role: 'USER',
+        profileCreate: true,
+        phone: '1234567890',
+        prn: 'PRN123456',
+        academicYear: 'Third Year'
+      };
+      setUser(staticUser);
+      localStorage.setItem('user', JSON.stringify(staticUser));
     } catch (err) {
       console.error('AuthContext login error:', err.message);
       setToken(null);
@@ -63,6 +94,12 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
+      if (token === 'DEMO_TOKEN') {
+        console.log('Skipping refresh for Demo User');
+        return;
+      }
+
+      /*
       const res = await fetch('http://localhost:8080/api/users/profile', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -78,6 +115,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
       console.log('User profile refreshed successfully:', updatedUser);
+      */
+      console.log('Skipping refreshUser fetch (Static Mode)');
     } catch (err) {
       console.error('AuthContext refreshUser error:', err.message);
       // Don't clear user/token on refresh failure, just log the error

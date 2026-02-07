@@ -1,11 +1,10 @@
 // src/components/ItemCard.jsx
 
 import React, { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-import { AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import API from "../services/api"; // Ensure this is imported and configured
 
@@ -18,6 +17,8 @@ const ItemCard = ({ item }) => {
   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+
+  const ownerName = item?.owner ? (typeof item.owner === 'object' ? (item.owner.name || item.owner.fullName) : item.owner) : "Unknown";
 
   // checkWishlistStatus and handleWishlistToggle functions remain as they were in the previous correct version.
   // They are correctly using API.get/post and user.email.
@@ -143,9 +144,9 @@ const ItemCard = ({ item }) => {
 
   // --- CRITICAL CHANGE: Image URL Handling ---
   // This will be an empty string if imageName is not present, preventing external calls.
-  const itemImageUrl = item.imageName
+  const itemImageUrl = item.imageUrl || (item.imageName
     ? `http://localhost:8080/api/items/image/${item.imageName}`
-    : "";
+    : "");
 
   return (
     <>
@@ -206,7 +207,7 @@ const ItemCard = ({ item }) => {
             <div className="font-bold text-[#B9162C] text-base mb-2">₹{item.pricePerDay} <span className="font-normal text-xs">per day</span></div>
             <div className="flex items-center justify-between mb-2">
               {item.location && <span className="text-xs text-gray-500 font-medium line-clamp-1">{item.location}</span>}
-              {item.owner && <span className="text-xs text-gray-400 font-medium line-clamp-1">Owner: {item.owner}</span>}
+              {ownerName && <span className="text-xs text-gray-400 font-medium line-clamp-1">Owner: {ownerName}</span>}
             </div>
             {item.rating && (
               <div className="flex items-center mt-1">

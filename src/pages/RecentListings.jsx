@@ -114,7 +114,7 @@ const RecentListings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-12 px-4"> 
+    <div className="min-h-screen bg-white pt-24 pb-12 px-4">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-8 bg-white rounded-xl">
         {/* Header Bar with Title and Back Button */}
         <div className="flex justify-between items-center mb-8">
@@ -150,11 +150,11 @@ const RecentListings = () => {
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
           >
             <AnimatePresence>
-                             {listings.map((item, idx) => {
-                 console.log(`Item ${idx}:`, item); // Debug log for each item
-                 const itemImageUrl = item.imageName
-                   ? `http://localhost:8080/api/items/image/${item.imageName}`
-                   : "https://via.placeholder.com/128x128?text=No+Image";
+              {listings.map((item, idx) => {
+                console.log(`Item ${idx}:`, item); // Debug log for each item
+                const itemImageUrl = item.imageUrl || (item.imageName
+                  ? `http://localhost:8080/api/items/image/${item.imageName}`
+                  : "https://via.placeholder.com/128x128?text=No+Image");
                 return (
                   <motion.div
                     key={item.id}
@@ -172,8 +172,8 @@ const RecentListings = () => {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                                             <h3 className="text-lg font-bold mb-1 text-center truncate w-full">{item.title}</h3>
-                       <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h3 className="text-lg font-bold mb-1 text-center truncate w-full">{item.title}</h3>
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span className="font-semibold text-[#D32F2F]">₹{item.pricePerDay} /day</span>
                         {getStatusBadge(item.status)}
                       </div>

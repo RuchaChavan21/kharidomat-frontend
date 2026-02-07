@@ -69,7 +69,7 @@ const Home = () => {
       </div>
 
       {/* Hero Banner with Background Video */}
-      <section className="relative overflow-hidden min-h-[100vh] flex flex-col md:flex-row items-center justify-between">
+      <section className="relative overflow-hidden min-h-[100dvh] flex flex-col md:flex-row items-center justify-between">
         {/* Background Video */}
         <video
           autoPlay
@@ -77,7 +77,7 @@ const Home = () => {
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover z-0"
-          style={{ 
+          style={{
             filter: 'brightness(0.7) contrast(1.1)',
             objectPosition: 'center center'
           }}
@@ -85,10 +85,10 @@ const Home = () => {
           <source src="/Kharidomat_is_a_202508121623.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        
+
         {/* Dark overlay for better text readability */}
         <div className="absolute inset-0 bg-black/30 z-10"></div>
-        
+
         {/* Hero Content */}
         <div className="relative z-20 flex-1 flex flex-col items-start justify-center px-6 md:px-16 py-12 md:py-24">
           <div className="flex items-center mb-6">
@@ -116,7 +116,7 @@ const Home = () => {
             </button>
           </div>
         </div>
-        
+
 
       </section>
       {/* Category Section */}
@@ -165,11 +165,11 @@ const Home = () => {
       <section className="w-full bg-gradient-to-br from-[#fff3f3] via-white to-[#fff3f3] py-14 px-2 md:px-8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           {[
-            {icon:'🎓', title:'Verified Student Rentals', desc:'Rent safely within your campus — only verified students can rent or post items.'},
-            {icon:'⚡', title:'Instant Bookings & Extensions', desc:'Book items instantly and extend your rental duration with ease.'},
-            {icon:'🔒', title:'Secure Online Payments', desc:'Make secure, verified payments with Razorpay integration.'},
+            { icon: '🎓', title: 'Verified Student Rentals', desc: 'Rent safely within your campus — only verified students can rent or post items.' },
+            { icon: '⚡', title: 'Instant Bookings & Extensions', desc: 'Book items instantly and extend your rental duration with ease.' },
+            { icon: '🔒', title: 'Secure Online Payments', desc: 'Make secure, verified payments with Razorpay integration.' },
           ].map((item, i) => (
-            <motion.div key={item.title} className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center gap-3 border border-[#D32F2F] hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer" initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay:i*0.1}}>
+            <motion.div key={item.title} className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center gap-3 border border-[#D32F2F] hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
               <span className="text-4xl">{item.icon}</span>
               <span className="font-semibold text-lg uppercase text-[#D32F2F] tracking-wide">{item.title}</span>
               <span className="text-gray-600 text-sm text-center leading-relaxed">{item.desc}</span>
@@ -183,9 +183,9 @@ const Home = () => {
           <h2 className="text-3xl font-semibold text-[#D32F2F] text-center tracking-tight font-inter mb-12">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
             {[
-              {icon: ( <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><rect x="8" y="12" width="20" height="14" rx="3"/><rect x="12" y="8" width="12" height="6" rx="2"/></svg> </span> ), title: 'Select what you need', desc: 'Choose from a wide range of rental products.'},
-              {icon: ( <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><circle cx="18" cy="14" r="6"/><rect x="10" y="22" width="16" height="8" rx="4"/></svg> </span> ), title: 'Verify your ID', desc: 'Upload your campus/student ID for verification.'},
-              {icon: ( <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><rect x="8" y="16" width="20" height="12" rx="4"/><path d="M18 16v-4"/><circle cx="18" cy="8" r="2"/></svg> </span> ), title: 'Pay & Relax', desc: 'Complete payment and enjoy hassle-free delivery.'},
+              { icon: (<span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><rect x="8" y="12" width="20" height="14" rx="3" /><rect x="12" y="8" width="12" height="6" rx="2" /></svg> </span>), title: 'Select what you need', desc: 'Choose from a wide range of rental products.' },
+              { icon: (<span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><circle cx="18" cy="14" r="6" /><rect x="10" y="22" width="16" height="8" rx="4" /></svg> </span>), title: 'Verify your ID', desc: 'Upload your campus/student ID for verification.' },
+              { icon: (<span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff3f3] border-2 border-[#D32F2F] mb-4"> <svg width="36" height="36" fill="none" stroke="#D32F2F" strokeWidth="2"><rect x="8" y="16" width="20" height="12" rx="4" /><path d="M18 16v-4" /><circle cx="18" cy="8" r="2" /></svg> </span>), title: 'Pay & Relax', desc: 'Complete payment and enjoy hassle-free delivery.' },
             ].map((step, i) => (
               <div key={step.title} className="bg-[#fff3f3] rounded-2xl shadow-xl p-8 flex flex-col items-center hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer">
                 {step.icon}
@@ -200,14 +200,14 @@ const Home = () => {
       <section className="w-full bg-gradient-to-br from-[#fff3f3] via-white to-[#fff3f3] py-14 px-2 md:px-8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
           {[
-            {icon:'🔁', title:'OTP-Verified Returns', desc:'Return items securely using one-time password verification.'},
-            {icon:'🧑‍🎓', title:'Listed by Students', desc:'All rentals are posted by verified college students only.'},
-            {icon:'❤️', title:'Save to Wishlist', desc:'Add items to your wishlist and access them anytime.'},
-            {icon:'📊', title:'Track Bookings', desc:'View, manage, cancel, or extend your bookings with ease.'}
+            { icon: '🔁', title: 'OTP-Verified Returns', desc: 'Return items securely using one-time password verification.' },
+            { icon: '🧑‍🎓', title: 'Listed by Students', desc: 'All rentals are posted by verified college students only.' },
+            { icon: '❤️', title: 'Save to Wishlist', desc: 'Add items to your wishlist and access them anytime.' },
+            { icon: '📊', title: 'Track Bookings', desc: 'View, manage, cancel, or extend your bookings with ease.' }
           ].map((item, i) => (
-            <motion.div 
-              key={item.title} 
-              className="bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center gap-3 border border-[#D32F2F] hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer" 
+            <motion.div
+              key={item.title}
+              className="bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center gap-3 border border-[#D32F2F] hover:shadow-2xl transition-all duration-300 ease-in-out cursor-pointer"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.1 }}

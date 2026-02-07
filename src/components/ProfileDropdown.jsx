@@ -20,7 +20,7 @@ const ProfileDropdown = () => {
   // Get user info from AuthContext or localStorage
   const name = user?.fullName || user?.name || localStorage.getItem('name') || 'User';
   const email = user?.email || localStorage.getItem('email') || 'user@example.com';
-  
+
   // FIX 1: Use local state for the profile image to allow for immediate UI updates.
   const [profileImage, setProfileImage] = useState('');
 
@@ -94,6 +94,7 @@ const ProfileDropdown = () => {
       const userId = user?.id || localStorage.getItem('userId');
       const token = localStorage.getItem('token');
 
+      /*
       // The browser will automatically set the 'Content-Type' for FormData
       const response = await fetch(`/api/users/${userId}/profile-picture`, {
         method: 'PUT',
@@ -109,6 +110,11 @@ const ProfileDropdown = () => {
       }
 
       const data = await response.json();
+      */
+
+      // STATIC MODE: Simulate successful upload
+      await new Promise(r => setTimeout(r, 1000));
+      const data = { profileImageUrl: URL.createObjectURL(selectedFile) };
 
       if (data.profileImageUrl) {
         // 1. Update localStorage for persistence on page reload
@@ -180,7 +186,7 @@ const ProfileDropdown = () => {
           >
             {/* Caret */}
             <div className="absolute -top-2 right-4 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45"></div>
-            
+
             {/* User Info */}
             <div className="px-6 pt-6 pb-4 border-b border-gray-100 bg-[#fff3f3] rounded-t-xl">
               <div className="flex items-center gap-4 mb-2">
@@ -258,7 +264,7 @@ const ProfileDropdown = () => {
               onChange={handleFileChange}
               className="hidden" // Hide the default input
             />
-            
+
             {/* Custom File Input Button */}
             <button
               onClick={() => fileInputRef.current.click()}
@@ -266,13 +272,13 @@ const ProfileDropdown = () => {
             >
               {selectedFile ? selectedFile.name : 'Click to select a file'}
             </button>
-            
+
             {previewUrl && (
               <div className='flex justify-center mb-4'>
-                 <img src={previewUrl} alt="Preview" className="w-24 h-24 rounded-full object-cover border-2 border-[#B9162C]" />
+                <img src={previewUrl} alt="Preview" className="w-24 h-24 rounded-full object-cover border-2 border-[#B9162C]" />
               </div>
             )}
-            
+
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowEditPicModal(false)}

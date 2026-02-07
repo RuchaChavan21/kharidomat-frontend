@@ -19,6 +19,8 @@ const Chat = () => {
   const [sending, setSending] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef(null);
+  const stompClient = useRef(null);
+
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -30,11 +32,18 @@ const Chat = () => {
     const fetchChats = async () => {
       setLoadingChats(true);
       try {
+        /*
         const res = await fetch('/api/chats', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         setChats(data);
+        */
+        await new Promise(r => setTimeout(r, 500));
+        setChats([
+          { id: 1, otherUserName: 'Rahul Verma', lastMessage: 'Is the calculator still available?', unreadCount: 2 },
+          { id: 2, otherUserName: 'Amit Kumar', lastMessage: 'Thanks for the bike!', unreadCount: 0 }
+        ]);
       } catch (err) {
         setChats([]);
       } finally {
@@ -49,11 +58,18 @@ const Chat = () => {
     const fetchMessages = async () => {
       setLoadingMessages(true);
       try {
+        /*
         const res = await fetch(`http://localhost:8080/api/chats/${selectedChat.id}/messages`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         setMessages(data);
+        */
+        await new Promise(r => setTimeout(r, 300));
+        setMessages([
+          { id: 101, text: 'Hi, is this item available?', senderId: 'other', createdAt: new Date(Date.now() - 3600000).toISOString() },
+          { id: 102, text: 'Yes, it is!', senderId: user?.id, createdAt: new Date(Date.now() - 3500000).toISOString() }
+        ]);
       } catch (err) {
         setMessages([]);
       } finally {
@@ -61,7 +77,7 @@ const Chat = () => {
       }
     };
     fetchMessages();
-  }, [selectedChat, token]);
+  }, [selectedChat, token, user]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -71,18 +87,27 @@ const Chat = () => {
 
   const handleSend = (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedChat || !stompClient.current) return;
+    if (!newMessage.trim() || !selectedChat) return;
 
     const messagePayload = {
-        chatId: selectedChat.chatId,
-        senderId: user.id,
-        recipientId: selectedChat.otherUserId, // Assumes your DTO has otherUserId
-        content: newMessage,
+      chatId: selectedChat.chatId,
+      senderId: user.id,
+      recipientId: selectedChat.otherUserId, // Assumes your DTO has otherUserId
+      content: newMessage,
     };
-    
-    stompClient.current.send("http://localhost:8080/api/app/chat", {}, JSON.stringify(messagePayload));
+
+    /*
+  stompClient.current.send("http://localhost:8080/api/app/chat", {}, JSON.stringify(messagePayload));
+  */
+    console.log('Static mode: message sent', messagePayload);
+    setMessages(prev => [...prev, {
+      id: Date.now(),
+      text: newMessage,
+      senderId: user.id,
+      createdAt: new Date().toISOString()
+    }]);
     setNewMessage('');
-};
+  };
 
   const handleSelectChat = (chat) => {
     setSelectedChat(chat);
@@ -172,7 +197,7 @@ const Chat = () => {
                       transition={{ delay: idx * 0.03 }}
                       className={`flex ${msg.senderId === user?.id ? 'justify-end' : 'justify-start'}`}
                     >
-                      <div className={`rounded-lg px-4 py-2 shadow card max-w-[80%] ${msg.senderId === user?.id ? 'bg-purple-600 text-white ml-auto' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 mr-auto'} transition-colors duration-300`}> 
+                      <div className={`rounded-lg px-4 py-2 shadow card max-w-[80%] ${msg.senderId === user?.id ? 'bg-purple-600 text-white ml-auto' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 mr-auto'} transition-colors duration-300`}>
                         {msg.text}
                       </div>
                       <div className={`text-xs mt-1 ${msg.senderId === user?.id ? 'text-right text-purple-400' : 'text-gray-400 dark:text-gray-500'}`}>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>

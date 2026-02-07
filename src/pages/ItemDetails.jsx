@@ -261,31 +261,37 @@ const ItemDetails = () => {
             className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-center"
           >
             {item.images && item.images.length > 1 ? (
-              <>
-                {/* Simple slider: show selected image large, thumbnails below */}
-                <img
-                  src={item.images[0]}
-                  alt={item.title}
-                  className="w-full max-w-md h-80 object-cover rounded-lg mb-4 shadow"
-                />
-                <div className="flex gap-2 mt-2">
-                  {item.images.map((img, idx) => (
-                    <img
-                      key={idx}
-                      src={img}
-                      alt={`Thumbnail ${idx + 1}`}
-                      className="w-16 h-16 object-cover rounded-lg border border-gray-200 cursor-pointer hover:scale-105 transition-all duration-200"
-                    />
-                  ))}
+              <div className="md:flex-shrink-0 w-full md:w-1/2 relative bg-gray-100 rounded-2xl overflow-hidden shadow-lg border border-gray-100 group">
+                {item.imageUrl || item.imageName ? (
+                  <motion.img
+                    initial={{ scale: 1.1, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.7 }}
+                    src={item.imageUrl || `http://localhost:8080/api/items/image/${item.imageName}`}
+                    alt={item.title}
+                    className="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-700 group-hover:scale-105"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.style.display = 'none'; // Hide broken image
+                      e.target.nextSibling.style.display = 'flex'; // Show fallback
+                    }}
+                  />
+                ) : null}
+                <div className={`absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 ${item.imageUrl || item.imageName ? 'hidden' : 'flex'}`}>
+                  <span className="text-6xl">📦</span>
                 </div>
-              </>
+              </div>
             ) : (
               <>
-                {item.imageName ? (
+                {item.imageUrl || item.imageName ? (
                   <img
-                    src={`http://localhost:8080/api/items/image/${item.imageName}`}
+                    src={item.imageUrl || `http://localhost:8080/api/items/image/${item.imageName}`}
                     alt={item.title}
                     className="w-full max-w-md h-80 object-cover rounded-lg shadow"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'; // Fallback to a placeholder image
+                    }}
                   />
                 ) : (
                   <div className="w-full max-w-md h-80 flex items-center justify-center bg-gray-200 rounded-lg text-5xl text-gray-400">
