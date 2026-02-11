@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import API from '../services/api';
 
 const AuthContext = createContext();
 
@@ -32,22 +33,20 @@ export const AuthProvider = ({ children }) => {
       setToken(authToken);
       localStorage.setItem('token', authToken);
 
-      // Fetch full user profile
-      const res = await fetch('http://localhost:8080/api/users/profile', {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      if (!res.ok) throw new Error('Failed to fetch user profile');
-      const fullUser = await res.json();
+      // Fetch full user profile using API service
+      const response = await API.get('/users/profile');
+      const fullUser = response.data;
 
       setUser(fullUser);
       localStorage.setItem('user', JSON.stringify(fullUser));
     } catch (err) {
       console.error('AuthContext login error:', err.message);
-      setToken(null);
-      setUser(null);
+      // Don't clear token on profile fetch failure - user might still be logged in
+      // Only clear if it's an authentication error
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setToken(null);
+        setUser(null);
+      }
     }
   };
 
@@ -63,17 +62,8 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      const res = await fetch('http://localhost:8080/api/users/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to fetch user profile');
-      }
-
-      const updatedUser = await res.json();
+      const response = await API.get('/users/profile');
+      const updatedUser = response.data;
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       

@@ -3,7 +3,6 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import API from "../services/api";
-import ProfileCompletionPopup from "../components/ProfileCompletionModal"; // Update the path if needed
 
 const Login = () => {
   const { login, isLoggedIn } = useAuth();
@@ -14,35 +13,61 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(""); // State to hold login errors
-  const [showProfilePopup, setShowProfilePopup] = useState(false);
 
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  setError("");
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-  try {
-    const response = await API.post("/users/login", { email, password });
-    const token = response.data;
+    try {
+      const response = await API.post("/users/login", { email, password });
+      
+      // Handle different response formats: string token or object with token property
+      let token = null;
+      if (typeof response.data === 'string') {
+        token = response.data;
+      } else if (response.data?.token) {
+        token = response.data.token;
+      } else if (response.data?.accessToken) {
+        token = response.data.accessToken;
+      } else {
+        token = response.data;
+      }
 
-    if (token) {
-      const placeholderUser = { email }; // Keeps your structure safe
-      await login(placeholderUser, token); // Will fetch full user data
-      console.log('Login successful:', { token });
-    } else {
-      setError("Login failed: An empty token was received.");
+      if (token && token.trim() !== '') {
+        const placeholderUser = { email };
+        await login(placeholderUser, token);
+        console.log('Login successful');
+        // Navigation will happen via useEffect when isLoggedIn changes
+      } else {
+        setError("Login failed: Invalid token received from server.");
+      }
+    } catch (err) {
+      let errorMessage = "Login failed. Please check your credentials.";
+      
+      if (err.response) {
+        // Server responded with error status
+        if (err.response.data) {
+          if (typeof err.response.data === 'string') {
+            errorMessage = err.response.data;
+          } else if (err.response.data.message) {
+            errorMessage = err.response.data.message;
+          } else if (err.response.data.error) {
+            errorMessage = err.response.data.error;
+          }
+        }
+      } else if (err.request) {
+        // Request was made but no response received
+        errorMessage = "Network error. Please check your connection and try again.";
+      }
+      
+      setError(errorMessage);
+      console.error('Login error:', err);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (err) {
-    const errorMessage =
-      err.response?.data?.message ||
-      err.response?.data ||
-      "Login failed. Please check your credentials.";
-    setError(errorMessage);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
 
   const handleGoogleSignIn = () => {

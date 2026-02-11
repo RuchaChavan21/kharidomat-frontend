@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+// Prefer env-based base URL; fall back to local dev backend
+const baseURL =
+  import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8080/api';
+
 const API = axios.create({
-  baseURL: 'https://kharidomatbackend.onrender.com/api', // Replace with your actual backend URL
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -14,6 +18,7 @@ API.interceptors.request.use((config) => {
     '/users/register',
     '/users/login',
     '/users/verify',
+    '/users/complete-registration',
     '/users/forgot-password',
     '/users/reset-password'
   ];

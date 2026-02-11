@@ -15,6 +15,7 @@ import MyBookings from './pages/MyBookings';
 import Wishlist from './pages/Wishlist';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ChatbaseWidget from './components/ChatbaseWidget';
 import PrivateRoute from './components/PrivateRoute';
 import PostItem from './pages/PostItem';
 import BookOrRentItem from './pages/BookItem';
@@ -73,6 +74,7 @@ const App = () => {
                 />
             </Routes>
             <Footer />
+            <ChatbaseWidget />
         </Router>
     );
 };

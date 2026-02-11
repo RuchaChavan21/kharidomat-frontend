@@ -79,9 +79,19 @@ const Register = () => {
       setMessage(`OTP sent to ${formData.email}. Please check your inbox (and spam folder).`);
       setStep(2); // Move to OTP step
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to send OTP. Please ensure the email is valid and try again."
-      );
+      let errorMessage = "Failed to send OTP. Please ensure the email is valid and try again.";
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response.data.error) {
+          errorMessage = err.response.data.error;
+        }
+      } else if (err.request) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -92,12 +102,25 @@ const Register = () => {
     setError("");
     setMessage("");
     try {
-      await API.post("/users/register", { // Re-using the same endpoint for resend
+      await API.post("/users/register", {
         fullName: formData.fullName,
+        email: formData.email, // Include email for resend
       });
-      setMessage("A new OTP has been sent.");
+      setMessage("A new OTP has been sent to your email.");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to resend OTP. Please try again.");
+      let errorMessage = "Failed to resend OTP. Please try again.";
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response.data.error) {
+          errorMessage = err.response.data.error;
+        }
+      } else if (err.request) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +143,19 @@ const Register = () => {
       setMessage("Email verified successfully! You can now set your password and complete registration.");
       setStep(3); // Move to the final step
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid or expired OTP. Please try again.");
+      let errorMessage = "Invalid or expired OTP. Please try again.";
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response.data.error) {
+          errorMessage = err.response.data.error;
+        }
+      } else if (err.request) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -151,10 +186,25 @@ const Register = () => {
         password: formData.password,
         studentId: formData.studentId,
       });
-      alert("Registration successful! You can now log in.");
-      window.location.href = "/login"; // Full page reload to clear state and redirect
+      setMessage("Registration successful! Redirecting to login...");
+      // Wait a moment to show success message, then redirect
+      setTimeout(() => {
+        window.location.href = "/login"; // Full page reload to clear state and redirect
+      }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. This email or Student ID might already be registered.");
+      let errorMessage = "Registration failed. This email or Student ID might already be registered.";
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response.data.error) {
+          errorMessage = err.response.data.error;
+        }
+      } else if (err.request) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
